@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690f427969e5cff4192c1cc4f249a7b7, type: 3}
+  m_Name: J7
+  m_EditorClassIdentifier: 
+  description1: 'You''re in the initial room with the entrance shut and locked above
+    you.
+
+
+    There is an exit to the [west].
+
+
+    What will you do?
+
+
+    Inventory
+
+    Map
+
+    Look
+    at
+
+    Search
+
+    Go'
+  description2: Alternate entrance ooeeooo
+  description3: 
+  currentDescription: 1
+  roomName: J7
+  visited: 1
+  exits:
+  - keyString: west
+    valueRoom: {fileID: 11400000, guid: 990eb76f004a84645832bfa20fda7d29, type: 2}
+  interactableObjectsInRoom: []

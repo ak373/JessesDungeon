@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690f427969e5cff4192c1cc4f249a7b7, type: 3}
+  m_Name: E5
+  m_EditorClassIdentifier: 
+  description: YOU SHALL NOT PASS!
+  description2: 
+  roomName: E5
+  visited: 0
+  exits:
+  - keyString: north
+    valueRoom: {fileID: 11400000, guid: e4beb00b64e64cb4695e4c81485b2c9e, type: 2}
+  - keyString: south
+    valueRoom: {fileID: 11400000, guid: 2dd37bdb0f657174aa0810dd1c8e83a5, type: 2}
+  - keyString: east
+    valueRoom: {fileID: 11400000, guid: 0334d19868158274f800d1cd9bf16b24, type: 2}
+  - keyString: west
+    valueRoom: {fileID: 11400000, guid: b090eba273ddee84daece24402066ce8, type: 2}
+  interactableObjectsInRoom: []

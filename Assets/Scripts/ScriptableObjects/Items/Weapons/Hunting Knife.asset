@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fb41d11bb800954f8c38b8214d678cf, type: 3}
+  m_Name: Hunting Knife
+  m_EditorClassIdentifier: 
+  noun: hunting
+  nome: hunting knife
+  price: 50
+  description: Now THAT'S a knife. Built for combat, the knife will have an easier
+    time finding your enemy's body (+2 bonus).
+  unlocked: 0
+  type: Piercing
+  damage: 5
+  damageDie: 6
+  critMultiplier: 3
+  toHitMod: 2
+  twoHanded: 0

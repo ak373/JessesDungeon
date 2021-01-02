@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e4e3c3da9b61342be409f200b9f2b0, type: 3}
+  m_Name: Town Voices
+  m_EditorClassIdentifier: 
+  noun: voices
+  searchGeneratedItem: {fileID: 0}
+  searched: 0
+  interactions:
+  - inputAction: {fileID: 11400000, guid: 331687644d1c33349829b34111b312f3, type: 2}
+    textResponse:
+    - '"Look at" voices? What''re you gonna do next, search them?'
+    textResponseAlternate:
+    - Sorry, this game does not feature hallucinogens.
+    textPause: []
+    textPauseAlternate: []
+  - inputAction: {fileID: 11400000, guid: 11e107587f6dee644b513eaac9446da4, type: 2}
+    textResponse:
+    - How exactly do you search sound? Come on, now!
+    - Oh this is on me, isn't it? No "listen to" command?... Well we don't have the
+      budget to provide you with EVERY command prompt.
+    textResponseAlternate:
+    - Fine, fine - You search the darkness. There's an elf in front of you. He's
+      wearing a brown tunic, and he has grey hair, and blue eyes -- or grey eyes
+      -- whatever.
+    - Okay you guys can talk to each other now if you want.
+    - You guys are being attacked. There are 7 ogres surrounding you.
+    - ...all right we don't have the budget for that either. You got lucky - this
+      time!
+    textPause: []
+    textPauseAlternate: []

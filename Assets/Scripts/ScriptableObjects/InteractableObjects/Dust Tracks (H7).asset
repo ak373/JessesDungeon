@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e4e3c3da9b61342be409f200b9f2b0, type: 3}
+  m_Name: Dust Tracks (H7)
+  m_EditorClassIdentifier: 
+  noun: tracks
+  searchGeneratedItem: {fileID: 0}
+  searched: 0
+  interactions:
+  - inputAction: {fileID: 11400000, guid: 331687644d1c33349829b34111b312f3, type: 2}
+    textResponse:
+    - While going in and out of all four paths, there are far more foot falls leading
+      westward than any other direction.
+    textResponseAlternate:
+    - While going in and out of all four paths, there are far more foot falls leading
+      westward than any other direction.
+    textPause: []
+    textPauseAlternate: []
+  - inputAction: {fileID: 11400000, guid: 11e107587f6dee644b513eaac9446da4, type: 2}
+    textResponse:
+    - You get down on all fours, and press your cheek against the floor to get the
+      best view of the tracks that you can from the side. Crawling along the floor
+      and swapping floor-cheeks as necessary, you determine that the tracks are certainly
+      tracks made in dust.
+    - After returning to status erectus, you realize you're now wearing the tracks,
+      erasing anything they may have told you. I certainly hope you "looked at" them
+      first!
+    - Totally messing with you. You're dusty but they're still there. It's cool.
+    textResponseAlternate:
+    - Don't push it. You swap the dust that you have on you for dust that is on the
+      floor, and it just so happens to arrange itself in precise order such that
+      the tracks are still there.
+    textPause: []
+    textPauseAlternate: []

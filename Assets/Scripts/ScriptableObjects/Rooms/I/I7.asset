@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690f427969e5cff4192c1cc4f249a7b7, type: 3}
+  m_Name: I7
+  m_EditorClassIdentifier: 
+  description1: 'This room is bare, save for what looks like a dinner [tray] dwelling
+    in a dust-ridden corner.
+
+
+    There is an exit to the [east] and [west].
+
+
+    What
+    will you do?
+
+
+    Inventory
+
+    Map
+
+    Look at
+
+    Search
+
+    Go'
+  description2: 
+  description3: 
+  currentDescription: 1
+  roomName: I7
+  visited: 1
+  exits:
+  - keyString: east
+    valueRoom: {fileID: 11400000, guid: 39c87882ddddcb843af0c21d139cd00f, type: 2}
+  - keyString: west
+    valueRoom: {fileID: 11400000, guid: 2c3646ffde373da4489ed2a908faa760, type: 2}
+  interactableObjectsInRoom:
+  - {fileID: 11400000, guid: 7cca7589d6c4c0b4591939e943e287f9, type: 2}

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e4e3c3da9b61342be409f200b9f2b0, type: 3}
+  m_Name: Skinny Pete
+  m_EditorClassIdentifier: 
+  noun: skinny
+  searchGeneratedItem: {fileID: 0}
+  searched: 0
+  interactions:
+  - inputAction: {fileID: 11400000, guid: 331687644d1c33349829b34111b312f3, type: 2}
+    textResponse:
+    - Skinny Pete seems harmless enough -- eager to make a sale, but not that "sleazy
+      salesman" type.
+    textPause: []
+    textResponseAlternate: []
+    textPauseAlternate: []
+    secondQuestTextResponse: []
+    secondQuestTextPause: []
+    secondQuestTextResponseAlternate: []
+    secondQuestTextPauseAlternate: []
+  - inputAction: {fileID: 11400000, guid: 11e107587f6dee644b513eaac9446da4, type: 2}
+    textResponse:
+    - I really don't think he'd be all right with that -- you've only recently met!
+    textPause: []
+    textResponseAlternate: []
+    textPauseAlternate: []
+    secondQuestTextResponse:
+    - Skinny Pete giggles. "Hey you wanna tickle fight?!"
+    secondQuestTextPause: []
+    secondQuestTextResponseAlternate: []
+    secondQuestTextPauseAlternate: []

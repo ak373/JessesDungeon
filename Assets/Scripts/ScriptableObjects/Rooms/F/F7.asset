@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690f427969e5cff4192c1cc4f249a7b7, type: 3}
+  m_Name: F7
+  m_EditorClassIdentifier: 
+  description1: '[Badger] and [Skinny Pete] stop their conversation and look at you.
+    [Geoff] looks up from his scribblings to nod, and returns to work.
+
+
+    "How''s
+    it goin''?" Badger asks.
+
+
+    Skinny Pete adds, "yeah, like, anything to trade?"
+
+
+    There
+    is an exit to the [east].
+
+
+
+    What will you do?
+
+
+    Inventory
+
+    Map
+
+    Look
+    at
+
+    Search
+
+    Talk to
+
+    Go'
+  description2: 
+  description3: 
+  currentDescription: 1
+  roomName: F7
+  visited: 1
+  exits:
+  - keyString: east
+    valueRoom: {fileID: 11400000, guid: ec590572dca201b4abe28dd899f33913, type: 2}
+  interactableObjectsInRoom:
+  - {fileID: 11400000, guid: 445dd07280ba0dd4db6beb3db3235489, type: 2}
+  - {fileID: 11400000, guid: c144bc04bfdb35e419951a507dc48ab2, type: 2}
+  - {fileID: 11400000, guid: be0ad6892eb388346af75367fce8f146, type: 2}
+  - {fileID: 11400000, guid: bd9c5c028d7ece24ca1b83a58b81593b, type: 2}
+  - {fileID: 11400000, guid: ad8206346acbc7042ae89bf21ff23469, type: 2}

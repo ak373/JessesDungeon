@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e4e3c3da9b61342be409f200b9f2b0, type: 3}
+  m_Name: Dinner Tray
+  m_EditorClassIdentifier: 
+  noun: tray
+  searchGeneratedItem: {fileID: 0}
+  searched: 1
+  interactions:
+  - inputAction: {fileID: 11400000, guid: 331687644d1c33349829b34111b312f3, type: 2}
+    textResponse:
+    - You see a large bowl with a spoon resting inside. On closer inspection... my
+      goodness - this thing is so old the wooden spoon is rusty!
+    textResponseAlternate:
+    - For better or worse, the tray is empty.
+    textPause: []
+    textPauseAlternate: []
+  - inputAction: {fileID: 11400000, guid: 11e107587f6dee644b513eaac9446da4, type: 2}
+    textResponse:
+    - Well, let's see here... there's the bowl. And the spoon which - presumably
+      - was used to eat with.
+    - You pick up the spoon, and brandish it high into the air. You swing it around
+      several times, running battle drills with yourself. "Voosh! voooosh!" You begin
+      to hear the sounds of your glorious blade whizzing through the air; though
+      you soon realize that you were just getting a little too into it and began
+      making sound effects.
+    - You equip the Rusty Wooden Spoon.
+    - You pick up the bowl, and juggle it around in your hand a few times. Fitting
+      your fingers up against the inside walls, you push outward until friction causes
+      the bowl to remain on the end of your hand. Extending your arm furiously, you
+      repel many floating particles of dust which were certainly a choking hazard.
+    - You equip the Soup Bowl.
+    textResponseAlternate:
+    - You've already taken the Soup Bowl and Rusty Wooden Spoon. These things don't
+      just regenerate.
+    - ...Is "wood doesn't grow on trees" too obvious here?
+    textPause:
+    - 1
+    - 0
+    - 2
+    - 0
+    - 3
+    textPauseAlternate:
+    - 0
+    - 0

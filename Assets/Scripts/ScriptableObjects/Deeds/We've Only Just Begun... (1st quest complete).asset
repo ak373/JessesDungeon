@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f423732c90eeee47baf325f66f3f82f, type: 3}
+  m_Name: We've Only Just Begun... (1st quest complete)
+  m_EditorClassIdentifier: 
+  title: We've Only Just Begun...
+  blurb: Wait. What?
+  description: 'So the end is the beginning...? Is the beginning the end?
+
+
+    Moreso
+    than you might think.'
+  achieved: 0
+  parent: {fileID: 0}
