@@ -73,7 +73,6 @@
     <Compile Include="Assets\Scripts\Dialogue.cs" />
     <Compile Include="Assets\Scripts\DialogueManager.cs" />
     <Compile Include="Assets\Scripts\DialogueTrigger.cs" />
-    <Compile Include="Assets\Scripts\DieRoll.cs" />
     <Compile Include="Assets\Scripts\Drop.cs" />
     <Compile Include="Assets\Scripts\Ego.cs" />
     <Compile Include="Assets\Scripts\Equip.cs" />

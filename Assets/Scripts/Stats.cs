@@ -23,6 +23,7 @@ public class Stats : ScriptableObject
     public int toHitMod;
     public int initMod;
     public int currentInit;
+    public string currentAction;
     //public int hotActive;
     //public int dotActive;
     //public bool theCreeperInTheDarkDefeated;

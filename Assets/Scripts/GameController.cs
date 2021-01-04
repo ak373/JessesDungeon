@@ -5,6 +5,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
+//cd c:\Users\Andrew\Desktop\Unity Projects\JDMW
+//git add .
+//git commit -m "commit message"
+//git push
+
+
 public class GameController : MonoBehaviour
 {
     [HideInInspector] public bool enterToContinue;
@@ -116,8 +122,11 @@ public class GameController : MonoBehaviour
         ego.maxHitPoints = 100;
         ego.blueCrystals = 0;
         ego.conversation = 0;
-        //enterToContinueDialogue = false;
-        timeDelay = 1;
+        ego.initMod = 0;
+        ego.currentInit = 0;
+        ego.currentAction = "";
+    //enterToContinueDialogue = false;
+    timeDelay = 1;
         sentences = new Queue<string>();
         pauses = new Queue<int>();
         //ego = Instantiate(ego);
