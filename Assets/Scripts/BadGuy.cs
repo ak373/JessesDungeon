@@ -11,4 +11,5 @@ public class BadGuy : Stats
     public int crystalLootMax;
     [TextArea(2,5)]
     public string battleCry;
+    public GameObject combatSlot;
 }

@@ -11,16 +11,18 @@ public class Combat : MonoBehaviour
     public int testNumber;
 
     public Ego ego;
-    public GameObject arrow, doneArrow;
-    public GameObject[] egoArrowPositions;
+    public GameObject arrow, egoDoneArrow, slot1DoneArrow, slot2aDoneArrow, slot2bDoneArrow, slot3bDoneArrow, slot3cDoneArrow, slotFlank1DoneArrow, slotFlank2DoneArrow;
+    public GameObject[] egoArrowPositions, slot1ArrowPositions, slot2aArrowPositions, slot2bArrowPositions, slot3bArrowPositions, slot3cArrowPositions, slotFlank1ArrowPositions, slotFlank2ArrowPositions;
     public TMP_Text combatWeaponDisplay, combatArmorDisplay, combatShieldDisplay;
     public GameObject slotEgo, slot1, slot2a, slot2b, slot3b, slot3c, slotFlank1, slotFlank2;
+    public TMP_Text name1, name2a, name2b, name3b, name3c, nameFlank1, nameFlank2;
     public TMP_Text curHPEgo, maxHPEgo, curHP1, maxHP1, curHP2a, maxHP2a, curHP2b, maxHP2b, curHP3b, maxHP3b, curHP3c, maxHP3c, curHPFlank1, maxHPFlank1, curHPFlank2, maxHPFlank2;
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
+    BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
     Stats[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
     int currentArrowPosition;
@@ -42,50 +44,70 @@ public class Combat : MonoBehaviour
 
         //populate badguy array
         for (int i = 0; i < numberOfBadGuys; i++) { activeBadGuys[i] = Instantiate(badGuy); }
-        //for (int i = 0; i < numberOfBadGuys; i++) { activeBadGuys[i] = badGuy; }
         for (int j = numberOfBadGuys; j < 4; j++) { activeBadGuys[j] = null; }
 
         //determine proper badguy UI layout
         if (numberOfBadGuys != 2)
         {
             slot1.SetActive(true);
-            curHP1.text = badGuy.currentHitPoints.ToString();
-            maxHP1.text = badGuy.maxHitPoints.ToString();
+            badGuy0 = activeBadGuys[0];
+            badGuy0.combatSlot = slot1;
+            curHP1.text = activeBadGuys[0].currentHitPoints.ToString();
+            maxHP1.text = activeBadGuys[0].maxHitPoints.ToString();
+            name1.text = activeBadGuys[0].nome;
         }
         else
         {
             slot2a.SetActive(true);
-            curHP2a.text = badGuy.currentHitPoints.ToString();
-            maxHP2a.text = badGuy.maxHitPoints.ToString();
+            badGuy0 = activeBadGuys[0];
+            badGuy0.combatSlot = slot2a;
+            curHP2a.text = activeBadGuys[0].currentHitPoints.ToString();
+            maxHP2a.text = activeBadGuys[0].maxHitPoints.ToString();
+            name2a.text = activeBadGuys[0].nome;
             slot2b.SetActive(true);
-            curHP2b.text = badGuy.currentHitPoints.ToString();
-            maxHP2b.text = badGuy.maxHitPoints.ToString();
+            badGuy1 = activeBadGuys[1];
+            badGuy1.combatSlot = slot2b;
+            curHP2b.text = activeBadGuys[1].currentHitPoints.ToString();
+            maxHP2b.text = activeBadGuys[1].maxHitPoints.ToString();
+            name2b.text = activeBadGuys[1].nome;
         }
         if (numberOfBadGuys > 2)
         {
             slot3b.SetActive(true);
-            curHP3b.text = badGuy.currentHitPoints.ToString();
-            maxHP3b.text = badGuy.maxHitPoints.ToString();
+            badGuy1 = activeBadGuys[1];
+            badGuy1.combatSlot = slot3b;
+            curHP3b.text = activeBadGuys[1].currentHitPoints.ToString();
+            maxHP3b.text = activeBadGuys[1].maxHitPoints.ToString();
+            name3b.text = activeBadGuys[1].nome;
             slot3c.SetActive(true);
-            curHP3c.text = badGuy.currentHitPoints.ToString();
-            maxHP3c.text = badGuy.maxHitPoints.ToString();
+            badGuy2 = activeBadGuys[2];
+            badGuy2.combatSlot = slot3c;
+            curHP3c.text = activeBadGuys[2].currentHitPoints.ToString();
+            maxHP3c.text = activeBadGuys[2].maxHitPoints.ToString();
+            name3c.text = activeBadGuys[2].nome;
         }
         if (numberOfBadGuys > 3)
         {
             slotFlank1.SetActive(true);
-            curHPFlank1.text = badGuy.currentHitPoints.ToString();
-            maxHPFlank1.text = badGuy.maxHitPoints.ToString();
+            badGuy3 = activeBadGuys[3];
+            badGuy3.combatSlot = slotFlank1;
+            curHPFlank1.text = activeBadGuys[3].currentHitPoints.ToString();
+            maxHPFlank1.text = activeBadGuys[3].maxHitPoints.ToString();
+            nameFlank1.text = activeBadGuys[3].nome;
         }
         if (numberOfBadGuys > 4)
         {
             slotFlank2.SetActive(true);
-            curHPFlank2.text = badGuy.currentHitPoints.ToString();
-            maxHPFlank2.text = badGuy.maxHitPoints.ToString();
+            badGuy4 = activeBadGuys[4];
+            badGuy4.combatSlot = slotFlank2;
+            curHPFlank2.text = activeBadGuys[4].currentHitPoints.ToString();
+            maxHPFlank2.text = activeBadGuys[4].maxHitPoints.ToString();
+            nameFlank2.text = activeBadGuys[4].nome;
         }
 
         CalculateTurnOrder();
         DisplayTurnOrder();
-        StartCoroutine(ActionSelect());
+        TurnDistributor();
     }
     void CalculateTurnOrder()
     {
@@ -150,9 +172,41 @@ public class Combat : MonoBehaviour
             }
         }
     }
-
-    public IEnumerator ActionSelect()
+    void TurnDistributor()
     {
+        for (int i = 0; i < turnOrder.Length; i++)
+        {
+            if (turnOrder[i] == badGuy0)
+            {               
+                badGuy0.currentAction = BadGuyLogic();
+                StartCoroutine(BadGuyActionSelect(badGuy0));
+            }
+            else if (turnOrder[i] == badGuy1)
+            {
+                badGuy1.currentAction = BadGuyLogic();
+                StartCoroutine(BadGuyActionSelect(badGuy1));
+            }
+            else if (turnOrder[i] == badGuy2)
+            {
+                badGuy2.currentAction = BadGuyLogic();
+                StartCoroutine(BadGuyActionSelect(badGuy2));
+            }
+            else if (turnOrder[i] == badGuy3)
+            {
+                badGuy3.currentAction = BadGuyLogic();
+                StartCoroutine(BadGuyActionSelect(badGuy3));
+            }
+            else if (turnOrder[i] == badGuy4)
+            {
+                badGuy4.currentAction = BadGuyLogic();
+                StartCoroutine(BadGuyActionSelect(badGuy4));
+            }
+            else if (turnOrder[i] == ego) { StartCoroutine(EgoActionSelect()); }
+        }
+    }
+    IEnumerator EgoActionSelect()
+    {
+        arrow.transform.position = egoArrowPositions[0].transform.position;
         arrow.SetActive(true);
         while (true)
         {
@@ -164,8 +218,8 @@ public class Combat : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.DownArrow)) { currentArrowPosition++; }
             else if (Input.GetKeyDown(KeyCode.Return))
             {
-                doneArrow.transform.position = arrow.transform.position;
-                doneArrow.SetActive(true);
+                egoDoneArrow.transform.position = arrow.transform.position;
+                egoDoneArrow.SetActive(true);
                 arrow.SetActive(false);
                 if (currentArrowPosition == 0)
                 {
@@ -196,7 +250,80 @@ public class Combat : MonoBehaviour
             }
         }
     }
+    IEnumerator BadGuyActionSelect(BadGuy badGuy)
+    {
+        if (badGuy.combatSlot == slot1) { arrow.transform.position = slot1ArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slot2a) { arrow.transform.position = slot2aArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slot2b) { arrow.transform.position = slot2bArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slot3b) { arrow.transform.position = slot3bArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slot3c) { arrow.transform.position = slot3cArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slotFlank1) { arrow.transform.position = slotFlank1ArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slotFlank2) { arrow.transform.position = slotFlank2ArrowPositions[0].transform.position; }
+        arrow.SetActive(true);
 
+        int howManyMoves = 0;
+        int currentArrowPosition = 0;
+        if (badGuy.currentAction == "Attack") { howManyMoves = 0; }
+        else if (badGuy.currentAction == "Defend") { howManyMoves = 1; }
+        else if (badGuy.currentAction == "Delay") { howManyMoves = 2; }
+        else if (badGuy.currentAction == "Inventory") { howManyMoves = 3; }
+        yield return new WaitForSeconds(.5f);
+        while (howManyMoves != 0)
+        {
+            howManyMoves--;
+            currentArrowPosition++;
+            if (badGuy.combatSlot == slot1) { arrow.transform.position = slot1ArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slot2a) { arrow.transform.position = slot2aArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slot2b) { arrow.transform.position = slot2bArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slot3b) { arrow.transform.position = slot3bArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slot3c) { arrow.transform.position = slot3cArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slotFlank1) { arrow.transform.position = slotFlank1ArrowPositions[currentArrowPosition].transform.position; }
+            else if (badGuy.combatSlot == slotFlank2) { arrow.transform.position = slotFlank2ArrowPositions[currentArrowPosition].transform.position; }
+            yield return new WaitForSeconds(.5f);
+        }
+        if (badGuy.combatSlot == slot1)
+        {
+            slot1DoneArrow.transform.position = arrow.transform.position;
+            slot1DoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slot2a)
+        {
+            slot2aDoneArrow.transform.position = arrow.transform.position;
+            slot2aDoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slot2b)
+        {
+            slot2bDoneArrow.transform.position = arrow.transform.position;
+            slot2bDoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slot3b)
+        {
+            slot3bDoneArrow.transform.position = arrow.transform.position;
+            slot3bDoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slot3c)
+        {
+            slot3cDoneArrow.transform.position = arrow.transform.position;
+            slot3cDoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slotFlank1)
+        {
+            slotFlank1DoneArrow.transform.position = arrow.transform.position;
+            slotFlank1DoneArrow.SetActive(true);
+        }
+        else if (badGuy.combatSlot == slotFlank2)
+        {
+            slotFlank2DoneArrow.transform.position = arrow.transform.position;
+            slotFlank2DoneArrow.SetActive(true);
+        }
+        arrow.SetActive(false);
+    }
+    string BadGuyLogic()
+    {
+        return "Inventory";
+    }
+
+    bool ActionSelected() { return Input.GetKeyDown(KeyCode.Return); }
 
 
 
