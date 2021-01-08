@@ -48,10 +48,10 @@ public class DebugMode : MonoBehaviour
         else if (userInput == "say my name" && controller.debugMode)
         {
             controller.textInput.textIsGood = true;
-            controller.ego.maxHitPoints = 125000;
-            controller.ego.currentHitPoints = 125000;
-            controller.ego.armorClass = 125000;
-            controller.ego.damage = 125000;
+            controller.ego.allStats[2].value = 125000;
+            controller.ego.allStats[0].value = 125000;
+            controller.ego.allStats[3].value = 125000;
+            controller.ego.allStats[7].value = 125000;
             controller.DisplayNarratorResponse("Beetlejuice Beetlejuice BEETLEJUICE!");
         }
         else if (userInput == "tread lightly" && controller.debugMode)

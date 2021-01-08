@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13aea07fff8a60848bc5dbf7e2a32ce2, type: 3}
+  m_Name: Ego
+  m_EditorClassIdentifier: 
+  nome: Ego
+  allStats:
+  - {fileID: 11400000, guid: d21e0c21411f92147a2aabf8a778c90a, type: 2}
+  - {fileID: 11400000, guid: 6880f16464d08564785b1f03b8c3e930, type: 2}
+  - {fileID: 11400000, guid: 1e9963c2140050b4c8a031774bbf302e, type: 2}
+  - {fileID: 11400000, guid: b069b6d0b86dfd941ac3b3b071340b35, type: 2}
+  - {fileID: 11400000, guid: bfb61d7afeba5f849b5a6f46e90912ae, type: 2}
+  - {fileID: 11400000, guid: df279b8375492324b990cc1c94bb0851, type: 2}
+  - {fileID: 11400000, guid: 4d20a8d924dfa00479c4a2be5e9aea34, type: 2}
+  - {fileID: 11400000, guid: a29334e19969ee443a93cb11d54794e8, type: 2}
+  - {fileID: 11400000, guid: cf6fbe7c19d4fe24eb4c842495f86dee, type: 2}
+  - {fileID: 11400000, guid: 21d925f3fcfbeb64bb0f96b05b4e7006, type: 2}
+  - {fileID: 11400000, guid: 6115792de88994042abeb7b4df25a72b, type: 2}
+  activeEffects: []
+  equippedArmor: {fileID: 0}
+  equippedWeapon: {fileID: 0}
+  equippedShield: {fileID: 0}
+  currentInit: 11
+  currentAction: Delay
+  blueCrystals: 0
+  fightClubRank: 0
+  conversation: 0
+  fleeLocation: 
+  bankedCrystals: 0

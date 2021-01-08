@@ -105,7 +105,7 @@ public class NPCTalk : MonoBehaviour
                         }
                         yield return new WaitUntil(controller.EnterPressed);
                         controller.ego.blueCrystals = controller.ego.blueCrystals - 3;
-                        controller.ego.currentHitPoints = controller.ego.maxHitPoints;
+                        controller.ego.allStats[0].value = controller.ego.allStats[2].value + controller.ego.allStats[2].effectValue;
                         controller.LockInputForEnter();
                         controller.AddToMainWindowWithLine("\"Don't you look like a million bucks? Now - up and at them!\"\n\n\nPress ENTER to continue.");
                         while (true)

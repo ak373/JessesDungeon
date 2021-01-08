@@ -67,6 +67,8 @@
     <Compile Include="Assets\Scripts\AdditionalNarrations.cs" />
     <Compile Include="Assets\Scripts\Armor.cs" />
     <Compile Include="Assets\Scripts\BadGuy.cs" />
+    <Compile Include="Assets\Scripts\BadGuyCombatActions.cs" />
+    <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\Combat.cs" />
     <Compile Include="Assets\Scripts\DebugMode.cs" />
     <Compile Include="Assets\Scripts\Deed.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Assets\Scripts\DialogueManager.cs" />
     <Compile Include="Assets\Scripts\DialogueTrigger.cs" />
     <Compile Include="Assets\Scripts\Drop.cs" />
+    <Compile Include="Assets\Scripts\Effect.cs" />
     <Compile Include="Assets\Scripts\Ego.cs" />
     <Compile Include="Assets\Scripts\Equip.cs" />
     <Compile Include="Assets\Scripts\Exit.cs" />
@@ -100,7 +103,7 @@
     <Compile Include="Assets\Scripts\Saerch.cs" />
     <Compile Include="Assets\Scripts\SecondQuest.cs" />
     <Compile Include="Assets\Scripts\Shield.cs" />
-    <Compile Include="Assets\Scripts\Stats.cs" />
+    <Compile Include="Assets\Scripts\Stat.cs" />
     <Compile Include="Assets\Scripts\TalkTo.cs" />
     <Compile Include="Assets\Scripts\TeleType.cs" />
     <Compile Include="Assets\Scripts\TextInput.cs" />

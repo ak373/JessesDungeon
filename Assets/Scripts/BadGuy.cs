@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Jesse's Dungeon/Characters/BadGuy")]
-public class BadGuy : Stats
+public class BadGuy : Character
 {
     public List<Item> itemLoot = new List<Item>();
     public Potion[] potionBelt;
@@ -11,5 +11,8 @@ public class BadGuy : Stats
     public int crystalLootMax;
     [TextArea(2,5)]
     public string battleCry;
-    public GameObject combatSlot;
+    [HideInInspector] public GameObject combatSlot;
+    public string specialAbility;
+    [HideInInspector] public string pendingAction;
+    public BadGuyCombatActions[] normalAIRay;
 }

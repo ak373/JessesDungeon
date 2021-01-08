@@ -118,11 +118,22 @@ public class GameController : MonoBehaviour
         ego.equippedWeapon = null;
         ego.equippedArmor = null;
         ego.equippedShield = null;
-        ego.currentHitPoints = 100;
-        ego.maxHitPoints = 100;
+        ego.allStats[0].value = 100;
+        ego.allStats[1].value = 100;
+        ego.allStats[2].value = 100;
+        ego.allStats[3].value = 0;
+        ego.allStats[0].value = 1;
+        ego.allStats[0].value = 0;
+        ego.allStats[0].value = 4;
+        ego.allStats[0].value = 0;
+        ego.allStats[0].value = 1.5f;
+        ego.allStats[0].value = 0;
+        ego.allStats[0].value = 0;
         ego.blueCrystals = 0;
+        ego.bankedCrystals = 0;
+        ego.fightClubRank = 0;
+        ego.fleeLocation = "";
         ego.conversation = 0;
-        ego.initMod = 0;
         ego.currentInit = 0;
         ego.currentAction = "";
     //enterToContinueDialogue = false;
@@ -131,6 +142,20 @@ public class GameController : MonoBehaviour
         pauses = new Queue<int>();
         //ego = Instantiate(ego);
     }
+
+    // Stat elements in character arrays
+    //
+    // CurrentHP = allStats[0]
+    // TargetHP = allStats[1]
+    // MaxHP = allStats[2]
+    // ArmorClass = allStats[3]
+    // CritResist = allStats[4]
+    // DamageReduction = allStats[5]
+    // DamageDie = allStats[6]
+    // Damage = allStats[7]
+    // CritMultiplier = allStats[8]
+    // ToHitMod = allStats[9]
+    // InitMod = allStats[10]
 
     private void Start()
     {
@@ -547,33 +572,47 @@ public class GameController : MonoBehaviour
         if (ego.equippedWeapon != null) { interactableItems.inventory.Add(ego.equippedWeapon); }
         interactableItems.inventory.Remove(newWeapon);
         ego.equippedWeapon = newWeapon;
+        ego.allStats[6].value = ego.equippedWeapon.damageDie;
+        ego.allStats[7].value = ego.equippedWeapon.damage;
+        ego.allStats[8].value = ego.equippedWeapon.critMultiplier;
     }
     public void GetDressed(Armor newArmor)
     {
         if (ego.equippedArmor != null) { interactableItems.inventory.Add(ego.equippedArmor); }
         interactableItems.inventory.Remove(newArmor);
         ego.equippedArmor = newArmor;
+        ego.allStats[5].value = ego.equippedArmor.damageReduction;
+        ego.allStats[4].value -= (1 - ego.equippedArmor.critResist);
     }
     public void GetStrapped(Shield newShield)
     {
         if (ego.equippedShield != null) { interactableItems.inventory.Add(ego.equippedShield); }
         interactableItems.inventory.Remove(newShield);
         ego.equippedShield = newShield;
+        ego.allStats[3].value = ego.equippedShield.armorClass;
+        ego.allStats[4].value -= (1 - ego.equippedShield.critResist);
     }
     public void GetUnEquipped()
     {
         interactableItems.inventory.Add(ego.equippedWeapon);
         ego.equippedWeapon = null;
+        ego.allStats[6].value = 4;
+        ego.allStats[7].value = 0;
+        ego.allStats[8].value = 1.5f;
     }
     public void GetUnDressed()
     {
         interactableItems.inventory.Add(ego.equippedArmor);
         ego.equippedArmor = null;
+        ego.allStats[5].value = 0;
+        ego.allStats[4].value += (1 - ego.equippedArmor.critResist);
     }
     public void GetUnStrapped()
     {
         interactableItems.inventory.Add(ego.equippedShield);
         ego.equippedShield = null;
+        ego.allStats[3].value = 0;
+        ego.allStats[4].value += (1 - ego.equippedShield.critResist);
     }
     public void GetStripped()
     {
@@ -605,12 +644,6 @@ public class GameController : MonoBehaviour
         }
         return null;
     }
-    //public void DropItemCheck(Item item)
-    //{
-    //    currentActiveInput = "yesnodrop";
-    //    droppingItem = item;
-    //    OpenPopUpWindow("Drop " + item.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
-    //}
     public void InitiateDropItem(Item itemToDrop) { StartCoroutine(DropItem(itemToDrop)); }
     IEnumerator DropItem(Item itemToDrop)
     {
@@ -648,17 +681,6 @@ public class GameController : MonoBehaviour
             else { AddToMainWindow("\n\nWe don't need a filibuster."); }
         }
     }
-    //public void DropItem(Item itemToDrop)
-    //{
-    //    if (!interactableItems.inventory.Contains(itemToDrop))
-    //    {
-    //        if (ego.equippedArmor == itemToDrop) { ego.equippedArmor = null; }
-    //        else if (ego.equippedWeapon == itemToDrop) { ego.equippedWeapon = null; }
-    //        else if (ego.equippedShield == itemToDrop) { ego.equippedShield = null; }
-    //    }
-    //    else { interactableItems.inventory.Remove(itemToDrop); }
-    //    DisplayNarratorResponse("You drop the " + itemToDrop.nome + ".");
-    //}
 
     void PrepareInteractablesInRoom(Room currentRoom)
     {
@@ -899,41 +921,47 @@ public class GameController : MonoBehaviour
         else { equippedArmor.text = "None"; }
         if (ego.equippedShield != null) { equippedShield.text = ego.equippedShield.nome; }
         else { equippedShield.text = "None"; }
-        currentHP.text = ego.currentHitPoints.ToString() + "/" + ego.maxHitPoints.ToString();
-
-        //equipment mods in and around null issues. needs status effects added
-        if (ego.equippedWeapon != null)
-        {
-            ego.damage = ego.equippedWeapon.damage;
-            ego.damageDie = ego.equippedWeapon.damageDie;
-            ego.critMultiplier = ego.equippedWeapon.critMultiplier;
-        }
-        else
-        {
-            ego.damage = 0;
-            ego.damageDie = 4;
-            ego.critMultiplier = 1;
-        }
-        if (ego.equippedArmor != null) { ego.damageReduction = ego.equippedArmor.damageReduction; }
-        else { ego.damageReduction = 0; }
-        if (ego.equippedShield != null) { ego.armorClass = ego.equippedShield.armorClass; }
-        else { ego.armorClass = 0; }
-        if (ego.equippedArmor != null || ego.equippedShield != null)
-        {
-            if (ego.equippedArmor == null) { ego.critResist = ego.equippedShield.critResist; }
-            else if (ego.equippedShield == null) { ego.critResist = ego.equippedArmor.critResist; }
-            else { ego.critResist = ego.equippedArmor.critResist - (1 - ego.equippedShield.critResist); }
-        }
-        else { ego.critResist = 1; }
+        currentHP.text = ego.allStats[0].value.ToString() + "/" + ego.allStats[2].value.ToString();
 
         //inventory stats display
-        invDisplayDamage.text = "1d" + ego.damageDie + " +" + ego.damage;
-        invDisplayCritical.text = "x" + ego.critMultiplier;
-        if (ego.toHitMod >= 0) { invDisplayToHit.text = "+" + ego.toHitMod; }
-        else { invDisplayToHit.text = ego.toHitMod.ToString(); }
-        invDisplayArmorClass.text = ego.armorClass.ToString();
-        invDisplayCritResist.text = "x" + ego.critResist;
-        invDisplayDmgReduction.text = "-" + ego.damageReduction;
+        //damage
+        if (ego.allStats[6].effectValue > 0) { invDisplayDamage.text = $"1d{ego.allStats[6].value} +{ego.allStats[7].value} <color=green>+{ego.allStats[7].effectValue}</color>"; }
+        else if (ego.allStats[6].effectValue < 0) { invDisplayDamage.text = $"1d{ego.allStats[6].value} +{ego.allStats[7].value} <color=red>{ego.allStats[7].effectValue}</color>"; }
+        else { invDisplayDamage.text = $"1d{ego.allStats[6].value} +{ego.allStats[7].value}"; }
+
+        //critMultiplier
+        if (ego.allStats[8].effectValue > 0) { invDisplayCritical.text = "x" + ego.allStats[8].value + $" <color=green>+{ego.allStats[8].effectValue}</color>"; }
+        else if (ego.allStats[8].effectValue < 0) { invDisplayCritical.text = "x" + ego.allStats[8].value + $" <color=red>{ego.allStats[8].effectValue}</color>"; }
+        else { invDisplayCritical.text = "x" + ego.allStats[8].value; }
+        
+        //toHitMod
+        if (ego.allStats[9].value >= 0)
+        {
+            if (ego.allStats[9].effectValue > 0) { invDisplayToHit.text = "+" + ego.allStats[9].value + $" <color=green>+{ego.allStats[9].effectValue}</color>"; }
+            else if (ego.allStats[9].effectValue < 0) { invDisplayToHit.text = "+" + ego.allStats[9].value + $" <color=red>{ego.allStats[9].effectValue}</color>"; }
+            else { invDisplayToHit.text = "+" + ego.allStats[9].value; }
+        }
+        else if (ego.allStats[9].value < 0)
+        {
+            if (ego.allStats[9].effectValue > 0) { invDisplayToHit.text = ego.allStats[9].value + $" <color=green>+{ego.allStats[9].effectValue}</color>"; }
+            else if (ego.allStats[9].effectValue < 0) { invDisplayToHit.text = ego.allStats[9].value + $" <color=red>{ego.allStats[9].effectValue}</color>"; }
+            else { invDisplayToHit.text = ego.allStats[9].value.ToString(); }
+        }
+
+        //armorClass
+        if (ego.allStats[3].effectValue > 0) { invDisplayArmorClass.text = ego.allStats[3].value + $" <color=green>+{ego.allStats[3].effectValue}</color>"; }
+        else if (ego.allStats[3].effectValue < 0) { invDisplayArmorClass.text = ego.allStats[3].value + $" <color=red>{ego.allStats[3].effectValue}</color>"; }
+        else { invDisplayArmorClass.text = ego.allStats[3].value.ToString(); }
+
+        //critResist
+        if (ego.allStats[4].effectValue > 0) { invDisplayCritResist.text = "x" + ego.allStats[4].value + $" <color=green>+{ego.allStats[4].effectValue}</color>"; }
+        else if (ego.allStats[4].effectValue < 0) { invDisplayCritResist.text = "x" + ego.allStats[4].value + $" <color=red>{ego.allStats[4].effectValue}</color>"; }
+        else { invDisplayCritResist.text = "x" + ego.allStats[4].value; }
+
+        //dmgReduction
+        if (ego.allStats[5].effectValue > 0) { invDisplayDmgReduction.text = "-" + ego.allStats[5].value + $" <color=green>-{ego.allStats[5].effectValue}</color>"; }
+        else if (ego.allStats[5].effectValue < 0) { invDisplayDmgReduction.text = "+" + ego.allStats[5].value + $" <color=red>+{Mathf.Abs(ego.allStats[5].effectValue)}</color>"; }
+        else { invDisplayDmgReduction.text = "-" + ego.allStats[5].value; }
 
         //low HP color change
         if (fireTheColor)
@@ -958,12 +986,12 @@ public class GameController : MonoBehaviour
                 colorItRed = true;
             }
         }
-        if (ego.currentHitPoints <= .1 * ego.maxHitPoints) { fireTheColor = true; }
-        else if (ego.currentHitPoints <= .25 * ego.maxHitPoints) { currentHP.color = Color.red; }
-        else if (ego.currentHitPoints <= .5 * ego.maxHitPoints) { currentHP.color = orange; }
-        else if (ego.currentHitPoints <= .75 * ego.maxHitPoints) { currentHP.color = Color.yellow; }
-        else if (ego.currentHitPoints > .75 * ego.maxHitPoints) { currentHP.color = Color.white; }
-        if (ego.currentHitPoints > .1 * ego.maxHitPoints) { fireTheColor = false; }
+        if (ego.allStats[0].value <= (.1 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { fireTheColor = true; }
+        else if (ego.allStats[0].value <= (.25 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = Color.red; }
+        else if (ego.allStats[0].value <= (.5 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = orange; }
+        else if (ego.allStats[0].value <= (.75 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = Color.yellow; }
+        else if (ego.allStats[0].value > (.75 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = Color.white; }
+        if (ego.allStats[0].value > (.1 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { fireTheColor = false; }
 
         if (enterToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
         {

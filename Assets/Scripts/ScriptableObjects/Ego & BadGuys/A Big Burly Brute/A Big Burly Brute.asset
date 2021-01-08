@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e0a777cd7097e245a76dcc7a8f7d98c, type: 3}
+  m_Name: A Big Burly Brute
+  m_EditorClassIdentifier: 
+  nome: A Big Burly Brute
+  allStats:
+  - {fileID: 11400000, guid: daa366e5917a7ae4db068ffb47ac64dd, type: 2}
+  - {fileID: 11400000, guid: c153f7e6c75d1cc43b3ce6bc5cbe0fd7, type: 2}
+  - {fileID: 11400000, guid: 8f80e4cd47e85ed4997adf19ede374d4, type: 2}
+  - {fileID: 11400000, guid: 92dec2b8871e72645925cdb02af2f4b7, type: 2}
+  - {fileID: 11400000, guid: 46a6dccbf0546cd47af088fe64ff42a8, type: 2}
+  - {fileID: 11400000, guid: 9c5ccd301445dc549a2a84ceb4a45b3b, type: 2}
+  - {fileID: 11400000, guid: 3ffe1b445004ee644a95c11249feb560, type: 2}
+  - {fileID: 11400000, guid: 406d2b82dd75aed4ca3598ebe3137785, type: 2}
+  - {fileID: 11400000, guid: 22ba6d86c77509d4da309158fb872456, type: 2}
+  - {fileID: 11400000, guid: cda4efddca7382848b663dc740b0187c, type: 2}
+  - {fileID: 11400000, guid: 908453400773e6f48b8c0596c7994bc9, type: 2}
+  activeEffects: []
+  equippedArmor: {fileID: 11400000, guid: e65a6f7c96196a849acb157271ffdd3e, type: 2}
+  equippedWeapon: {fileID: 11400000, guid: 0bac9ea53d31ce040a3ff2d384341d6c, type: 2}
+  equippedShield: {fileID: 0}
+  currentInit: 0
+  currentAction: 
+  itemLoot:
+  - {fileID: 11400000, guid: 0bac9ea53d31ce040a3ff2d384341d6c, type: 2}
+  potionBelt:
+  - {fileID: 11400000, guid: c68516a14b9be0946af42e53876c2f9c, type: 2}
+  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
+  crystalLootMin: 10
+  crystalLootMax: 20
+  battleCry: A Big, Burly Brute grunts as he charges at you with a club!
+  combatSlot: {fileID: 0}
+  specialAbility: Brutalize
+  pendingAction: 
+  normalAIRay:
+  - {fileID: 11400000, guid: 8bc320d982df0be48a6b99eca5587967, type: 2}
+  - {fileID: 11400000, guid: 22d3a65563971e64b973fe26f20ce8ed, type: 2}
+  - {fileID: 11400000, guid: 80153403af3da7c46b27adfad01fd5e7, type: 2}

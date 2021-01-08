@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e0a777cd7097e245a76dcc7a8f7d98c, type: 3}
+  m_Name: A Bold Yet Discretionary Strategist
+  m_EditorClassIdentifier: 
+  nome: A Bold Yet Discretionary Strategist
+  allStats:
+  - {fileID: 11400000, guid: fdb82d1bfb838e04e9cbd2565a73e6ab, type: 2}
+  - {fileID: 11400000, guid: 2d870a436af203f4d9b4d5e523b1ad41, type: 2}
+  - {fileID: 11400000, guid: 1d8085f3b21f30e4c8d8e57f31b86462, type: 2}
+  - {fileID: 11400000, guid: 6656b331c36653543964accb92f1f121, type: 2}
+  - {fileID: 11400000, guid: b5d7b66906c8f674ea29ad52b1199de5, type: 2}
+  - {fileID: 11400000, guid: 897e42e8617eef54b8f5ce5e2de54e74, type: 2}
+  - {fileID: 11400000, guid: 4d0fd1cd956ffcb4e85cd68b145f8dbb, type: 2}
+  - {fileID: 11400000, guid: 7903235dac1f4e540bf93c9b2cd62cf5, type: 2}
+  - {fileID: 11400000, guid: bcec25640844d2e4f99439dabab0af23, type: 2}
+  - {fileID: 11400000, guid: a4cc906c692a97f41a41d2497464af16, type: 2}
+  - {fileID: 11400000, guid: 25b44d7791369444893fe340b16d812c, type: 2}
+  activeEffects: []
+  equippedArmor: {fileID: 11400000, guid: 0d148de6e161d01488c3bcd363420b34, type: 2}
+  equippedWeapon: {fileID: 11400000, guid: 332836000f9f8634f91fa1c6d013770a, type: 2}
+  equippedShield: {fileID: 0}
+  currentInit: 0
+  currentAction: 
+  itemLoot:
+  - {fileID: 11400000, guid: 0d148de6e161d01488c3bcd363420b34, type: 2}
+  - {fileID: 11400000, guid: 332836000f9f8634f91fa1c6d013770a, type: 2}
+  potionBelt:
+  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
+  crystalLootMin: 5
+  crystalLootMax: 25
+  battleCry: Some Bold Yet Discretionary Strategists make several gradual moves toward
+    you until they are within range to strike!
+  combatSlot: {fileID: 0}
+  specialAbility: Strategize
+  pendingAction: 
+  normalAIRay:
+  - {fileID: 11400000, guid: 3689d46589eb00642bc02b0f96b11a4a, type: 2}
+  - {fileID: 11400000, guid: 0a024efc73250d94eb2dd94afa24fa2a, type: 2}
+  - {fileID: 11400000, guid: a9104ac39f5ea054f80767f6effc40b1, type: 2}
+  - {fileID: 11400000, guid: df8fe01a0909777479b04c8885ce1fce, type: 2}
+  - {fileID: 11400000, guid: c1c68b2b7841e2147a5be6d032eba8dd, type: 2}
