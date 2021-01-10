@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Attack
   m_EditorClassIdentifier: 
-  title: attack
+  title: Attack
   likelihood: 75
-  message: 'An Aggressive Peace Monger swings, '
+  message: 
+  messages:
+  - An Aggressive Peace Monger swings,
   effect: {fileID: 0}
+  target: ego

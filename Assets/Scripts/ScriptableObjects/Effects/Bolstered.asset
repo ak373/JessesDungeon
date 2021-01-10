@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Bolstered
   stat: armorClass
-  potency: 1
+  potency: 2
   duration: 5
-  description: Your Armor Class gets a +1 bonus for 5 rounds.
+  description: Your Armor Class gets a +2 bonus for 5 rounds.
   remainingRounds: 0

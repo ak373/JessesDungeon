@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Subdue
   m_EditorClassIdentifier: 
-  title: subdue
+  title: Subdue
   likelihood: 90
-  message: An Aggressive Peace Monger approaches you with his hands up and begins
-    to list the reasons why war is wrong. You feel your will to fight waning!
-  effect: {fileID: 0}
+  message: ' '
+  messages:
+  - An Aggressive Peace Monger approaches you with his hands up and begins to list
+    the reasons why war is wrong.
+  - There is no arguing with him. You feel your will to fight waning!
+  effect: {fileID: 11400000, guid: 3ba80fd32ec426046b4abe3321f9c256, type: 2}
+  target: ego

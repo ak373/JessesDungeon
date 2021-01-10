@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06f83bd5d8bbaae4e856b744c05bfd58, type: 3}
   m_Name: Shaken
   m_EditorClassIdentifier: 
-  title: Shaken
+  title: Intimidated
   stat: toHitMod
-  potency: -1
+  potency: -2
   duration: 5
-  description: Your To Hit suffers a -1 penalty for 5 rounds.
+  description: Your To Hit suffers a -2 penalty for 5 rounds.
   remainingRounds: 0

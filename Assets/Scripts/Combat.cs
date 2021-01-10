@@ -24,6 +24,8 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
+    public GameObject battleLog, battleLogGreyScreen;
+    public TMP_Text battleText;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
     BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
@@ -31,6 +33,7 @@ public class Combat : MonoBehaviour
     List<int> usedInitValues = new List<int>();
     int currentArrowPosition;
     bool actionSelected;
+    bool actionComplete;
 
     GameController controller;
     // Start is called before the first frame update
@@ -207,32 +210,146 @@ public class Combat : MonoBehaviour
             actionSelected = false;
             if (activeBadGuys[0] != null && turnOrder[i] == badGuy0)
             {
-                badGuy0.pendingAction = BadGuyLogic(badGuy0);
+                badGuy0.chosenAction = BadGuyLogic(badGuy0);
                 StartCoroutine(BadGuyActionSelect(badGuy0));
             }
             else if (activeBadGuys[1] != null && turnOrder[i] == badGuy1)
             {
-                badGuy1.pendingAction = BadGuyLogic(badGuy1);
+                badGuy1.chosenAction = BadGuyLogic(badGuy1);
                 StartCoroutine(BadGuyActionSelect(badGuy1));
             }
             else if (activeBadGuys[2] != null && turnOrder[i] == badGuy2)
             {
-                badGuy2.pendingAction = BadGuyLogic(badGuy2);
+                badGuy2.chosenAction = BadGuyLogic(badGuy2);
                 StartCoroutine(BadGuyActionSelect(badGuy2));
             }
             else if (activeBadGuys[3] != null && turnOrder[i] == badGuy3)
             {
-                badGuy3.pendingAction = BadGuyLogic(badGuy3);
+                badGuy3.chosenAction = BadGuyLogic(badGuy3);
                 StartCoroutine(BadGuyActionSelect(badGuy3));
             }
             else if (activeBadGuys[4] != null && turnOrder[i] == badGuy4)
             {
-                badGuy4.pendingAction = BadGuyLogic(badGuy4);
+                badGuy4.chosenAction = BadGuyLogic(badGuy4);
                 StartCoroutine(BadGuyActionSelect(badGuy4));
             }
             else if (turnOrder[i] == ego) { StartCoroutine(EgoActionSelect()); }
+            else { actionSelected = true; }
             yield return new WaitUntil(ActionSelected);
         }
+        Debug.Log("all actions selected");
+        StartCoroutine(ExecuteActions());
+    }
+    IEnumerator ExecuteActions()
+    {
+        Debug.Log("ExecuteActions()");
+        for (int i = 0; i < turnOrder.Length; i++)
+        {
+            if (turnOrder[i] != null)
+            {
+                if (turnOrder[i] == ego)
+                {
+
+                }
+                else
+                {
+                    if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
+                    else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion()); }
+                    else { StartCoroutine(SpecialAbility()); }
+                }
+                yield return new WaitUntil(ActionComplete);
+                actionComplete = false;
+            }
+        }
+    }
+    IEnumerator ExecuteBadGuyAttack(BadGuy badGuy)
+    {
+        Debug.Log("ExecuteBadGuyAttack()");
+        int badGuyToHit = (int)(badGuy.allStats[9].value + badGuy.allStats[9].effectValue);
+        int badGuyDamageDie = (int)(badGuy.allStats[6].value + badGuy.allStats[6].effectValue);
+        int badGuyDamage = (int)(badGuy.allStats[7].value + badGuy.allStats[7].effectValue);
+        float badGuyCritMultiplier = (badGuy.allStats[8].value + badGuy.allStats[8].effectValue);
+
+        int egoArmorClass = (int)(ego.allStats[3].value + ego.allStats[3].effectValue);
+        int egoDamageReduction = (int)(ego.allStats[5].value + ego.allStats[5].effectValue);
+        float egoCritResist = ego.allStats[4].value + ego.allStats[4].effectValue;
+        int egoTargetHP = (int)ego.allStats[1].value;
+        int egoCurrentHP = (int)ego.allStats[0].value;
+
+        int d20 = Random.Range(1, 21);
+        int attackRoll = d20 + badGuyToHit;
+        int rolledDamage = 0;
+
+        if (attackRoll >= egoArmorClass && (d20 < 20))
+        {
+            rolledDamage = Random.Range(1, badGuyDamageDie) + badGuyDamage - egoDamageReduction;
+            if (rolledDamage < 0) { rolledDamage = 0; }
+        }
+        else if (d20 == 20)
+        {
+            rolledDamage = (int)(Mathf.Round(((badGuyCritMultiplier * (Random.Range(1, badGuyDamageDie) + badGuyDamage)) * egoCritResist) - egoDamageReduction));
+            if (rolledDamage < 0) { rolledDamage = 0; }
+        }
+
+        battleLog.SetActive(true);
+        string message = "";
+        for (int i = 0; i < badGuy.normalAIRay.Length; i++)
+        {
+            if (badGuy.normalAIRay[i].title == "Attack") { message = badGuy.normalAIRay[i].messages[0];}
+        }
+        battleText.text = message;
+        controller.teleType.messageComplete = false;
+        StartCoroutine(controller.teleType.BattleMessage(0));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.5f);
+
+        if (attackRoll >= egoArmorClass && (d20 < 20))
+        {
+            if (message[message.Length -1] == '!') { battleText.text += " A"; }
+            else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
+            battleText.text += $"nd hits for {rolledDamage} damage!";
+
+            egoTargetHP = egoCurrentHP - rolledDamage;
+            StartCoroutine(HPRoll(ego));            
+        }
+        else if (d20 == 20)
+        {
+            if (message[message.Length - 1] == '!') { battleText.text += " A"; }
+            else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
+            battleText.text += $"nd hits for {rolledDamage} damage!";
+
+            egoTargetHP = egoCurrentHP - rolledDamage;
+            StartCoroutine(HPRoll(ego));
+        }
+        else if (attackRoll == (egoArmorClass -1))
+        {
+            if (message[message.Length - 1] == '!') { battleText.text += " Just missed!"; }
+            else if (message[message.Length - 1] == ',') { battleText.text += " and just missed!"; }
+        }
+        else
+        {
+            if (message[message.Length - 1] == '!') { battleText.text += " B"; }
+            else if (message[message.Length - 1] == ',') { battleText.text += " b"; }
+            battleText.text += "ut misses!";
+        }
+
+        controller.teleType.messageComplete = false;
+        StartCoroutine(controller.teleType.BattleMessage(controller.teleType.endingCharacter));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(1.5f);
+        battleLogGreyScreen.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        battleLog.SetActive(false);
+        battleLogGreyScreen.SetActive(false);
+        actionComplete = true;
+    }
+    IEnumerator UsePotion()
+    {
+        yield return new WaitForSeconds(1f);
+    }
+    IEnumerator SpecialAbility()
+    {
+        yield return new WaitForSeconds(1f);
     }
     IEnumerator EgoActionSelect()
     {
@@ -254,19 +371,19 @@ public class Combat : MonoBehaviour
                 arrow.SetActive(false);
                 if (currentArrowPosition == 0)
                 {
-                    ego.currentAction = "Attack";
+                    ego.displayAction = "Attack";
                 }
                 else if (currentArrowPosition == 1)
                 {
-                    ego.currentAction = "Defend";
+                    ego.displayAction = "Defend";
                 }
                 else if (currentArrowPosition == 2)
                 {
-                    ego.currentAction = "Delay";
+                    ego.displayAction = "Delay";
                 }
                 else if (currentArrowPosition == 3)
                 {
-                    ego.currentAction = "Flee";                    
+                    ego.displayAction = "Flee";                    
                 }
                 else if (currentArrowPosition == 4)
                 {
@@ -283,7 +400,6 @@ public class Combat : MonoBehaviour
     }
     IEnumerator BadGuyActionSelect(BadGuy badGuy)
     {
-        Debug.Log("badguy action select");
         if (badGuy.combatSlot == slot1) { arrow.transform.position = slot1ArrowPositions[0].transform.position; }
         else if (badGuy.combatSlot == slot2a) { arrow.transform.position = slot2aArrowPositions[0].transform.position; }
         else if (badGuy.combatSlot == slot2b) { arrow.transform.position = slot2bArrowPositions[0].transform.position; }
@@ -296,10 +412,11 @@ public class Combat : MonoBehaviour
         int howManyMoves = 0;
         int currentArrowPosition = 0;
         bool stutter = false;
-        if (badGuy.pendingAction == "Attack") { howManyMoves = 0; }
-        else if (badGuy.pendingAction == "Defend") { howManyMoves = 1; }
-        else if (badGuy.pendingAction == "Special") { howManyMoves = 2; }
-        else if (badGuy.pendingAction == "Inventory") { howManyMoves = 3; }
+        if (badGuy.chosenAction == "Attack") { howManyMoves = 0; }
+        else if (badGuy.chosenAction == "Defend") { howManyMoves = 1; }
+        //else if (badGuy.chosenAction == "Special") { howManyMoves = 2; }
+        else if (badGuy.chosenAction == "Inventory") { howManyMoves = 3; }
+        else { howManyMoves = 2; }
         yield return new WaitForSeconds(1f);
         
         while (howManyMoves != 0)
@@ -331,80 +448,147 @@ public class Combat : MonoBehaviour
         {
             slot1DoneArrow.transform.position = arrow.transform.position;
             slot1DoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attack1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defend1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { special1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventory1.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attack1.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defend1.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { special1.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventory1.color = Color.grey; }
+            else { special1.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slot2a)
         {
             slot2aDoneArrow.transform.position = arrow.transform.position;
             slot2aDoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attack2a.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defend2a.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { special2a.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventory2a.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attack2a.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defend2a.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { special2a.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventory2a.color = Color.grey; }
+            else { special2a.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slot2b)
         {
             slot2bDoneArrow.transform.position = arrow.transform.position;
             slot2bDoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attack2b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defend2b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { special2b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventory2b.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attack2b.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defend2b.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { special2b.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventory2b.color = Color.grey; }
+            else { special2b.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slot3b)
         {
             slot3bDoneArrow.transform.position = arrow.transform.position;
             slot3bDoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attack3b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defend3b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { special3b.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventory3b.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attack3b.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defend3b.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { special3b.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventory3b.color = Color.grey; }
+            else { special3b.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slot3c)
         {
             slot3cDoneArrow.transform.position = arrow.transform.position;
             slot3cDoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attack3c.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defend3c.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { special3c.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventory3c.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attack3c.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defend3c.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { special3c.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventory3c.color = Color.grey; }
+            else { special3c.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slotFlank1)
         {
             slotFlank1DoneArrow.transform.position = arrow.transform.position;
             slotFlank1DoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attackFlank1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defendFlank1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { specialFlank1.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventoryFlank1.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attackFlank1.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defendFlank1.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { specialFlank1.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventoryFlank1.color = Color.grey; }
+            else { specialFlank1.color = Color.grey; }
         }
         else if (badGuy.combatSlot == slotFlank2)
         {
             slotFlank2DoneArrow.transform.position = arrow.transform.position;
             slotFlank2DoneArrow.SetActive(true);
-            if (badGuy.pendingAction == "Attack") { attackFlank2.color = Color.grey; }
-            else if (badGuy.pendingAction == "Defend") { defendFlank2.color = Color.grey; }
-            else if (badGuy.pendingAction == "Special") { specialFlank2.color = Color.grey; }
-            else if (badGuy.pendingAction == "Inventory") { inventoryFlank2.color = Color.grey; }
+            if (badGuy.chosenAction == "Attack") { attackFlank2.color = Color.grey; }
+            else if (badGuy.chosenAction == "Defend") { defendFlank2.color = Color.grey; }
+            //else if (badGuy.chosenAction == "Special") { specialFlank2.color = Color.grey; }
+            else if (badGuy.chosenAction == "Inventory") { inventoryFlank2.color = Color.grey; }
+            else { specialFlank2.color = Color.grey; }
         }
         arrow.SetActive(false);
-        badGuy.currentAction = badGuy.pendingAction;
+        if (badGuy.chosenAction == "Attack" || badGuy.chosenAction == "Defend" || badGuy.chosenAction == "Inventory") { badGuy.displayAction = badGuy.chosenAction; }
+        else { badGuy.displayAction = badGuy.specialAbility; }      
         yield return new WaitForSeconds(.75f);
         actionSelected = true;
     }
     string BadGuyLogic(BadGuy badGuy)
     {
-        Debug.Log("badguy logic");
+        int currentHP = (int)badGuy.allStats[1].value;
+        int combinedMaxHP = (int)badGuy.allStats[2].value + (int)badGuy.allStats[2].effectValue;
 
+        if (currentHP >= (.25 * combinedMaxHP)) { return RegularAction(); }
+        else if (currentHP >= (.25 * combinedMaxHP))
+        {
+            if (badGuy.potionBelt.Length > 0) { return "Inventory"; }
+            else
+            {   //strategist call for help
+                if (badGuy.nome == "A Bold Yet Discretionary Strategist") { return "Call"; }
+                else { return RegularAction(); }
+            }
+        }
+        return "Attack";
 
+        string RegularAction()
+        {
+            int d100 = Random.Range(1, 101);
+            //all AIRays must be arranged in ascending order
+            for (int i = 0; i < badGuy.normalAIRay.Length; i++)
+            {
+                if (d100 <= badGuy.normalAIRay[i].likelihood)
+                {
+                    //do not flank if
+                    if (badGuy.normalAIRay[i].title == "Flank")
+                    {
+                        //if already flanking
+                        if (badGuy.combatSlot == slotFlank1 || badGuy.combatSlot == slotFlank2) { return "Attack"; }
+                        //if another is already going to flank this round (so 2 don't flank into the same position)
+                        for (int j = 0; j < activeBadGuys.Length; j++) { if ((activeBadGuys[j] != null) && (activeBadGuys[j].chosenAction == "Flank")) { return "Attack"; } }
+                        //if flanking positions are full
+                        if (slotFlank1.activeInHierarchy && slotFlank2.activeInHierarchy) { return "Attack"; }
+                    }
+                    //do not defend if
+                    if (badGuy.normalAIRay[i].title == "Defend")
+                    {
+                        //only badguy left
+                        int liveCounter = 0;
+                        for (int j = 0; j < activeBadGuys.Length; j++) { if (activeBadGuys[j] != null) { liveCounter++; } }
+                        //HP above half (or only badguy left)
+                        if ((currentHP > (.5 * combinedMaxHP)) || (liveCounter == 1)) { return "Attack"; }
+                    }
 
-        return "Inventory";
+                    return badGuy.normalAIRay[i].title;
+                }
+            }
+            return "Attack";
+        }
     }
+    IEnumerator HPRoll(Character character)
+    {
+        while (character.allStats[0].value > character.allStats[1].value)
+        {
+            character.allStats[0].value--;
+            yield return new WaitForSeconds(.2f);
+        }
+        while (character.allStats[0].value < character.allStats[1].value)
+        {
+            character.allStats[0].value++;
+            yield return new WaitForSeconds(.2f);
+        }
+    }
+    
 
     bool ActionSelected() { return actionSelected; }
+    bool ActionComplete() { return actionComplete; }
+    bool MessageComplete() { return controller.teleType.messageComplete; }
 
 
 
@@ -422,10 +606,26 @@ public class Combat : MonoBehaviour
         if (ego.equippedShield != null) { combatShieldDisplay.text = ego.equippedShield.nome; }
         else { combatShieldDisplay.text = "None"; }
 
+        //HP totals
+        for (int i = 0; i < activeBadGuys.Length; i++)
+        {
+            if (activeBadGuys[i] != null)
+            {
+                if (activeBadGuys[i].combatSlot == slot1) { curHP1.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slot2a) { curHP2a.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slot2b) { curHP2b.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slot3b) { curHP3b.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slot3c) { curHP3c.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slotFlank1) { curHPFlank1.text = activeBadGuys[i].allStats[0].value.ToString(); }
+                else if (activeBadGuys[i].combatSlot == slotFlank2) { curHPFlank2.text = activeBadGuys[i].allStats[0].value.ToString(); }
+            }            
+        }
+        curHPEgo.text = ego.allStats[0].value.ToString();
+
         //turn order actions
         for (int i = 0; i < turnOrderActions.Length; i++)
         {
-            if (turnOrder[i] != null) { turnOrderActions[i].text = turnOrder[i].currentAction; }            
+            if (turnOrder[i] != null) { turnOrderActions[i].text = turnOrder[i].displayAction; }            
         }
     }
 }

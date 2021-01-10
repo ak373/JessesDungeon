@@ -13,6 +13,5 @@ public class BadGuy : Character
     public string battleCry;
     [HideInInspector] public GameObject combatSlot;
     public string specialAbility;
-    [HideInInspector] public string pendingAction;
     public BadGuyCombatActions[] normalAIRay;
 }

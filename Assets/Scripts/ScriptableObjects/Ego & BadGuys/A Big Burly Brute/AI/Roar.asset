@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Roar
   m_EditorClassIdentifier: 
-  title: grunt
+  title: Roar
   likelihood: 95
-  message: A Big Burly Brute roars menacingly! You are intimidated by the sheer voracity
-    of its bruteness! Your To Hit decreases by 1!
+  message: 
+  messages:
+  - A Big Burly Brute roars menacingly! You are intimidated by the sheer voracity
+    of its bruteness!
   effect: {fileID: 11400000, guid: fe9634608da210944a6f584e5d67d6dc, type: 2}
+  target: ego

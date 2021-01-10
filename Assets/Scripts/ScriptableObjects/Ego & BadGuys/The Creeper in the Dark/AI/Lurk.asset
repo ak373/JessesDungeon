@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Lurk
   m_EditorClassIdentifier: 
-  title: lurk
+  title: Lurk
   likelihood: 100
-  message: 'The Creeper in the Dark lurks in the shadows, and loses track of himself! '
+  message: 
+  messages:
+  - The Creeper in the Dark lurks in the shadows, and loses track of himself!
   effect: {fileID: 11400000, guid: 86e77afb25b2b5746b5561d022d43a33, type: 2}
+  target: self

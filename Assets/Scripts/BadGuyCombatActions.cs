@@ -8,6 +8,7 @@ public class BadGuyCombatActions : ScriptableObject
     public string title;
     public int likelihood;
     [TextArea (1,5)]
-    public string message;
+    public List<string> messages = new List<string>();
     public Effect effect;
+    public string target;
 }

@@ -5,24 +5,25 @@ using TMPro;
 
 public class TeleType : MonoBehaviour
 {
-    TMP_Text teleTypeText;
-    // Start is called before the first frame update
-    IEnumerator Start()
+    public TMP_Text battleText;
+    public bool messageComplete;
+    public int endingCharacter;
+    public IEnumerator BattleMessage(int startingCharacter)
     {
-        teleTypeText = gameObject.GetComponent<TMP_Text>() ?? gameObject.AddComponent<TMP_Text>();
-
-        int totalVisibleCharacters = teleTypeText.textInfo.characterCount;
-        int counter = 0;
+        int totalVisibleCharacters = battleText.textInfo.characterCount;
+        int counter = startingCharacter;
 
         while (true)
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
-            teleTypeText.maxVisibleCharacters = visibleCount;
+            battleText.maxVisibleCharacters = visibleCount;
 
-            if (visibleCount >= totalVisibleCharacters) { yield return new WaitForSeconds(1.0f); }
+            if (visibleCount >= totalVisibleCharacters) { break; }
             counter += 1;
 
             yield return new WaitForSeconds(0.05f);
         }
+        endingCharacter = counter;
+        messageComplete = true;
     }
 }

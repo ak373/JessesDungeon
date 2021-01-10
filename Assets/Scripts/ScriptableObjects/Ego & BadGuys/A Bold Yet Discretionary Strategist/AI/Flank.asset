@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Flank
   m_EditorClassIdentifier: 
-  title: flank
-  likelihood: 70
-  message: A Bold Yet Discretionary Strategist shifts into a more strategic position!
-  effect: {fileID: 0}
+  title: Flank
+  likelihood: 60
+  message: 
+  messages:
+  - A Bold Yet Discretionary Strategist shifts into a more strategic position.
+  - You are flanked!
+  effect: {fileID: 11400000, guid: 546a3aeb078f7444f82dc2a91d592eb0, type: 2}
+  target: ego

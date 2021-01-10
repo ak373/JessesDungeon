@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Slink
   m_EditorClassIdentifier: 
-  title: slink
+  title: Slink
   likelihood: 85
-  message: The Creeper in the Dark slinks deeper into the shadows.
+  message: 
+  messages:
+  - The Creeper in the Dark slinks deeper into the shadows.
   effect: {fileID: 11400000, guid: d395b5db751621444b1d7721ba86b90b, type: 2}
+  target: self

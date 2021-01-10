@@ -30,7 +30,7 @@ MonoBehaviour:
   equippedWeapon: {fileID: 11400000, guid: 16ae9d370fdeebb42b33bf1c09eb8f54, type: 2}
   equippedShield: {fileID: 11400000, guid: 957b82fcd60bd92459193fbe69e21fb8, type: 2}
   currentInit: 0
-  currentAction: 
+  displayAction: 
   itemLoot: []
   potionBelt:
   - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
@@ -40,8 +40,9 @@ MonoBehaviour:
     He forcefully encourages you to fall into line!
   combatSlot: {fileID: 0}
   specialAbility: Chastize
-  pendingAction: 
+  chosenAction: 
   normalAIRay:
+  - {fileID: 11400000, guid: 69cc4b8a8fe924343ad3731f93b8f1bf, type: 2}
   - {fileID: 11400000, guid: 13503d8649ca5914f803e0e4b4be0067, type: 2}
-  - {fileID: 11400000, guid: 97feaffb1229fa54585f6b90f0ca4f97, type: 2}
   - {fileID: 11400000, guid: 493058ee7ec49e243ac80359e43af890, type: 2}
+  - {fileID: 11400000, guid: 97feaffb1229fa54585f6b90f0ca4f97, type: 2}

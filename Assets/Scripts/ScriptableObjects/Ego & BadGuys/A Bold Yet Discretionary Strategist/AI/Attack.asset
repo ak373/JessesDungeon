@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Attack
   m_EditorClassIdentifier: 
-  title: attack
-  likelihood: 30
-  message: A Bold Yet Discretionary Strategist strikes!
+  title: Attack
+  likelihood: 70
+  message: 
+  messages:
+  - A Bold Yet Discretionary Strategist strikes!
   effect: {fileID: 0}
+  target: ego

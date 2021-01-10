@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Measure Up
   m_EditorClassIdentifier: 
-  title: measure up
+  title: Measure Up
   likelihood: 95
-  message: A Bold Yet Discretionary Strategist looks you up and down. After a brief
-    moment, he grins and exclaims, "there's the weak spot! Right between the eyes!"
+  message: ' After a brief moment, he grins and exclaims, '
+  messages:
+  - A Bold Yet Discretionary Strategist looks you up and down.
+  - '"There''s the weak spot! Right between the eyes!"'
   effect: {fileID: 11400000, guid: 7619774ea39c3444992b9d5bdbd2008c, type: 2}
+  target: ego

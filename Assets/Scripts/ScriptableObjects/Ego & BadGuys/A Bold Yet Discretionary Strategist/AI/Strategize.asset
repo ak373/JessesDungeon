@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
   m_Name: Strategize
   m_EditorClassIdentifier: 
-  title: strategize
+  title: Strategize
   likelihood: 85
-  message: A Bold Yet Discretionary Strategist squints his eyes as he takes stock
-    of the situation. He shifts back and forth, reasserting his stance into a slightly
-    more advantageous posture!
+  message: ' '
+  messages:
+  - A Bold Yet Discretionary Strategist squints his eyes as he takes stock of the
+    situation.
+  - He shifts back and forth, reasserting his stance into a slightly more advantageous
+    posture!
   effect: {fileID: 11400000, guid: d395b5db751621444b1d7721ba86b90b, type: 2}
+  target: self

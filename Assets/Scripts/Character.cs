@@ -22,6 +22,7 @@ public class Character : ScriptableObject
     //public int flurry;
     //public int toHitMod;
     //public int initMod;
-    public int currentInit;
-    public string currentAction;
+    [HideInInspector] public int currentInit;
+    [HideInInspector] public string displayAction;
+    [HideInInspector] public string chosenAction;
 }
