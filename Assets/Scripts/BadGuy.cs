@@ -12,6 +12,7 @@ public class BadGuy : Character
     [TextArea(2,5)]
     public string battleCry;
     [HideInInspector] public GameObject combatSlot;
+    [HideInInspector] public GameObject combatBorder;
     public string specialAbility;
     public BadGuyCombatActions[] normalAIRay;
 }

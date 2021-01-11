@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: targetHP
   value: 100
+  effectValue: 0

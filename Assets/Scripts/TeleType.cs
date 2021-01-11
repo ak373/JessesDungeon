@@ -13,6 +13,8 @@ public class TeleType : MonoBehaviour
         int totalVisibleCharacters = battleText.textInfo.characterCount;
         int counter = startingCharacter;
 
+        Debug.Log(totalVisibleCharacters);
+        Debug.Log(counter);
         while (true)
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
@@ -21,8 +23,9 @@ public class TeleType : MonoBehaviour
             if (visibleCount >= totalVisibleCharacters) { break; }
             counter += 1;
 
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.025f);
         }
+        Debug.Log("after loop");
         endingCharacter = counter;
         messageComplete = true;
     }

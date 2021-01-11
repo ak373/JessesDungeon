@@ -18,7 +18,7 @@ MonoBehaviour:
   description: Infused with magic, in your hands this weapon deals massive damage
     and always strikes true (+10 bonus).
   unlocked: 0
-  type: Piercing
+  type: Polearm
   damage: 30
   damageDie: 10
   critMultiplier: 3

@@ -25,4 +25,5 @@ public class Character : ScriptableObject
     [HideInInspector] public int currentInit;
     [HideInInspector] public string displayAction;
     [HideInInspector] public string chosenAction;
+    [HideInInspector] public Character chosenTarget;
 }
