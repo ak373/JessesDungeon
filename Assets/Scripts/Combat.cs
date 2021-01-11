@@ -41,7 +41,11 @@ public class Combat : MonoBehaviour
     {
         controller = GetComponent<GameController>();
         currentArrowPosition = 0;
-
+        for (int i = 0; i < turnOrderNames.Length; i++)
+        {
+            turnOrderNames[i].text = "";
+            turnOrderActions[i].text = "";
+        }
 
         //testing purposes
         InitiateCombat(testBadGuy, testNumber);
@@ -67,7 +71,14 @@ public class Combat : MonoBehaviour
         maxHPEgo.text = ego.allStats[2].value.ToString();
 
         //populate badguy array
-        for (int i = 0; i < numberOfBadGuys; i++) { activeBadGuys[i] = Instantiate(badGuy); }
+        for (int i = 0; i < numberOfBadGuys; i++)
+        {
+            activeBadGuys[i] = Instantiate(badGuy);
+            for (int j = 0; j < activeBadGuys[i].allStats.Length; j++)
+            {
+                activeBadGuys[i].allStats[j] = Instantiate(activeBadGuys[i].allStats[j]);
+            }
+        }
         for (int j = numberOfBadGuys; j < 4; j++) { activeBadGuys[j] = null; }
 
         //determine proper badguy UI layout
@@ -173,11 +184,15 @@ public class Combat : MonoBehaviour
         for (int i = 0; i < usedInitValues.Count; i++) { transientInitValues.Add(usedInitValues[i]); }
 
         //erase turn order
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < turnOrderNames.Length; i++)
         {
-            turnOrderNames[i].text = null;
-            turnOrderActions[i].text = null;
+            turnOrderNames[i].text = "";            
         }
+        for (int i = 0; i < activeBadGuys.Length; i++)
+        {
+            if (activeBadGuys[i] != null) { activeBadGuys[i].displayAction = ""; }
+        }
+        ego.displayAction = "";
 
         //populate order array & display names
         for (int i = 0; i < turnOrder.Length; i++)
@@ -254,7 +269,7 @@ public class Combat : MonoBehaviour
             {
                 if (turnOrder[i] == ego)
                 {
-                    if (ego.chosenAction == "Attack") { ExecuteEgoAttack((BadGuy)ego.chosenTarget); }
+                    if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
                 }
                 else
                 {
@@ -266,6 +281,7 @@ public class Combat : MonoBehaviour
                 actionComplete = false;
             }
         }
+        EndTurn();
     }
     IEnumerator ExecuteBadGuyAttack(BadGuy badGuy)
     {
@@ -300,15 +316,11 @@ public class Combat : MonoBehaviour
             if (badGuy.normalAIRay[i].title == "Attack") { message = badGuy.normalAIRay[i].messages[0];}
         }
         battleText.text = message;
-        messageComplete = false;
-        StartCoroutine(BattleMessage(0));
-        yield return new WaitUntil(MessageComplete);
-        //why do I need this twice???
+        yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(0));
         yield return new WaitUntil(MessageComplete);
         yield return new WaitForSeconds(.5f);
-        Debug.Log("after yield");
 
         if (attackRoll >= egoArmorClass && (d20 < 20))
         {
@@ -316,7 +328,6 @@ public class Combat : MonoBehaviour
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd hits for {rolledDamage} damage!";
 
-            //egoTargetHP = egoCurrentHP - rolledDamage;
             ego.allStats[1].value = ego.allStats[0].value - rolledDamage;
             StopCoroutine(HPRoll(ego));
             StartCoroutine(HPRoll(ego));            
@@ -327,7 +338,6 @@ public class Combat : MonoBehaviour
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd critically hits for {rolledDamage} damage!";
 
-            //egoTargetHP = egoCurrentHP - rolledDamage;
             ego.allStats[1].value = ego.allStats[0].value - rolledDamage;
             StopCoroutine(HPRoll(ego));
             StartCoroutine(HPRoll(ego));
@@ -343,9 +353,7 @@ public class Combat : MonoBehaviour
             else if (message[message.Length - 1] == ',') { battleText.text += " b"; }
             battleText.text += "ut misses!";
         }
-        messageComplete = false;
-        StartCoroutine(BattleMessage(endingCharacter));
-        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
@@ -360,10 +368,12 @@ public class Combat : MonoBehaviour
     IEnumerator UsePotion()
     {
         yield return new WaitForSeconds(1f);
+        actionComplete = true;
     }
     IEnumerator SpecialAbility()
     {
         yield return new WaitForSeconds(1f);
+        actionComplete = true;
     }
     IEnumerator ExecuteEgoAttack(BadGuy badGuy)
     {
@@ -393,16 +403,14 @@ public class Combat : MonoBehaviour
 
         battleLog.SetActive(true);
         string verb = "";
-        if (ego.equippedWeapon.type == "Slashing" || ego.equippedWeapon.type == "Blunt") { verb = "swing"; }
+        if (ego.equippedWeapon == null) { verb = "swing"; }
+        else if (ego.equippedWeapon.type == "Slashing" || ego.equippedWeapon.type == "Blunt") { verb = "swing"; }
         else if (ego.equippedWeapon.type == "Piercing") { verb = "stab"; }
         else if (ego.equippedWeapon.type == "Polearm") { verb = "jab"; }
         else if (ego.equippedWeapon.type == "Ranged") { verb = "shoot"; }
         
         battleText.text = $"You {verb} at {badGuy.nome},";
-        messageComplete = false;
-        StartCoroutine(BattleMessage(0));
-        yield return new WaitUntil(MessageComplete);
-        //why do I need this twice???
+        yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(0));
         yield return new WaitUntil(MessageComplete);
@@ -426,9 +434,7 @@ public class Combat : MonoBehaviour
         }
         else if (attackRoll == (badGuyArmorClass - 1)) { battleText.text += " and just miss!"; }
         else { battleText.text += " but miss!"; }
-        messageComplete = false;
-        StartCoroutine(BattleMessage(endingCharacter));
-        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
@@ -443,7 +449,8 @@ public class Combat : MonoBehaviour
     IEnumerator EgoActionSelect()
     {
         int attackSelectionMemory = -1;
-        targetSwitched = false;
+        IEnumerator selection;
+
         arrow.transform.position = egoArrowPositions[0].transform.position;
         arrow.SetActive(true);
         while (true)
@@ -481,18 +488,20 @@ public class Combat : MonoBehaviour
                         }
                         if (borderSelected < 0) { borderSelected = activeBadGuyBorders.Count -1; }
                         if (borderSelected >= activeBadGuyBorders.Count) { borderSelected = 0; }
-                        StartCoroutine(SelectAnimation(activeBadGuyBorders[borderSelected]));
+                        yield return new WaitForSeconds(.01f);
+                        selection = SelectAnimation(activeBadGuyBorders[borderSelected]);
+                        StartCoroutine(selection);
                         yield return new WaitUntil(controller.LeftRightEnterEscPressed);
-                        if (Input.GetKeyDown(KeyCode.LeftArrow))
+                        if (Input.GetKeyDown(KeyCode.RightArrow))
                         {
-                            //StopCoroutine(SelectAnimation(activeBadGuyBorders[borderSelected]));
-                            targetSwitched = true;
+                            StopCoroutine(selection);
+                            activeBadGuyBorders[borderSelected].SetActive(true);
                             borderSelected--;
                         }
-                        else if (Input.GetKeyDown(KeyCode.RightArrow))
+                        else if (Input.GetKeyDown(KeyCode.LeftArrow))
                         {
-                            //StopCoroutine(SelectAnimation(activeBadGuyBorders[borderSelected]));
-                            targetSwitched = true;
+                            StopCoroutine(selection);
+                            activeBadGuyBorders[borderSelected].SetActive(true);
                             borderSelected++;
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
@@ -500,14 +509,17 @@ public class Combat : MonoBehaviour
                             egoDoneArrow.SetActive(false);
                             arrow.SetActive(true);
                             egoCombatOptions[currentArrowPosition].color = Color.white;
-                            StopCoroutine(SelectAnimation(activeBadGuyBorders[borderSelected]));
+                            StopCoroutine(selection);
+                            activeBadGuyBorders[borderSelected].SetActive(true);
                             attackSelectionMemory = borderSelected;
                             break;
                         }
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
-                            StopCoroutine(SelectAnimation(activeBadGuyBorders[borderSelected]));
+                            StopCoroutine(selection);
+                            activeBadGuyBorders[borderSelected].SetActive(true);
                             ego.displayAction = "Attack";
+                            ego.chosenAction = "Attack";
                             //assign chosen target to ego.chosentarget
                             for (int i = 0; i < activeBadGuys.Length; i++)
                             {
@@ -561,9 +573,8 @@ public class Combat : MonoBehaviour
         else if (badGuy.combatSlot == slot3b) { arrow.transform.position = slot3bArrowPositions[0].transform.position; }
         else if (badGuy.combatSlot == slot3c) { arrow.transform.position = slot3cArrowPositions[0].transform.position; }
         else if (badGuy.combatSlot == slotFlank1) { arrow.transform.position = slotFlank1ArrowPositions[0].transform.position; }
-        else if (badGuy.combatSlot == slotFlank2) { arrow.transform.position = slotFlank2ArrowPositions[0].transform.position; }
+        else if (badGuy.combatSlot == slotFlank2) { arrow.transform.position = slotFlank2ArrowPositions[0].transform.position; }       
         arrow.SetActive(true);
-
         int howManyMoves = 0;
         int currentArrowPosition = 0;
         bool stutter = false;
@@ -584,7 +595,7 @@ public class Combat : MonoBehaviour
                 currentArrowPosition -= 2;
                 yield return new WaitForSeconds(.5f);
                 stutter = true;
-            }
+            }//stutter
             if (badGuy.combatSlot == slot1) { arrow.transform.position = slot1ArrowPositions[currentArrowPosition].transform.position; }
             else if (badGuy.combatSlot == slot2a) { arrow.transform.position = slot2aArrowPositions[currentArrowPosition].transform.position; }
             else if (badGuy.combatSlot == slot2b) { arrow.transform.position = slot2bArrowPositions[currentArrowPosition].transform.position; }
@@ -744,7 +755,6 @@ public class Combat : MonoBehaviour
         int totalVisibleCharacters = battleText.textInfo.characterCount;
         int counter = startingCharacter;
 
-        Debug.Log(battleText.textInfo.characterCount);
         while (true)
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
@@ -755,22 +765,26 @@ public class Combat : MonoBehaviour
 
             yield return new WaitForSeconds(0.025f);
         }
-        Debug.Log(battleText.textInfo.characterCount);
-        Debug.Log("after loop");
         endingCharacter = counter;
         messageComplete = true;
     }
     IEnumerator SelectAnimation(GameObject border)
     {
-        while (!targetSwitched)
+        while (true)
         {
             border.SetActive(false);
             yield return new WaitForSeconds(.15f);
             border.SetActive(true);
             yield return new WaitForSeconds(.15f);
         }
-        border.SetActive(true);
-        targetSwitched = false;
+    }
+    void EndTurn()
+    {
+
+
+        CalculateTurnOrder();
+        DisplayTurnOrder();
+        StartCoroutine(TurnDistributor());
     }
 
 
