@@ -895,7 +895,7 @@ public class GameController : MonoBehaviour
     public bool NoSelected() { return (userInput == "no"); }
     public bool InputGiven() { return (userInput != null); }
     public bool InputGivenOrEscPressed() { return (userInput != null || Input.GetKeyDown(KeyCode.Escape)); }
-    public bool ArrowOrEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
+    public bool UpDownEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
 
     //public void EnterToContinueDialogue()

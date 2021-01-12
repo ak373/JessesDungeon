@@ -25,7 +25,7 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
-    public GameObject battleLog, battleLogGreyScreen;
+    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen;
     public TMP_Text battleText;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
@@ -33,7 +33,7 @@ public class Combat : MonoBehaviour
     Character[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
     int currentArrowPosition, endingCharacter;
-    bool actionSelected, actionComplete, messageComplete, targetSwitched;
+    bool actionSelected, actionComplete, messageComplete;
 
     GameController controller;
     // Start is called before the first frame update
@@ -259,6 +259,7 @@ public class Combat : MonoBehaviour
             else { actionSelected = true; }
             yield return new WaitUntil(ActionSelected);
         }
+        yield return new WaitForSeconds(.2f);
         StartCoroutine(ExecuteActions());
     }
     IEnumerator ExecuteActions()
@@ -281,7 +282,7 @@ public class Combat : MonoBehaviour
                 actionComplete = false;
             }
         }
-        EndTurn();
+        StartCoroutine(EndTurn());
     }
     IEnumerator ExecuteBadGuyAttack(BadGuy badGuy)
     {
@@ -357,7 +358,7 @@ public class Combat : MonoBehaviour
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(.75f);
         battleLogGreyScreen.SetActive(true);
         yield return new WaitForSeconds(.5f);
         battleLog.SetActive(false);
@@ -438,7 +439,7 @@ public class Combat : MonoBehaviour
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(.75f);
         battleLogGreyScreen.SetActive(true);
         yield return new WaitForSeconds(.5f);
         battleLog.SetActive(false);
@@ -458,7 +459,7 @@ public class Combat : MonoBehaviour
             if (currentArrowPosition < 0) { currentArrowPosition = 5; }
             if (currentArrowPosition > 5) { currentArrowPosition = 0; }
             arrow.transform.position = egoArrowPositions[currentArrowPosition].transform.position;
-            yield return new WaitUntil(controller.ArrowOrEnterPressed);
+            yield return new WaitUntil(controller.UpDownEnterPressed);
             if (Input.GetKeyDown(KeyCode.UpArrow)) { currentArrowPosition--; }
             else if (Input.GetKeyDown(KeyCode.DownArrow)) { currentArrowPosition++; }
             else if (Input.GetKeyDown(KeyCode.Return))
@@ -553,7 +554,7 @@ public class Combat : MonoBehaviour
                 {
 
                 }
-                //break;
+                break;
 
 
 
@@ -563,6 +564,7 @@ public class Combat : MonoBehaviour
                 //egoDoneArrow.SetActive(true);
                 //arrow.SetActive(false);
             }
+            
         }
     }
     IEnumerator BadGuyActionSelect(BadGuy badGuy)
@@ -759,6 +761,12 @@ public class Combat : MonoBehaviour
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
             battleText.maxVisibleCharacters = visibleCount;
+            if (Input.GetKey(KeyCode.Return))
+            {
+                battleText.maxVisibleCharacters = totalVisibleCharacters;
+                visibleCount = totalVisibleCharacters;
+                counter = totalVisibleCharacters;
+            }
 
             if (visibleCount >= totalVisibleCharacters) { break; }
             counter += 1;
@@ -778,13 +786,56 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.15f);
         }
     }
-    void EndTurn()
+    IEnumerator EndTurn()
     {
-
-
+        turnOrderBlackScreen.SetActive(true);
+        yield return new WaitForSeconds(.5f);
+        WhiteWash();
         CalculateTurnOrder();
         DisplayTurnOrder();
+        yield return new WaitForSeconds(.5f);
+        turnOrderBlackScreen.SetActive(false);
         StartCoroutine(TurnDistributor());
+    }
+    void WhiteWash()
+    {
+        egoDoneArrow.SetActive(false);
+        slot1DoneArrow.SetActive(false);
+        slot2aDoneArrow.SetActive(false);
+        slot2bDoneArrow.SetActive(false);
+        slot3bDoneArrow.SetActive(false);
+        slot3cDoneArrow.SetActive(false);
+        slotFlank1DoneArrow.SetActive(false);
+        slotFlank2DoneArrow.SetActive(false);
+        for (int i = 0; i < egoCombatOptions.Length; i++) { egoCombatOptions[i].color = Color.white; }
+        special1.color = Color.white;
+        special2a.color = Color.white;
+        special2b.color = Color.white;
+        special3b.color = Color.white;
+        special3c.color = Color.white;
+        specialFlank1.color = Color.white;
+        specialFlank2.color = Color.white;
+        attack1.color = Color.white;
+        attack2a.color = Color.white;
+        attack2b.color = Color.white;
+        attack3b.color = Color.white;
+        attack3c.color = Color.white;
+        attackFlank1.color = Color.white;
+        attackFlank2.color = Color.white;
+        defend1.color = Color.white;
+        defend2a.color = Color.white;
+        defend2b.color = Color.white;
+        defend3b.color = Color.white;
+        defend3c.color = Color.white;
+        defendFlank1.color = Color.white;
+        defendFlank2.color = Color.white;
+        inventory1.color = Color.white;
+        inventory2a.color = Color.white;
+        inventory2b.color = Color.white;
+        inventory3b.color = Color.white;
+        inventory3c.color = Color.white;
+        inventoryFlank1.color = Color.white;
+        inventoryFlank2.color = Color.white;
     }
 
 
