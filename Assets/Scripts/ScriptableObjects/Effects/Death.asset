@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Death
   m_EditorClassIdentifier: 
   title: Death
+  abbreviation: 
   stat: currentHitPoints
+  stat2: 
   potency: -32000
+  potency2: 0
+  color: {r: 0, g: 0, b: 0, a: 1}
   duration: 0
   description: You die.
   remainingRounds: 0

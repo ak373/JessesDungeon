@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Bolstered
   m_EditorClassIdentifier: 
   title: Bolstered
+  abbreviation: AC
   stat: armorClass
+  stat2: 
   potency: 2
+  potency2: 0
+  color: {r: 0, g: 1, b: 0, a: 1}
   duration: 5
   description: Your Armor Class gets a +2 bonus for 5 rounds.
   remainingRounds: 0

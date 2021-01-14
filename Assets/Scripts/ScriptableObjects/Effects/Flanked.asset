@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Flanked
   m_EditorClassIdentifier: 
   title: Flanked
+  abbreviation: AC
   stat: armorClass
+  stat2: 
   potency: -2
+  potency2: 0
+  color: {r: 1, g: 0, b: 0, a: 1}
   duration: 0
   description: You suffer a -2 penalty to your Armor Class for each flanking opponent.
   remainingRounds: 0

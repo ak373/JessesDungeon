@@ -16,6 +16,7 @@ public class Combat : MonoBehaviour
     public GameObject borderEgo, border1, border2a, border2b, border3b, border3c, borderFlank1, borderFlank2;
     public TMP_Text combatWeaponDisplay, combatArmorDisplay, combatShieldDisplay;
     public GameObject slotEgo, slot1, slot2a, slot2b, slot3b, slot3c, slotFlank1, slotFlank2;
+    public GameObject effects1, effects2a, effects2b, effects3b, effects3c, effectsFlank1, effectsFlank2;
     public TMP_Text name1, name2a, name2b, name3b, name3c, nameFlank1, nameFlank2;
     public TMP_Text special1, special2a, special2b, special3b, special3c, specialFlank1, specialFlank2;
     public TMP_Text attack1, attack2a, attack2b, attack3b, attack3c, attackFlank1, attackFlank2;
@@ -26,7 +27,8 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
     public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen;
-    public TMP_Text battleText;
+    public TMP_Text battleText, effectsText;
+    public Effect[] allEffects;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
     BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
@@ -46,6 +48,7 @@ public class Combat : MonoBehaviour
             turnOrderNames[i].text = "";
             turnOrderActions[i].text = "";
         }
+        effectsText.text = "";
 
         //testing purposes
         InitiateCombat(testBadGuy, testNumber);
@@ -64,6 +67,17 @@ public class Combat : MonoBehaviour
     // CritMultiplier = allStats[8]
     // ToHitMod = allStats[9]
     // InitMod = allStats[10]
+
+    //Effect elements in element array
+    //
+    //Bolstered = allEffects[0]
+    //Death = allEffects[1]
+    //Exposed = allEffects[2]
+    //Flanked = allEffects[3]
+    //Guarded = allEffects[4]
+    //Shaken = allEffects[5]
+    //Subdued = allEffects[6]
+
 
     public void InitiateCombat(BadGuy badGuy, int numberOfBadGuys)
     {
@@ -270,10 +284,37 @@ public class Combat : MonoBehaviour
             {
                 if (turnOrder[i] == ego)
                 {
+                    ego.hasGoneThisTurn = true;
+                    StartCoroutine(SelectFlicker(borderEgo));
                     if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
+                    else if (ego.chosenAction == "Defend")
+                    {
+                        Effect guarded = Instantiate(allEffects[4]);
+                        AddEffect(ego, guarded);
+                        battleLog.SetActive(true);
+                        battleText.text = "You take a defensive stance.";
+                        yield return new WaitForSeconds(.01f);
+                        messageComplete = false;
+                        StartCoroutine(BattleMessage(0));
+                        yield return new WaitUntil(MessageComplete);
+                        yield return new WaitForSeconds(1.25f);
+                        battleLogGreyScreen.SetActive(true);
+                        yield return new WaitForSeconds(.5f);
+                        battleLog.SetActive(false);
+                        yield return new WaitForSeconds(.5f);
+                        battleLogGreyScreen.SetActive(false);
+                        actionComplete = true;
+                    }
+                    else if (ego.chosenAction == "Delay")
+                    {
+                        ego.hasGoneThisTurn = false;
+                    }
                 }
-                else
+                else //if (turnOrder[i] != jesse)
                 {
+                    turnOrder[i].hasGoneThisTurn = true;
+                    BadGuy currentTurn = (BadGuy)turnOrder[i];
+                    StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
                     else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion()); }
                     else { StartCoroutine(SpecialAbility()); }
@@ -375,6 +416,41 @@ public class Combat : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         actionComplete = true;
+    }
+    void AddEffect(Character target, Effect effect)
+    {
+        string color = "white";
+        if (effect.color == Color.green) { color = "green"; }
+        else if (effect.color == Color.red) { color = "red"; }
+
+        if (target == ego) { effectsText.text += $"<color={color}>{effect.title}</color>\n"; }
+        else
+        {
+            BadGuy badTarget = (BadGuy)target;
+            badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
+        }
+        target.activeEffects.Add(effect);
+        for (int i = 0; i < target.allStats.Length; i++)
+        {
+            if (effect.stat == target.allStats[i].title) { target.allStats[i].effectValue += effect.potency; }
+            if (effect.stat2 != null) { if (effect.stat2 == target.allStats[i].title) { target.allStats[i].effectValue += effect.potency2; } }
+        }
+        if (target.hasGoneThisTurn) { effect.duration++; }
+    }
+    void RemoveEffect(Character target, Effect effect)
+    {
+        if (target == ego) { effectsText.text.Replace(effect.title + "\n", ""); }
+        else
+        {
+            BadGuy badTarget = (BadGuy)target;
+            badTarget.combatEffects.text.Replace(effect.abbreviation + " ", "");
+        }
+        target.activeEffects.Remove(effect);
+        for (int i = 0; i < target.allStats.Length; i++)
+        {
+            if (effect.stat == target.allStats[i].title) { target.allStats[i].effectValue -= effect.potency; }
+            if (effect.stat2 != null) { if (effect.stat2 == target.allStats[i].title) { target.allStats[i].effectValue -= effect.potency2; } }
+        }
     }
     IEnumerator ExecuteEgoAttack(BadGuy badGuy)
     {
@@ -537,6 +613,9 @@ public class Combat : MonoBehaviour
                 else if (currentArrowPosition == 1)
                 {
                     ego.displayAction = "Defend";
+                    ego.chosenAction = "Defend";
+                    actionSelected = true;
+                    break;
                 }
                 else if (currentArrowPosition == 2)
                 {
@@ -786,11 +865,39 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.15f);
         }
     }
+    IEnumerator SelectFlicker(GameObject border)
+    {
+        border.SetActive(false);
+        yield return new WaitForSeconds(.15f);
+        border.SetActive(true);
+        yield return new WaitForSeconds(.2f);
+        border.SetActive(false);
+        yield return new WaitForSeconds(.15f);
+        border.SetActive(true);
+    }
     IEnumerator EndTurn()
     {
         turnOrderBlackScreen.SetActive(true);
         yield return new WaitForSeconds(.5f);
         WhiteWash();
+        ego.hasGoneThisTurn = false;
+        for (int i = 0; i < ego.activeEffects.Count; i++)
+        {
+            ego.activeEffects[i].duration--;
+            if (ego.activeEffects[i].duration == 0) { RemoveEffect(ego, ego.activeEffects[i]); }
+        }
+        for (int i = 0; i < activeBadGuys.Length; i++)
+        {
+            if (activeBadGuys[i] != null)
+            {
+                activeBadGuys[i].hasGoneThisTurn = false;
+                for (int j = 0; j < activeBadGuys[i].activeEffects.Count; j++)
+                {
+                    activeBadGuys[i].activeEffects[j].duration--;
+                    if (activeBadGuys[i].activeEffects[j].duration == 0) { RemoveEffect(activeBadGuys[i], activeBadGuys[i].activeEffects[j]); }
+                }
+            }
+        }
         CalculateTurnOrder();
         DisplayTurnOrder();
         yield return new WaitForSeconds(.5f);

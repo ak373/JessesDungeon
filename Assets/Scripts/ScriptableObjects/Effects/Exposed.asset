@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Exposed
   m_EditorClassIdentifier: 
   title: Exposed
+  abbreviation: AC
   stat: armorClass
+  stat2: 
   potency: -1
+  potency2: 0
+  color: {r: 1, g: 0, b: 0, a: 1}
   duration: 5
   description: Your Armor Class suffers a -1 penalty for 5 rounds.
   remainingRounds: 0

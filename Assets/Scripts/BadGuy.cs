@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 [CreateAssetMenu(menuName = "Jesse's Dungeon/Characters/BadGuy")]
 public class BadGuy : Character
@@ -13,6 +14,7 @@ public class BadGuy : Character
     public string battleCry;
     [HideInInspector] public GameObject combatSlot;
     [HideInInspector] public GameObject combatBorder;
+    [HideInInspector] public TMP_Text combatEffects;
     public string specialAbility;
     public BadGuyCombatActions[] normalAIRay;
 }
