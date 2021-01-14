@@ -29,8 +29,10 @@ MonoBehaviour:
   equippedArmor: {fileID: 0}
   equippedWeapon: {fileID: 0}
   equippedShield: {fileID: 0}
-  currentInit: 11
-  currentAction: Delay
+  currentInit: 4
+  displayAction: 
+  chosenAction: Attack
+  chosenTarget: {fileID: 0}
   blueCrystals: 0
   fightClubRank: 0
   conversation: 0

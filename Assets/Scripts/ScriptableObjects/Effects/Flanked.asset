@@ -21,4 +21,4 @@ MonoBehaviour:
   color: {r: 1, g: 0, b: 0, a: 1}
   duration: 0
   description: You suffer a -2 penalty to your Armor Class for each flanking opponent.
-  remainingRounds: 0
+  turnOrderTick: 999

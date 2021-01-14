@@ -19,7 +19,7 @@ MonoBehaviour:
   potency: 5
   potency2: 2
   color: {r: 0, g: 1, b: 0, a: 1}
-  duration: 1
+  duration: 2
   description: Your Armor Class gets a +5 bonus and your Damage Reduction increases
     by 2 until your next action.
-  remainingRounds: 0
+  turnOrderTick: 3

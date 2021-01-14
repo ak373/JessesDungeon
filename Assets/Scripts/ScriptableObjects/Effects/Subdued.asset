@@ -21,4 +21,4 @@ MonoBehaviour:
   color: {r: 1, g: 0, b: 0, a: 1}
   duration: 5
   description: Your Initiative suffers a -20 penalty for 5 rounds.
-  remainingRounds: 0
+  turnOrderTick: 999

@@ -21,4 +21,4 @@ MonoBehaviour:
   color: {r: 0, g: 1, b: 0, a: 1}
   duration: 5
   description: Your Armor Class gets a +2 bonus for 5 rounds.
-  remainingRounds: 0
+  turnOrderTick: 999

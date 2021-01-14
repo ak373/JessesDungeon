@@ -15,5 +15,5 @@ public class Effect : ScriptableObject
     public int duration;
     [TextArea(3,10)]
     public string description;
-    [HideInInspector] public int remainingRounds;
+    [HideInInspector] public int turnOrderTick;
 }
