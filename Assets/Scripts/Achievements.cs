@@ -14,7 +14,7 @@ public class Achievements : MonoBehaviour
     public GameObject deedpopUpWindow, deedWhiteScreen, deedGreyScreen;
     public TMP_Text deedTitle, deedBlurb;
     public TMP_FontAsset deedDescriptionFont;
-    TMP_FontAsset originalFont;
+    public TMP_FontAsset originalFont;
     //public Animator fadeIn, fadeOut;
 
     GameController controller;

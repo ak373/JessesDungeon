@@ -120,6 +120,7 @@ public class GameController : MonoBehaviour
         ego.equippedWeapon = null;
         ego.equippedArmor = null;
         ego.equippedShield = null;
+        ego.chosenAction = "";
         ego.allStats[0].value = 100;
         ego.allStats[1].value = 100;
         ego.allStats[2].value = 100;
@@ -899,6 +900,7 @@ public class GameController : MonoBehaviour
     public bool InputGivenOrEscPressed() { return (userInput != null || Input.GetKeyDown(KeyCode.Escape)); }
     public bool UpDownEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
+    public bool UpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
 
     //public void EnterToContinueDialogue()
     //{

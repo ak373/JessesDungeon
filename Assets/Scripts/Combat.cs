@@ -271,10 +271,32 @@ public class Combat : MonoBehaviour
             }
             else if (turnOrder[i] == ego) { StartCoroutine(EgoActionSelect()); }
             else { actionSelected = true; }
+
             yield return new WaitUntil(ActionSelected);
+            //Delay
+            if (ego.chosenAction == "Delay")
+            {
+                ego.chosenAction = "";
+                turnOrderBlackScreen.SetActive(true);
+                yield return new WaitForSeconds(.5f);
+                RedistributeTurnOrder(i);
+                i--;
+                yield return new WaitForSeconds(.5f);
+                turnOrderBlackScreen.SetActive(false);
+            }
         }
         yield return new WaitForSeconds(.2f);
         StartCoroutine(ExecuteActions());
+
+        //If Delay is used
+        void RedistributeTurnOrder(int currentTurn)
+        {
+            turnOrder[currentTurn] = turnOrder[currentTurn + 1];
+            turnOrderNames[currentTurn].text = turnOrder[currentTurn].nome;
+
+            turnOrder[currentTurn + 1] = ego;
+            turnOrderNames[currentTurn + 1].text = "You";
+        }
     }
     IEnumerator ExecuteActions()
     {
@@ -568,6 +590,8 @@ public class Combat : MonoBehaviour
         int attackSelectionMemory = -1;
         IEnumerator selection;
         currentArrowPosition = 0;
+        egoDoneArrow.SetActive(false);
+        egoCombatOptions[2].color = Color.white;
         arrow.SetActive(true);
         while (true)
         {
@@ -584,7 +608,8 @@ public class Combat : MonoBehaviour
                 arrow.SetActive(false);
                 egoCombatOptions[currentArrowPosition].color = Color.grey;
 
-                if (currentArrowPosition == 0)//Attack
+                //Attack
+                if (currentArrowPosition == 0)
                 {
                     List<GameObject> activeBadGuyBorders = new List<GameObject>();
                     int borderSelected = 0;
@@ -649,24 +674,138 @@ public class Combat : MonoBehaviour
                         }
                     }
                 }
+                //Defend
                 else if (currentArrowPosition == 1)
                 {
                     ego.displayAction = "Defend";
                     ego.chosenAction = "Defend";
                     actionSelected = true;
-                    break;
                 }
+                //Delay
                 else if (currentArrowPosition == 2)
                 {
-                    ego.displayAction = "Delay";
+                    int currentTurn = 0;
+                    //find current turn
+                    for (int i = 0; i < turnOrder.Length; i++) { if (turnOrder[i] is Ego) { currentTurn = i; } }
+
+                    //make sure ego is not last (both in the order and the end of turn array)
+                    if (currentTurn +1 < 7)
+                    {
+                        if (turnOrder[currentTurn + 1] != null)
+                        {
+                            ego.chosenAction = "Delay";
+                            actionSelected = true;
+                        }
+                        else
+                        {
+                            currentArrowPosition = 0;
+                            egoDoneArrow.SetActive(false);
+                            arrow.SetActive(true);
+                            egoCombatOptions[2].color = Color.white;
+                        }
+                    }
+                    else
+                    {
+                        currentArrowPosition = 0;
+                        egoDoneArrow.SetActive(false);
+                        arrow.SetActive(true);
+                        egoCombatOptions[2].color = Color.white;
+                    }
                 }
+                //Flee
                 else if (currentArrowPosition == 3)
                 {
-                    ego.displayAction = "Flee";
+                    //ego.displayAction = "Flee";
+
+                    //testing status
+                    AddEffect(ego, 1, allEffects[0]);
+                    AddEffect(ego, 1, allEffects[1]);
+                    AddEffect(ego, 1, allEffects[2]);
+                    AddEffect(ego, 1, allEffects[3]);
+                    AddEffect(ego, 1, allEffects[4]);
+                    currentArrowPosition = 0;
+                    egoDoneArrow.SetActive(false);
+                    arrow.SetActive(true);
+                    egoCombatOptions[3].color = Color.white;
                 }
+                //Status
                 else if (currentArrowPosition == 4)
                 {
+                    if (ego.activeEffects.Count > 0)
+                    {
+                        string normalEffectsText = effectsText.text;
+                        string manipulatedEffectsText = effectsText.text;
+                        Effect selectedEffect = ego.activeEffects[0];
+                        int selectedElement = 0;
+                        while (true)
+                        {
+                            int doublesCounter = 0;
+                            effectsText.text = normalEffectsText;
+                            manipulatedEffectsText = normalEffectsText;
+                            if (selectedElement < 0) { selectedElement = ego.activeEffects.Count -1; }
+                            if (selectedElement > ego.activeEffects.Count -1) { selectedElement = 0; }
 
+                            int effectLength = ego.activeEffects[selectedElement].title.Length;
+                            //check if repeated effect for correct selection
+                            for (int i = 0; i < selectedElement; i++)
+                            {
+                                if (ego.activeEffects[selectedElement] == ego.activeEffects[i]) { doublesCounter++; }
+                            }
+                            //remove excess occurrences in text to get correct occurrence
+                            for (int i = 0; i < doublesCounter; i++)
+                            {
+                                manipulatedEffectsText = effectsText.text.Remove(effectsText.text.IndexOf(ego.activeEffects[selectedElement].title), effectLength);
+                            }
+                            //rewrite text with selection (accounting for removed doubles)
+                            int effectIndex = 0;
+                            if (doublesCounter > 0) { effectIndex = manipulatedEffectsText.IndexOf(ego.activeEffects[selectedElement].title) + (effectLength * doublesCounter); }
+                            else { effectIndex = effectsText.text.IndexOf(ego.activeEffects[selectedElement].title); }
+                            
+                            string newText = "";
+
+                            for (int i = 0; i < effectIndex; i++) { newText += effectsText.text[i]; }
+
+                            newText += "<b><size=15>[";
+
+                            for (int i = effectIndex; i < effectIndex + effectLength; i++) { newText += effectsText.text[i]; }
+                            
+                            newText += "]</size></b>";
+
+                            for (int i = effectIndex + effectLength; i < effectsText.text.Length; i++) { newText += effectsText.text[i]; }
+                            
+                            effectsText.text = newText;
+
+
+                            yield return new WaitUntil(controller.UpDownEnterEscPressed);
+                            if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedElement--; }
+                            else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedElement++; }
+                            else if (Input.GetKeyDown(KeyCode.Escape))
+                            {
+                                effectsText.text = normalEffectsText;
+                                egoDoneArrow.SetActive(false);
+                                arrow.SetActive(true);
+                                egoCombatOptions[4].color = Color.white;
+                                break;
+                            }
+                            else if (Input.GetKeyDown(KeyCode.Return))
+                            {
+                                selectedEffect = ego.activeEffects[selectedElement];
+                                controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
+                                //copying font from achievements for simplicity
+                                controller.achievements.originalFont = controller.popUpMessage.font;
+                                controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                yield return new WaitUntil(controller.EscPressed);
+                                controller.ClosePopUpWindow();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentArrowPosition = 0;
+                        egoDoneArrow.SetActive(false);
+                        arrow.SetActive(true);
+                        egoCombatOptions[4].color = Color.white;
+                    }
                 }
                 else if (currentArrowPosition == 5)
                 {
