@@ -52,7 +52,7 @@ public class GameController : MonoBehaviour
     public TMP_Text invDisplayArmorClass;
     public TMP_Text invDisplayCritResist;
     public TMP_Text invDisplayDmgReduction;
-    public GameObject inputBox;
+    public GameObject inputBox, displayBox;
     public GameObject popUpBox;
     public Scrollbar scrollBar;
     public Button scrollUpArrow, scrollDownArrow, scrollNonArrow;

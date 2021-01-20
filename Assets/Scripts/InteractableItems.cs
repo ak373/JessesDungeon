@@ -5,7 +5,7 @@ using System.Globalization;
 
 public class InteractableItems : MonoBehaviour
 {
-    TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+    public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
     [HideInInspector] public List<Item> inventory = new List<Item>();
     [HideInInspector] public List<string> notYetSearched = new List<string>();
     [HideInInspector] public List<string> alreadySearched = new List<string>();
@@ -72,7 +72,7 @@ public class InteractableItems : MonoBehaviour
                 }                
             }
         }
-        toPassIn += "\n\n-------------------------------------\nInspect\nEquip\nDrop\nUse\n\nAchievements\n\nPress ESC to return.";
+        toPassIn += "\n\n-------------------------------------\nInspect\nEquip\nDrop\nUse\n\nAchievements\n\nPress ESC to return";
         controller.escToContinue = true;
         controller.OverwriteMainWindow(toPassIn);        
     }

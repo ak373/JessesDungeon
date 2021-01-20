@@ -27,15 +27,18 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
     public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen;
-    public TMP_Text battleText, effectsText;
+    public TMP_Text battleText, effectsText, invText;
+    public GameObject invDisplay, invOptions, invOptionsBorder;
+    public List<TMP_Text> invActions = new List<TMP_Text>();
     public Effect[] allEffects;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
     BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
     Character[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
-    int currentArrowPosition, endingCharacter;
+    int currentArrowPosition, endingCharacter, mainDisplayIndex, invStatIndex;
     bool actionSelected, actionComplete, messageComplete;
+    Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
 
     GameController controller;
     // Start is called before the first frame update
@@ -49,6 +52,8 @@ public class Combat : MonoBehaviour
             turnOrderActions[i].text = "";
         }
         effectsText.text = "";
+        mainDisplayIndex = controller.displayBox.transform.GetSiblingIndex();
+        invStatIndex = controller.interactableItems.inventoryStats.transform.GetSiblingIndex();
 
         //testing purposes
         InitiateCombat(testBadGuy, testNumber);
@@ -807,9 +812,10 @@ public class Combat : MonoBehaviour
                         egoCombatOptions[4].color = Color.white;
                     }
                 }
+                //Inventory
                 else if (currentArrowPosition == 5)
                 {
-
+                    
                 }
                 if (actionSelected) { break; }
 
@@ -996,6 +1002,278 @@ public class Combat : MonoBehaviour
             return "Attack";
         }
     }
+    IEnumerator DisplayBattleInventory()
+    {
+        //copied from interactableitems with necessary changes and coding improvements
+        string toPassIn;
+        List<Item> alreadyListed = new List<Item>();
+        IEnumerator blinker;
+        IEnumerator selection;
+        int itemSelectionMemory = -1;
+        
+        invDisplay.SetActive(true);
+        alreadyListed.Clear();
+        toPassIn = "";
+        if (controller.interactableItems.inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
+        else
+        {
+            for (int i = 0; i < controller.interactableItems.inventory.Count; i++)
+            {
+                if (alreadyListed.Contains(controller.interactableItems.inventory[i])) { continue; }
+                else
+                {
+                    int counter = 0;
+                    for (int j = i; j < controller.interactableItems.inventory.Count; j++)
+                    {
+                        if (controller.interactableItems.inventory[i] == controller.interactableItems.inventory[j]) { counter++; }
+                    }
+                    alreadyListed.Add(controller.interactableItems.inventory[i]);
+                    string total = counter.ToString();
+                    toPassIn += total + " " + controller.interactableItems.myTI.ToTitleCase(controller.interactableItems.inventory[i].nome) + "\n";
+                }
+            }
+        }
+        toPassIn += "\n\n\nPress ESC to return";
+        invText.text = toPassIn;
+        //will need to recode this window with the scrolling magicks
+
+
+        if (controller.interactableItems.inventory.Count > 0)
+        {
+            string normalInvText = invText.text;
+            //string manipulatedEffectsText = effectsText.text;
+            Item selectedItem = alreadyListed[0];
+            int selectedElement = 0;
+            while (true)
+            {
+                invText.text = normalInvText;
+                //manipulatedEffectsText = normalEffectsText;
+                if (selectedElement < 0) { selectedElement = alreadyListed.Count - 1; }
+                if (selectedElement > alreadyListed.Count - 1) { selectedElement = 0; }
+
+                int itemLength = alreadyListed[selectedElement].nome.Length;
+                ////check if repeated effect for correct selection
+                //for (int i = 0; i < selectedElement; i++)
+                //{
+                //    if (ego.activeEffects[selectedElement] == ego.activeEffects[i]) { doublesCounter++; }
+                //}
+                ////remove excess occurrences in text to get correct occurrence
+                //for (int i = 0; i < doublesCounter; i++)
+                //{
+                //    manipulatedEffectsText = effectsText.text.Remove(effectsText.text.IndexOf(ego.activeEffects[selectedElement].title), effectLength);
+                //}
+                //rewrite text with selection (accounting for removed doubles)
+                int invIndex = 0;
+                //if (doublesCounter > 0) { effectIndex = manipulatedEffectsText.IndexOf(ego.activeEffects[selectedElement].title) + (effectLength * doublesCounter); }
+                //else { effectIndex = effectsText.text.IndexOf(ego.activeEffects[selectedElement].title); }
+                invIndex = invText.text.IndexOf(alreadyListed[selectedElement].nome);
+
+                string newText = "";
+
+                for (int i = 0; i < invIndex; i++) { newText += invText.text[i]; }
+
+                newText += "<b><size=15>[";
+
+                for (int i = invIndex; i < invIndex + itemLength; i++) { newText += invText.text[i]; }
+
+                newText += "]</size></b>";
+
+                for (int i = invIndex + itemLength; i < invText.text.Length; i++) { newText += invText.text[i]; }
+
+                invText.text = newText;
+
+                //add invstat and shifting stats
+
+                yield return new WaitUntil(controller.UpDownEnterEscPressed);
+                if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedElement--; }
+                else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedElement++; }
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {                    
+                    invDisplay.SetActive(false);
+                    egoDoneArrow.SetActive(false);
+                    arrow.SetActive(true);
+                    egoCombatOptions[5].color = Color.white;
+                    break;
+                }
+                else if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    selectedItem = alreadyListed[selectedElement];
+
+                    invOptions.SetActive(true);
+                    invOptionsBorder.SetActive(true);
+                    int option = 0;
+                    while (true)
+                    {
+                        if (selectedItem is Undroppable || selectedItem is Potion)
+                        {
+                            option = 1;
+                            invActions[0].color = darkGrey;
+                            if (option < 1) { option = 2; }
+                            if (option > 2) { option = 1; }
+                        }
+                        else
+                        {
+                            if (option < 0) { option = 2; }
+                            if (option > 2) { option = 0; }
+                        }
+                        yield return new WaitForSeconds(.01f);
+                        blinker = TextBlinker(invActions[option]);
+                        StartCoroutine(blinker);
+                        yield return new WaitUntil(controller.UpDownEnterEscPressed);
+                        if (Input.GetKeyDown(KeyCode.UpArrow))
+                        {
+                            StopCoroutine(blinker);
+                            invActions[option].color = Color.white;
+                            option--;
+                        }
+                        else if (Input.GetKeyDown(KeyCode.DownArrow))
+                        {
+                            StopCoroutine(blinker);
+                            invActions[option].color = Color.white;
+                            option++;
+                        }
+                        else if (Input.GetKeyDown(KeyCode.Escape))
+                        {
+                            invOptions.SetActive(false);
+                            invOptionsBorder.SetActive(false);
+                            break;
+                        }
+                        else if (Input.GetKeyDown(KeyCode.Return))
+                        {
+                            invDisplay.SetActive(false);
+                            invOptions.SetActive(false);
+                            invOptionsBorder.SetActive(false);
+                            //Equip
+                            if (option == 0)
+                            {
+                                ego.displayAction = "Equip";
+                                ego.chosenAction = "Equip";
+                                actionSelected = true;
+                                yield return selectedItem;
+                            }
+                            //Use
+                            else if (option == 1)
+                            {
+                                List<GameObject> activeBorders = new List<GameObject>();
+                                int borderSelected = 0;
+
+                                //construct target cycle
+                                for (int i = 0; i < activeBadGuys.Length; i++)
+                                {
+                                    if (activeBadGuys[i] != null) { activeBorders.Add(activeBadGuys[i].combatBorder); }
+                                }
+                                activeBorders.Add(borderEgo);
+                                if (selectedItem.beneficial) { borderSelected = activeBorders.IndexOf(borderEgo); }
+
+                                while (true)
+                                {
+                                    if (itemSelectionMemory != -1)
+                                    {
+                                        borderSelected = itemSelectionMemory;
+                                        itemSelectionMemory = -1;
+                                    }
+                                    if (borderSelected < 0) { borderSelected = activeBorders.Count - 1; }
+                                    if (borderSelected >= activeBorders.Count) { borderSelected = 0; }
+                                    yield return new WaitForSeconds(.01f);
+                                    selection = SelectAnimation(activeBorders[borderSelected]);
+                                    StartCoroutine(selection);
+                                    yield return new WaitUntil(controller.LeftRightEnterEscPressed);
+                                    if (Input.GetKeyDown(KeyCode.RightArrow))
+                                    {
+                                        StopCoroutine(selection);
+                                        activeBorders[borderSelected].SetActive(true);
+                                        borderSelected--;
+                                    }
+                                    else if (Input.GetKeyDown(KeyCode.LeftArrow))
+                                    {
+                                        StopCoroutine(selection);
+                                        activeBorders[borderSelected].SetActive(true);
+                                        borderSelected++;
+                                    }
+                                    else if (Input.GetKeyDown(KeyCode.Escape))
+                                    {
+                                        invDisplay.SetActive(true);
+                                        invOptions.SetActive(true);
+                                        invOptionsBorder.SetActive(true);
+                                        StopCoroutine(selection);
+                                        activeBorders[borderSelected].SetActive(true);
+                                        itemSelectionMemory = borderSelected;
+                                        break;
+                                    }
+                                    else if (Input.GetKeyDown(KeyCode.Return))
+                                    {
+                                        StopCoroutine(selection);
+                                        activeBorders[borderSelected].SetActive(true);
+                                        ego.displayAction = "Use";
+                                        ego.chosenAction = "Use";
+                                        //assign chosen target to ego.chosentarget
+                                        if (borderEgo == activeBorders[borderSelected]) { ego.chosenTarget = ego; }
+                                        else
+                                        {
+                                            for (int i = 0; i < activeBadGuys.Length; i++)
+                                            {
+                                                if (activeBadGuys[i] != null)
+                                                {
+                                                    if (activeBadGuys[i].combatBorder == activeBorders[borderSelected]) { ego.chosenTarget = activeBadGuys[i]; }
+                                                }
+                                            }
+                                        }                                        
+                                        actionSelected = true;
+                                        yield return selectedItem;
+                                    }
+                                }
+                            }
+                            //Drop
+                            if (option == 2)
+                            {
+                                OpenPopUpWindow("Drop " + itemToDrop.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
+
+                                ego.displayAction = "Drop";
+                                ego.chosenAction = "Drop";
+                                actionSelected = true;
+                                yield return selectedItem;
+                            }
+
+
+                            invOptions.SetActive(false);
+                            invOptionsBorder.SetActive(false);
+
+
+
+                            controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
+                            //copying font from achievements for simplicity
+                            controller.achievements.originalFont = controller.popUpMessage.font;
+                            controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                            yield return new WaitUntil(controller.EscPressed);
+                            controller.ClosePopUpWindow();
+                        }
+                    }
+
+
+
+
+                    controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
+                    //copying font from achievements for simplicity
+                    controller.achievements.originalFont = controller.popUpMessage.font;
+                    controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                    yield return new WaitUntil(controller.EscPressed);
+                    controller.ClosePopUpWindow();
+                }
+            }
+        }
+        else
+        {
+            currentArrowPosition = 0;
+            egoDoneArrow.SetActive(false);
+            arrow.SetActive(true);
+            egoCombatOptions[4].color = Color.white;
+        }
+
+
+
+
+
+    }
     IEnumerator HPRoll(Character character)
     {
         while (character.allStats[0].value > character.allStats[1].value)
@@ -1052,6 +1330,16 @@ public class Combat : MonoBehaviour
         border.SetActive(false);
         yield return new WaitForSeconds(.15f);
         border.SetActive(true);
+    }
+    IEnumerator TextBlinker(TMP_Text text)
+    {
+        while (true)
+        {
+            text.color = darkGrey;
+            yield return new WaitForSeconds(.15f);
+            text.color = Color.white;
+            yield return new WaitForSeconds(.15f);
+        }        
     }
     IEnumerator EndTurn()
     {

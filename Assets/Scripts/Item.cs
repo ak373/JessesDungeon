@@ -10,4 +10,5 @@ public class Item : ScriptableObject
     [TextArea(3,5)]
     public string description;
     public bool unlocked;
+    public bool beneficial;
 }
