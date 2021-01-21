@@ -28,7 +28,8 @@ public class Combat : MonoBehaviour
     public TMP_Text[] egoCombatOptions;
     public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen;
     public TMP_Text battleText, effectsText, invText;
-    public GameObject invDisplay, invOptions, invOptionsBorder;
+    public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder;
+    public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public Effect[] allEffects;
 
@@ -36,8 +37,8 @@ public class Combat : MonoBehaviour
     BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
     Character[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
-    int currentArrowPosition, endingCharacter, mainDisplayIndex, invStatIndex;
-    bool actionSelected, actionComplete, messageComplete;
+    int currentArrowPosition, endingCharacter;
+    bool actionSelected, actionComplete, messageComplete, inventoryComplete;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
 
     GameController controller;
@@ -52,8 +53,6 @@ public class Combat : MonoBehaviour
             turnOrderActions[i].text = "";
         }
         effectsText.text = "";
-        mainDisplayIndex = controller.displayBox.transform.GetSiblingIndex();
-        invStatIndex = controller.interactableItems.inventoryStats.transform.GetSiblingIndex();
 
         //testing purposes
         InitiateCombat(testBadGuy, testNumber);
@@ -722,12 +721,16 @@ public class Combat : MonoBehaviour
                 {
                     //ego.displayAction = "Flee";
 
-                    //testing status
+                    //testing status & inventory
                     AddEffect(ego, 1, allEffects[0]);
                     AddEffect(ego, 1, allEffects[1]);
                     AddEffect(ego, 1, allEffects[2]);
                     AddEffect(ego, 1, allEffects[3]);
                     AddEffect(ego, 1, allEffects[4]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[0]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[1]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[3]);
                     currentArrowPosition = 0;
                     egoDoneArrow.SetActive(false);
                     arrow.SetActive(true);
@@ -815,7 +818,9 @@ public class Combat : MonoBehaviour
                 //Inventory
                 else if (currentArrowPosition == 5)
                 {
-                    
+                    StartCoroutine(DisplayBattleInventory());
+                    yield return new WaitUntil(InventoryComplete);
+                    inventoryComplete = false;
                 }
                 if (actionSelected) { break; }
 
@@ -1012,6 +1017,7 @@ public class Combat : MonoBehaviour
         int itemSelectionMemory = -1;
         
         invDisplay.SetActive(true);
+        invDisplayBorder.SetActive(true);
         alreadyListed.Clear();
         toPassIn = "";
         if (controller.interactableItems.inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
@@ -1033,7 +1039,6 @@ public class Combat : MonoBehaviour
                 }
             }
         }
-        toPassIn += "\n\n\nPress ESC to return";
         invText.text = toPassIn;
         //will need to recode this window with the scrolling magicks
 
@@ -1050,7 +1055,6 @@ public class Combat : MonoBehaviour
                 //manipulatedEffectsText = normalEffectsText;
                 if (selectedElement < 0) { selectedElement = alreadyListed.Count - 1; }
                 if (selectedElement > alreadyListed.Count - 1) { selectedElement = 0; }
-
                 int itemLength = alreadyListed[selectedElement].nome.Length;
                 ////check if repeated effect for correct selection
                 //for (int i = 0; i < selectedElement; i++)
@@ -1066,7 +1070,7 @@ public class Combat : MonoBehaviour
                 int invIndex = 0;
                 //if (doublesCounter > 0) { effectIndex = manipulatedEffectsText.IndexOf(ego.activeEffects[selectedElement].title) + (effectLength * doublesCounter); }
                 //else { effectIndex = effectsText.text.IndexOf(ego.activeEffects[selectedElement].title); }
-                invIndex = invText.text.IndexOf(alreadyListed[selectedElement].nome);
+                invIndex = invText.text.IndexOf(controller.interactableItems.myTI.ToTitleCase(alreadyListed[selectedElement].nome));
 
                 string newText = "";
 
@@ -1082,7 +1086,7 @@ public class Combat : MonoBehaviour
 
                 invText.text = newText;
 
-                //add invstat and shifting stats
+                InvStats(alreadyListed[selectedElement]);
 
                 yield return new WaitUntil(controller.UpDownEnterEscPressed);
                 if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedElement--; }
@@ -1090,9 +1094,11 @@ public class Combat : MonoBehaviour
                 else if (Input.GetKeyDown(KeyCode.Escape))
                 {                    
                     invDisplay.SetActive(false);
+                    invDisplayBorder.SetActive(false);
                     egoDoneArrow.SetActive(false);
                     arrow.SetActive(true);
                     egoCombatOptions[5].color = Color.white;
+                    inventoryComplete = true;
                     break;
                 }
                 else if (Input.GetKeyDown(KeyCode.Return))
@@ -1217,7 +1223,7 @@ public class Combat : MonoBehaviour
                                                     if (activeBadGuys[i].combatBorder == activeBorders[borderSelected]) { ego.chosenTarget = activeBadGuys[i]; }
                                                 }
                                             }
-                                        }                                        
+                                        }
                                         actionSelected = true;
                                         yield return selectedItem;
                                     }
@@ -1226,53 +1232,156 @@ public class Combat : MonoBehaviour
                             //Drop
                             if (option == 2)
                             {
-                                OpenPopUpWindow("Drop " + itemToDrop.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
-
-                                ego.displayAction = "Drop";
-                                ego.chosenAction = "Drop";
-                                actionSelected = true;
-                                yield return selectedItem;
+                                bool yesSelected = false;
+                                while (true)
+                                {
+                                    if (yesSelected) { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<b>[Yes]</b>. I'm not afraid.", "", "No! Take me back!", ""); }
+                                    else { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "Yes. I'm not afraid.", "", "<b>[No]</b>! Take me back!", ""); }
+                                    yield return new WaitUntil(controller.LeftRightEnterPressed);
+                                    if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                    else if (Input.GetKeyDown(KeyCode.Return))
+                                    {
+                                        if (!yesSelected)
+                                        {
+                                            controller.ClosePopUpWindow();
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            ego.displayAction = "Drop";
+                                            ego.chosenAction = "Drop";
+                                            actionSelected = true;
+                                            yield return selectedItem;
+                                        }
+                                    }
+                                }
                             }
-
-
-                            invOptions.SetActive(false);
-                            invOptionsBorder.SetActive(false);
-
-
-
-                            controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
-                            //copying font from achievements for simplicity
-                            controller.achievements.originalFont = controller.popUpMessage.font;
-                            controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
-                            yield return new WaitUntil(controller.EscPressed);
-                            controller.ClosePopUpWindow();
                         }
                     }
-
-
-
-
-                    controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
-                    //copying font from achievements for simplicity
-                    controller.achievements.originalFont = controller.popUpMessage.font;
-                    controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
-                    yield return new WaitUntil(controller.EscPressed);
-                    controller.ClosePopUpWindow();
                 }
             }
         }
         else
         {
-            currentArrowPosition = 0;
+            yield return new WaitUntil(controller.EscPressed);
+            invDisplay.SetActive(false);
+            invDisplayBorder.SetActive(false);
             egoDoneArrow.SetActive(false);
             arrow.SetActive(true);
-            egoCombatOptions[4].color = Color.white;
+            egoCombatOptions[5].color = Color.white;
+            inventoryComplete = true;
         }
+    }
+    void InvStats(Item itemSelected)
+    {
+        //damage die & damage
+        int egoDamageDie = (int)(ego.allStats[6].value + ego.allStats[6].effectValue);
+        int withItemDamageDie = egoDamageDie;
+        int egoDamage = (int)(ego.allStats[7].value + ego.allStats[7].effectValue);
+        int withItemDamage = egoDamage;
+        int egoCurrentWeaponDamage = 0;
+        if (ego.equippedWeapon != null) { egoCurrentWeaponDamage = controller.ego.equippedWeapon.damage; }        
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemDamage = egoDamage - egoCurrentWeaponDamage + weaponSelected.damage;
+            withItemDamageDie = (int)ego.allStats[6].effectValue + weaponSelected.damageDie;
+        }
+        string dieColor = "white";
+        string damageColor = "white";
+        string damageSign = "+";
+        if (egoDamageDie < withItemDamageDie) { dieColor = "green"; }
+        if (egoDamageDie > withItemDamageDie) { dieColor = "red"; }
+        if (egoDamage < withItemDamage) { damageColor = "green"; }
+        if (egoDamage > withItemDamage) { damageColor = "red"; }
+        if (withItemDamage < 0) { damageSign = ""; }
+        combatInvDamage.text = $"<color={dieColor}>1d{withItemDamageDie}</color> <color={damageColor}>{damageSign}{withItemDamage}</color>";
 
+        //critMultiplier
+        float egoCritMultiplier = ego.allStats[8].value + ego.allStats[8].effectValue;
+        float withItemCritMultiplier = egoCritMultiplier;
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemCritMultiplier = ego.allStats[8].effectValue + weaponSelected.critMultiplier;
+        }
+        string critMultiplierColor = "white";
+        if (egoCritMultiplier < withItemCritMultiplier) { critMultiplierColor = "green"; }
+        if (egoCritMultiplier > withItemCritMultiplier) { critMultiplierColor = "red"; }
 
+        combatInvCritMultiplier.text = $"<color={critMultiplierColor}>x{withItemCritMultiplier}</color>";
 
+        //toHitMod
+        int egoToHitMod = (int)(ego.allStats[9].value + ego.allStats[9].effectValue);
+        int withItemToHitMod = (int)egoToHitMod;
+        int egoCurrentWeaponToHitMod = 0;
+        if (ego.equippedWeapon != null) { egoCurrentWeaponToHitMod = controller.ego.equippedWeapon.toHitMod; }
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemToHitMod = egoToHitMod - egoCurrentWeaponToHitMod + weaponSelected.toHitMod;
+        }
+        string toHitModColor = "white";
+        if (egoToHitMod < withItemToHitMod) { toHitModColor = "green"; }
+        if (egoToHitMod > withItemToHitMod) { toHitModColor = "red"; }
 
+        combatInvToHitMod.text = $"<color={toHitModColor}>+{withItemToHitMod}</color>";
 
+        //armorClass
+        int egoArmorClass = (int)(ego.allStats[3].value + ego.allStats[3].effectValue);
+        int withItemArmorClass = (int)egoArmorClass;
+        int egoCurrentShieldArmorClass = 0;
+        if (ego.equippedShield != null) { egoCurrentShieldArmorClass = controller.ego.equippedShield.armorClass; }
+        if (itemSelected is Shield)
+        {
+            Shield shieldSelected = (Shield)itemSelected;
+            withItemArmorClass = egoArmorClass - egoCurrentShieldArmorClass + shieldSelected.armorClass;
+        }
+        string armorClassColor = "white";
+        if (egoArmorClass < withItemArmorClass) { armorClassColor = "green"; }
+        if (egoArmorClass > withItemArmorClass) { armorClassColor = "red"; }
+
+        combatInvArmorClass.text = $"<color={armorClassColor}>{withItemArmorClass}</color>";
+
+        //critResist
+        float egoCritResist = ego.allStats[4].value - ego.allStats[4].effectValue;
+        float withItemCritResist = egoCritResist;
+        float egoCurrentArmorCritResist = 1;
+        float egoCurrentShieldCritResist = 1;
+        if (ego.equippedArmor != null) { egoCurrentArmorCritResist = controller.ego.equippedArmor.critResist; }
+        if (ego.equippedShield != null) { egoCurrentShieldCritResist = controller.ego.equippedShield.critResist; }
+        if (itemSelected is Armor)
+        {
+            Armor armorSelected = (Armor)itemSelected;
+            withItemCritResist = armorSelected.critResist - (1 - egoCurrentShieldCritResist) - ego.allStats[4].effectValue;
+        }
+        else if (itemSelected is Shield)
+        {
+            Shield shieldSelected = (Shield)itemSelected;
+            withItemCritResist = shieldSelected.critResist - (1 - egoCurrentArmorCritResist) - ego.allStats[4].effectValue;
+        }
+        string critResistColor = "white";
+        if (egoCritResist > withItemCritResist) { critResistColor = "green"; }
+        if (egoCritResist < withItemCritResist) { critResistColor = "red"; }
+
+        combatInvCritResist.text = $"<color={critResistColor}>x{withItemCritResist}</color>";
+
+        //dmgReduction
+        int egoDmgReduction = (int)(ego.allStats[5].value + ego.allStats[5].effectValue);
+        int withItemDmgReduction = (int)egoDmgReduction;
+        int egoCurrentArmorDmgReduction = 0;
+        if (ego.equippedArmor != null) { egoCurrentArmorDmgReduction = controller.ego.equippedArmor.damageReduction; }
+        if (itemSelected is Armor)
+        {
+            Armor armorSelected = (Armor)itemSelected;
+            withItemDmgReduction = egoDmgReduction - egoCurrentArmorDmgReduction + armorSelected.damageReduction;
+        }
+        string dmgReductionColor = "white";
+        if (egoDmgReduction < withItemDmgReduction) { dmgReductionColor = "green"; }
+        if (egoDmgReduction > withItemDmgReduction) { dmgReductionColor = "red"; }
+
+        if (withItemDmgReduction >= 0) { combatInvDmgReduction.text = $"<color={dmgReductionColor}>-{withItemDmgReduction}</color>"; }
+        else { combatInvDmgReduction.text = $"<color={dmgReductionColor}>+{Mathf.Abs(withItemDmgReduction)}</color>"; }
     }
     IEnumerator HPRoll(Character character)
     {
@@ -1415,6 +1524,7 @@ public class Combat : MonoBehaviour
     bool ActionSelected() { return actionSelected; }
     bool ActionComplete() { return actionComplete; }
     bool MessageComplete() { return messageComplete; }
+    bool InventoryComplete() { return inventoryComplete; }
 
 
 
@@ -1431,7 +1541,7 @@ public class Combat : MonoBehaviour
         else { combatArmorDisplay.text = "None"; }
         if (ego.equippedShield != null) { combatShieldDisplay.text = ego.equippedShield.nome; }
         else { combatShieldDisplay.text = "None"; }
-
+        
         //HP totals
         for (int i = 0; i < activeBadGuys.Length; i++)
         {

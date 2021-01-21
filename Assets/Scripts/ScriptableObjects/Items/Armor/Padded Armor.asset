@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Padded Armor
   m_EditorClassIdentifier: 
   noun: leather
-  nome: leather armor
+  nome: padded armor
   price: 40
   description: You can barely put your arms down, but it'll help keep those pesky
     pointed objects out of your skin.
   unlocked: 0
+  beneficial: 0
   damageReduction: 2
   critResist: 1
