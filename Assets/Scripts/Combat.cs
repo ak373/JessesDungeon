@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 
@@ -30,8 +31,10 @@ public class Combat : MonoBehaviour
     public TMP_Text battleText, effectsText, invText;
     public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder;
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
+    public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public Effect[] allEffects;
+    [HideInInspector] public float scrollRectValue;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
     BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
@@ -820,6 +823,8 @@ public class Combat : MonoBehaviour
                 {
                     StartCoroutine(DisplayBattleInventory());
                     yield return new WaitUntil(InventoryComplete);
+                    invDisplay.SetActive(false);
+                    invDisplayBorder.SetActive(false);
                     inventoryComplete = false;
                 }
                 if (actionSelected) { break; }
@@ -1015,7 +1020,8 @@ public class Combat : MonoBehaviour
         IEnumerator blinker;
         IEnumerator selection;
         int itemSelectionMemory = -1;
-        
+        int selfSelectionMemory = -1;
+
         invDisplay.SetActive(true);
         invDisplayBorder.SetActive(true);
         alreadyListed.Clear();
@@ -1040,36 +1046,20 @@ public class Combat : MonoBehaviour
             }
         }
         invText.text = toPassIn;
-        //will need to recode this window with the scrolling magicks
 
 
         if (controller.interactableItems.inventory.Count > 0)
         {
             string normalInvText = invText.text;
-            //string manipulatedEffectsText = effectsText.text;
             Item selectedItem = alreadyListed[0];
             int selectedElement = 0;
             while (true)
             {
                 invText.text = normalInvText;
-                //manipulatedEffectsText = normalEffectsText;
                 if (selectedElement < 0) { selectedElement = alreadyListed.Count - 1; }
                 if (selectedElement > alreadyListed.Count - 1) { selectedElement = 0; }
                 int itemLength = alreadyListed[selectedElement].nome.Length;
-                ////check if repeated effect for correct selection
-                //for (int i = 0; i < selectedElement; i++)
-                //{
-                //    if (ego.activeEffects[selectedElement] == ego.activeEffects[i]) { doublesCounter++; }
-                //}
-                ////remove excess occurrences in text to get correct occurrence
-                //for (int i = 0; i < doublesCounter; i++)
-                //{
-                //    manipulatedEffectsText = effectsText.text.Remove(effectsText.text.IndexOf(ego.activeEffects[selectedElement].title), effectLength);
-                //}
-                //rewrite text with selection (accounting for removed doubles)
                 int invIndex = 0;
-                //if (doublesCounter > 0) { effectIndex = manipulatedEffectsText.IndexOf(ego.activeEffects[selectedElement].title) + (effectLength * doublesCounter); }
-                //else { effectIndex = effectsText.text.IndexOf(ego.activeEffects[selectedElement].title); }
                 invIndex = invText.text.IndexOf(controller.interactableItems.myTI.ToTitleCase(alreadyListed[selectedElement].nome));
 
                 string newText = "";
@@ -1105,11 +1095,11 @@ public class Combat : MonoBehaviour
                 {
                     selectedItem = alreadyListed[selectedElement];
 
-                    invOptions.SetActive(true);
-                    invOptionsBorder.SetActive(true);
                     int option = 0;
                     while (true)
                     {
+                        invOptions.SetActive(true);
+                        invOptionsBorder.SetActive(true);
                         if (selectedItem is Undroppable || selectedItem is Potion)
                         {
                             option = 1;
@@ -1140,13 +1130,15 @@ public class Combat : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
                         {
+                            StopCoroutine(blinker);
+                            invActions[option].color = Color.white;
                             invOptions.SetActive(false);
                             invOptionsBorder.SetActive(false);
                             break;
                         }
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
-                            invDisplay.SetActive(false);
+                            StopCoroutine(blinker);
                             invOptions.SetActive(false);
                             invOptionsBorder.SetActive(false);
                             //Equip
@@ -1154,12 +1146,18 @@ public class Combat : MonoBehaviour
                             {
                                 ego.displayAction = "Equip";
                                 ego.chosenAction = "Equip";
+                                ego.chosenItem = selectedItem;
                                 actionSelected = true;
-                                yield return selectedItem;
+                                inventoryComplete = true;
+                                break;
                             }
                             //Use
                             else if (option == 1)
                             {
+                                invDisplay.SetActive(false);
+                                invDisplayBorder.SetActive(false);
+                                invOptions.SetActive(false);
+                                invOptionsBorder.SetActive(false);
                                 List<GameObject> activeBorders = new List<GameObject>();
                                 int borderSelected = 0;
 
@@ -1183,7 +1181,7 @@ public class Combat : MonoBehaviour
                                     yield return new WaitForSeconds(.01f);
                                     selection = SelectAnimation(activeBorders[borderSelected]);
                                     StartCoroutine(selection);
-                                    yield return new WaitUntil(controller.LeftRightEnterEscPressed);
+                                    yield return new WaitUntil(controller.LeftRightUpDownEnterEscPressed);
                                     if (Input.GetKeyDown(KeyCode.RightArrow))
                                     {
                                         StopCoroutine(selection);
@@ -1196,9 +1194,40 @@ public class Combat : MonoBehaviour
                                         activeBorders[borderSelected].SetActive(true);
                                         borderSelected++;
                                     }
+                                    else if (Input.GetKeyDown(KeyCode.DownArrow))
+                                    {
+                                        if (activeBorders[borderSelected] != borderEgo)
+                                        {
+                                            StopCoroutine(selection);
+                                            activeBorders[borderSelected].SetActive(true);
+                                            selfSelectionMemory = borderSelected;
+                                            borderSelected = activeBorders.IndexOf(borderEgo);
+                                        }
+                                        else
+                                        {
+                                            StopCoroutine(selection);
+                                            activeBorders[borderSelected].SetActive(true);
+                                        }
+                                    }
+                                    else if (Input.GetKeyDown(KeyCode.UpArrow))
+                                    {
+                                        if (activeBorders[borderSelected] == borderEgo)
+                                        {
+                                            StopCoroutine(selection);
+                                            activeBorders[borderSelected].SetActive(true);
+                                            borderSelected = selfSelectionMemory;
+                                        }
+                                        else
+                                        {
+                                            StopCoroutine(selection);
+                                            activeBorders[borderSelected].SetActive(true);
+                                            continue;
+                                        }
+                                    }
                                     else if (Input.GetKeyDown(KeyCode.Escape))
                                     {
                                         invDisplay.SetActive(true);
+                                        invDisplayBorder.SetActive(true);
                                         invOptions.SetActive(true);
                                         invOptionsBorder.SetActive(true);
                                         StopCoroutine(selection);
@@ -1212,6 +1241,7 @@ public class Combat : MonoBehaviour
                                         activeBorders[borderSelected].SetActive(true);
                                         ego.displayAction = "Use";
                                         ego.chosenAction = "Use";
+                                        ego.chosenItem = selectedItem;
                                         //assign chosen target to ego.chosentarget
                                         if (borderEgo == activeBorders[borderSelected]) { ego.chosenTarget = ego; }
                                         else
@@ -1225,34 +1255,33 @@ public class Combat : MonoBehaviour
                                             }
                                         }
                                         actionSelected = true;
-                                        yield return selectedItem;
+                                        inventoryComplete = true;
+                                        break;
                                     }
                                 }
                             }
                             //Drop
-                            if (option == 2)
+                            else if (option == 2)
                             {
                                 bool yesSelected = false;
                                 while (true)
                                 {
-                                    if (yesSelected) { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<b>[Yes]</b>. I'm not afraid.", "", "No! Take me back!", ""); }
-                                    else { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "Yes. I'm not afraid.", "", "<b>[No]</b>! Take me back!", ""); }
+                                    if (yesSelected) { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<b>[Yes]</b><color=white>. I'm not afraid.</color>", "", "<color=white>No! Take me back!</color>", ""); }
+                                    else { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<color=white>Yes. I'm not afraid.</color>", "", "<b>[No]</b><color=white>! Take me back!</color>", ""); }
                                     yield return new WaitUntil(controller.LeftRightEnterPressed);
                                     if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
                                     else if (Input.GetKeyDown(KeyCode.Return))
                                     {
-                                        if (!yesSelected)
-                                        {
-                                            controller.ClosePopUpWindow();
-                                            break;
-                                        }
-                                        else
+                                        if (yesSelected)
                                         {
                                             ego.displayAction = "Drop";
                                             ego.chosenAction = "Drop";
+                                            ego.chosenItem = selectedItem;
                                             actionSelected = true;
-                                            yield return selectedItem;
+                                            inventoryComplete = true;
                                         }
+                                        controller.ClosePopUpWindow();
+                                        break;
                                     }
                                 }
                             }
@@ -1563,5 +1592,50 @@ public class Combat : MonoBehaviour
         {
             if (turnOrder[i] != null) { turnOrderActions[i].text = turnOrder[i].displayAction; }            
         }
+
+        ////scroll arrows
+        //if (scrollBar.size < 1) { scrollArrows.SetActive(true); }
+        //else { scrollArrows.SetActive(false); }
+
+        //if (Input.GetKey(KeyCode.UpArrow))
+        //{
+        //    scrollRectValue = GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
+        //    if (scrollRectValue <= 0.9)
+        //    {
+        //        scrollUpArrow.Select();
+        //        Canvas.ForceUpdateCanvases();
+        //        GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition += 0.1f;
+        //        Canvas.ForceUpdateCanvases();
+        //        scrollNonArrow.Select();
+        //    }
+        //    else if (scrollRectValue > 0.9)
+        //    {
+        //        scrollUpArrow.Select();
+        //        Canvas.ForceUpdateCanvases();
+        //        GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
+        //        Canvas.ForceUpdateCanvases();
+        //        scrollNonArrow.Select();
+        //    }
+        //}
+        //if (Input.GetKey(KeyCode.DownArrow))
+        //{
+        //    scrollRectValue = GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
+        //    if (scrollRectValue >= 0.1)
+        //    {
+        //        scrollDownArrow.Select();
+        //        Canvas.ForceUpdateCanvases();
+        //        GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition -= 0.1f;
+        //        Canvas.ForceUpdateCanvases();
+        //        scrollNonArrow.Select();
+        //    }
+        //    else if (scrollRectValue < 0.1)
+        //    {
+        //        scrollDownArrow.Select();
+        //        Canvas.ForceUpdateCanvases();
+        //        GameObject.Find("CombatScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
+        //        Canvas.ForceUpdateCanvases();
+        //        scrollNonArrow.Select();
+        //    }
+        //}
     }
 }

@@ -345,6 +345,7 @@ public class GameController : MonoBehaviour
     }
     IEnumerator ScriptedResponseDinnerTray()
     {
+        bool choseNo = false;
         while (sentences.Count >= 0)
         {
             if (sentences.Count == 0)
@@ -353,7 +354,7 @@ public class GameController : MonoBehaviour
                 inputBox.SetActive(true);
                 textInput.inputField.ActivateInputField();
                 textInput.inputField.text = null;
-                StartCoroutine(achievements.DisplayDeedPopUp(achievements.allDeeds[0]));
+                if (!choseNo) { StartCoroutine(achievements.DisplayDeedPopUp(achievements.allDeeds[0])); }
                 break;
             }
             int pause = pauses.Dequeue();
@@ -417,6 +418,7 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
+                            choseNo = true;
                             userInput = "";
                             registerObjects.allObjects[0].searched = false;
                             AddToMainWindowWithLine("Well good. That's very sensible of you.\n\n\nPress ENTER to continue.");
@@ -900,6 +902,7 @@ public class GameController : MonoBehaviour
     public bool InputGivenOrEscPressed() { return (userInput != null || Input.GetKeyDown(KeyCode.Escape)); }
     public bool UpDownEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
+    public bool LeftRightUpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
     public bool UpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
 
