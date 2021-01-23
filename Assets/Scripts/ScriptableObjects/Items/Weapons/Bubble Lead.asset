@@ -16,10 +16,11 @@ MonoBehaviour:
   nome: bubble lead
   price: 0
   description: Dah nah nah nah nah nah naaaah! Nah nah nah nah nah naaaaaaah!
+  unlocked: 0
+  beneficial: 0
   type: Ranged
   damage: 0
   damageDie: 1
   critMultiplier: 1
   toHitMod: 5
   twoHanded: 0
-  unlocked: 0

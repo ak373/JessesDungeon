@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using System.Globalization;
 
 public class Combat : MonoBehaviour
 {
@@ -42,7 +43,9 @@ public class Combat : MonoBehaviour
     List<int> usedInitValues = new List<int>();
     int currentArrowPosition, endingCharacter;
     bool actionSelected, actionComplete, messageComplete, inventoryComplete;
+    bool unstrap = false;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
+    TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
 
     GameController controller;
     // Start is called before the first frame update
@@ -337,7 +340,9 @@ public class Combat : MonoBehaviour
                 if (turnOrder[i] == ego)
                 {
                     StartCoroutine(SelectFlicker(borderEgo));
+                    //Execute Attack
                     if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
+                    //Execute Defend
                     else if (ego.chosenAction == "Defend")
                     {
                         Effect guarded = Instantiate(allEffects[4]);
@@ -356,9 +361,95 @@ public class Combat : MonoBehaviour
                         battleLogGreyScreen.SetActive(false);
                         actionComplete = true;
                     }
-                    else if (ego.chosenAction == "Delay")
+                    //Execute Equip
+                    else if (ego.chosenAction == "Equip")
                     {
-
+                        if (ego.chosenItem is Weapon)
+                        {
+                            controller.GetEquipped((Weapon)ego.chosenItem);
+                            if (unstrap)
+                            {
+                                unstrap = false;
+                                controller.GetUnStrapped();
+                            }
+                            battleLog.SetActive(true);
+                            battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            yield return new WaitForSeconds(1.25f);
+                            battleLogGreyScreen.SetActive(true);
+                            yield return new WaitForSeconds(.5f);
+                            battleLog.SetActive(false);
+                            yield return new WaitForSeconds(.5f);
+                            battleLogGreyScreen.SetActive(false);
+                        }
+                        else if (ego.chosenItem is Armor)
+                        {
+                            controller.GetDressed((Armor)ego.chosenItem);
+                            battleLog.SetActive(true);
+                            battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            yield return new WaitForSeconds(1.25f);
+                            battleLogGreyScreen.SetActive(true);
+                            yield return new WaitForSeconds(.5f);
+                            battleLog.SetActive(false);
+                            yield return new WaitForSeconds(.5f);
+                            battleLogGreyScreen.SetActive(false);
+                        }
+                        else if (ego.chosenItem is Shield)
+                        {
+                            controller.GetStrapped((Shield)ego.chosenItem);
+                            battleLog.SetActive(true);
+                            battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            yield return new WaitForSeconds(1.25f);
+                            battleLogGreyScreen.SetActive(true);
+                            yield return new WaitForSeconds(.5f);
+                            battleLog.SetActive(false);
+                            yield return new WaitForSeconds(.5f);
+                            battleLogGreyScreen.SetActive(false);
+                        }
+                        //equip shield with weapon (or fail to equip non shield)
+                        if (ego.chosenItem2 != null)
+                        {
+                            yield return new WaitForSeconds(.25f);
+                            battleLog.SetActive(true);
+                            if (ego.chosenItem2 is Shield)
+                            {
+                                controller.GetStrapped((Shield)ego.chosenItem2);
+                                battleText.text = $"You also equip the {myTI.ToTitleCase(ego.chosenItem2.nome)}.";
+                            }
+                            else
+                            {
+                                if (ego.chosenItem2 is Weapon) { battleText.text = "...and nice try."; }
+                                else if (ego.chosenItem2 is Potion)
+                                {
+                                    controller.interactableItems.inventory.Remove(ego.chosenItem2);
+                                    battleText.text = $"The {myTI.ToTitleCase(ego.chosenItem2.nome)} drops and breaks after you place it on your forearm!";
+                                }
+                                else { battleText.text = $"Getting the {myTI.ToTitleCase(ego.chosenItem2.nome)} onto your arm is awkward so you put it away."; }
+                            }                            
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            yield return new WaitForSeconds(1.25f);
+                            battleLogGreyScreen.SetActive(true);
+                            yield return new WaitForSeconds(.5f);
+                            battleLog.SetActive(false);
+                            yield return new WaitForSeconds(.5f);
+                            battleLogGreyScreen.SetActive(false);
+                            ego.chosenItem2 = null;
+                        }
+                        actionComplete = true;
                     }
                 }
                 else //if (turnOrder[i] != jesse)
@@ -1012,6 +1103,8 @@ public class Combat : MonoBehaviour
             return "Attack";
         }
     }
+
+
     IEnumerator DisplayBattleInventory()
     {
         //copied from interactableitems with necessary changes and coding improvements
@@ -1021,6 +1114,7 @@ public class Combat : MonoBehaviour
         IEnumerator selection;
         int itemSelectionMemory = -1;
         int selfSelectionMemory = -1;
+        bool failedEquip = false;
 
         invDisplay.SetActive(true);
         invDisplayBorder.SetActive(true);
@@ -1041,7 +1135,7 @@ public class Combat : MonoBehaviour
                     }
                     alreadyListed.Add(controller.interactableItems.inventory[i]);
                     string total = counter.ToString();
-                    toPassIn += total + " " + controller.interactableItems.myTI.ToTitleCase(controller.interactableItems.inventory[i].nome) + "\n";
+                    toPassIn += total + " " + myTI.ToTitleCase(controller.interactableItems.inventory[i].nome) + "\n";
                 }
             }
         }
@@ -1053,6 +1147,7 @@ public class Combat : MonoBehaviour
             string normalInvText = invText.text;
             Item selectedItem = alreadyListed[0];
             int selectedElement = 0;
+            bool itemUsed = false;
             while (true)
             {
                 invText.text = normalInvText;
@@ -1060,7 +1155,7 @@ public class Combat : MonoBehaviour
                 if (selectedElement > alreadyListed.Count - 1) { selectedElement = 0; }
                 int itemLength = alreadyListed[selectedElement].nome.Length;
                 int invIndex = 0;
-                invIndex = invText.text.IndexOf(controller.interactableItems.myTI.ToTitleCase(alreadyListed[selectedElement].nome));
+                invIndex = invText.text.IndexOf(myTI.ToTitleCase(alreadyListed[selectedElement].nome));
 
                 string newText = "";
 
@@ -1094,7 +1189,6 @@ public class Combat : MonoBehaviour
                 else if (Input.GetKeyDown(KeyCode.Return))
                 {
                     selectedItem = alreadyListed[selectedElement];
-
                     int option = 0;
                     while (true)
                     {
@@ -1139,16 +1233,135 @@ public class Combat : MonoBehaviour
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
                             StopCoroutine(blinker);
+                            invActions[option].color = Color.white;
                             invOptions.SetActive(false);
                             invOptionsBorder.SetActive(false);
                             //Equip
                             if (option == 0)
                             {
-                                ego.displayAction = "Equip";
-                                ego.chosenAction = "Equip";
-                                ego.chosenItem = selectedItem;
-                                actionSelected = true;
-                                inventoryComplete = true;
+                                //exceptions for shield/two-handed weapons
+                                if (ego.equippedWeapon != null)
+                                {
+                                    //two handed weapon blocking shield
+                                    if (selectedItem is Shield && ego.equippedWeapon.twoHanded)
+                                    {
+                                        controller.OpenPopUpWindow("", "", $"You can't equip the {selectedItem.nome} while wielding a two-handed weapon.", "", "", "", "", "Press ESC to return");
+                                        yield return new WaitUntil(controller.EscPressed);
+                                        controller.ClosePopUpWindow();
+                                        break;
+                                    }
+                                    //allow sword and shield to replace a two handed weapon
+                                    else if (selectedItem is Weapon && ego.equippedWeapon.twoHanded)
+                                    {
+                                        Weapon equippingWeapon = (Weapon)selectedItem;
+                                        bool shieldPossible = false;
+                                        for (int i = 0; i < controller.interactableItems.inventory.Count; i++)
+                                        {
+                                            if (controller.interactableItems.inventory[i] is Shield)
+                                            {
+                                                shieldPossible = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!equippingWeapon.twoHanded && shieldPossible)
+                                        {
+                                            shieldPossible = false;
+                                            bool yesSelected = true;
+                                            while (true)
+                                            {
+                                                if (yesSelected) { controller.OpenPopUpWindow("", "", "Equip a shield as well, hero?", "", "<b>[Yes]</b><color=white>! Good thinking.</color>", "", "<color=white>Nah. It'll be fine.</color>", ""); }
+                                                else { controller.OpenPopUpWindow("", "", "Equip a shield as well, hero?", "", "<color=white>Yes! Good thinking.</color>", "", "<b>[Nah]</b><color=white>. It'll be fine.</color>", ""); }
+                                                yield return new WaitUntil(controller.LeftRightEnterPressed);
+                                                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                                else if (Input.GetKeyDown(KeyCode.Return))
+                                                {
+                                                    controller.ClosePopUpWindow();
+                                                    //allow shield also to be equipped
+                                                    if (yesSelected)
+                                                    {
+                                                        invText.text = normalInvText;
+                                                        string normalShieldInvText = invText.text;
+                                                        Item selectedShield = alreadyListed[0];
+                                                        int selectedShieldElement = 0;
+                                                        while (true)
+                                                        {
+                                                            invText.text = normalShieldInvText;
+                                                            if (selectedShieldElement < 0) { selectedShieldElement = alreadyListed.Count - 1; }
+                                                            if (selectedShieldElement > alreadyListed.Count - 1) { selectedShieldElement = 0; }
+                                                            int shieldLength = alreadyListed[selectedShieldElement].nome.Length;
+                                                            int invShieldIndex = 0;
+                                                            invShieldIndex = invText.text.IndexOf(myTI.ToTitleCase(alreadyListed[selectedShieldElement].nome));
+
+                                                            string newShieldText = "";
+
+                                                            for (int i = 0; i < invShieldIndex; i++) { newShieldText += invText.text[i]; }
+
+                                                            newShieldText += "<b><size=15>[";
+
+                                                            for (int i = invShieldIndex; i < invShieldIndex + shieldLength; i++) { newShieldText += invText.text[i]; }
+
+                                                            newShieldText += "]</size></b>";
+
+                                                            for (int i = invShieldIndex + shieldLength; i < invText.text.Length; i++) { newShieldText += invText.text[i]; }
+
+                                                            invText.text = newShieldText;
+
+                                                            InvStats(alreadyListed[selectedShieldElement]);
+
+                                                            yield return new WaitUntil(controller.UpDownEnterEscPressed);
+                                                            if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedShieldElement--; }
+                                                            else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedShieldElement++; }
+                                                            else if (Input.GetKeyDown(KeyCode.Escape))
+                                                            {
+                                                                selectedShield = null;
+                                                                break;
+                                                            }
+                                                            else if (Input.GetKeyDown(KeyCode.Return))
+                                                            {
+                                                                selectedShield = alreadyListed[selectedShieldElement];
+                                                                break;
+                                                            }
+                                                        }
+                                                        if (selectedShield != null) { ego.chosenItem2 = selectedShield; }
+                                                    }                                                    
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }        
+                                if (ego.equippedShield != null && selectedItem is Weapon)
+                                {
+                                    //two handed weapon unequiping both slots
+                                    Weapon equippingWeapon = (Weapon)selectedItem;
+                                    if (equippingWeapon.twoHanded)
+                                    {
+                                        bool yesSelected = false;
+                                        while (true)
+                                        {
+                                            failedEquip = false;
+                                            if (yesSelected) { controller.OpenPopUpWindow("", "", "This weapon is two-handed, so your shield will also be unequipped.", "", "<b>[Yeah]</b><color=white>, duh.</color>", "", "<color=white>No! As if!</color>", ""); }
+                                            else { controller.OpenPopUpWindow("", "", "This weapon is two-handed, so your shield will also be unequipped.", "", "<color=white>Yeah, duh.</color>", "", "<b>[No]</b><color=white>! As if!</color>", ""); }
+                                            yield return new WaitUntil(controller.LeftRightEnterPressed);
+                                            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                            else if (Input.GetKeyDown(KeyCode.Return))
+                                            {
+                                                controller.ClosePopUpWindow();
+                                                if (yesSelected) { unstrap = true; }
+                                                else { failedEquip = true; }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (!failedEquip)
+                                {
+                                    ego.displayAction = "Equip";
+                                    ego.chosenAction = "Equip";
+                                    ego.chosenItem = selectedItem;
+                                    itemUsed = true;
+                                }
                                 break;
                             }
                             //Use
@@ -1254,8 +1467,7 @@ public class Combat : MonoBehaviour
                                                 }
                                             }
                                         }
-                                        actionSelected = true;
-                                        inventoryComplete = true;
+                                        itemUsed = true;
                                         break;
                                     }
                                 }
@@ -1277,8 +1489,7 @@ public class Combat : MonoBehaviour
                                             ego.displayAction = "Drop";
                                             ego.chosenAction = "Drop";
                                             ego.chosenItem = selectedItem;
-                                            actionSelected = true;
-                                            inventoryComplete = true;
+                                            itemUsed = true;
                                         }
                                         controller.ClosePopUpWindow();
                                         break;
@@ -1287,6 +1498,13 @@ public class Combat : MonoBehaviour
                             }
                         }
                     }
+                }
+                if (itemUsed)
+                {
+                    itemUsed = false;
+                    actionSelected = true;
+                    inventoryComplete = true;
+                    break;
                 }
             }
         }
@@ -1342,7 +1560,7 @@ public class Combat : MonoBehaviour
 
         //toHitMod
         int egoToHitMod = (int)(ego.allStats[9].value + ego.allStats[9].effectValue);
-        int withItemToHitMod = (int)egoToHitMod;
+        int withItemToHitMod = egoToHitMod;
         int egoCurrentWeaponToHitMod = 0;
         if (ego.equippedWeapon != null) { egoCurrentWeaponToHitMod = controller.ego.equippedWeapon.toHitMod; }
         if (itemSelected is Weapon)
@@ -1354,7 +1572,10 @@ public class Combat : MonoBehaviour
         if (egoToHitMod < withItemToHitMod) { toHitModColor = "green"; }
         if (egoToHitMod > withItemToHitMod) { toHitModColor = "red"; }
 
-        combatInvToHitMod.text = $"<color={toHitModColor}>+{withItemToHitMod}</color>";
+        if (withItemToHitMod < 0) { combatInvToHitMod.text = $"<color={toHitModColor}>{withItemToHitMod}</color>"; }
+        else { combatInvToHitMod.text = $"<color={toHitModColor}>+{withItemToHitMod}</color>"; }
+
+        
 
         //armorClass
         int egoArmorClass = (int)(ego.allStats[3].value + ego.allStats[3].effectValue);

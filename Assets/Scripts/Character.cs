@@ -15,4 +15,5 @@ public class Character : ScriptableObject
     [HideInInspector] public string chosenAction;
     [HideInInspector] public Character chosenTarget;
     [HideInInspector] public Item chosenItem;
+    [HideInInspector] public Item chosenItem2;
 }

@@ -25,8 +25,21 @@ public class Equip : InputAction
                 if (controller.ego.equippedWeapon != null && controller.ego.equippedWeapon.nome == itemName) { controller.DisplayNarratorResponse("You're already using the " + myTI.ToTitleCase(itemName) + ", silly."); }
                 else
                 {
-                    controller.GetEquipped((Weapon)itemToEquip);
-                    controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                    if (controller.ego.equippedShield != null)
+                    {
+                        Weapon equippingWeapon = (Weapon)itemToEquip;
+                        if (equippingWeapon.twoHanded) { controller.DisplayNarratorResponse($"You can't equip the {myTI.ToTitleCase(itemToEquip.nome)} while using a shield."); }
+                        else
+                        {
+                            controller.GetEquipped((Weapon)itemToEquip);
+                            controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                        }
+                    }
+                    else
+                    {
+                        controller.GetEquipped((Weapon)itemToEquip);
+                        controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                    }                    
                 }
             }
             else if (itemToEquip is Armor)
@@ -43,8 +56,21 @@ public class Equip : InputAction
                 if (controller.ego.equippedShield != null && controller.ego.equippedShield.nome == itemName) { controller.DisplayNarratorResponse("You're already using the " + myTI.ToTitleCase(itemName) + ", silly."); }
                 else
                 {
-                    controller.GetStrapped((Shield)itemToEquip);
-                    controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                    if (controller.ego.equippedWeapon != null)
+                    {
+                        if (controller.ego.equippedWeapon.twoHanded) { controller.DisplayNarratorResponse($"You can't equip the {myTI.ToTitleCase(itemToEquip.nome)} while wielding a two-handed weapon."); }
+                        else
+                        {
+                            controller.GetStrapped((Shield)itemToEquip);
+                            controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                        }
+                    }
+                    else
+                    {
+                        controller.GetStrapped((Shield)itemToEquip);
+                        controller.DisplayNarratorResponse("You equip the " + myTI.ToTitleCase(itemToEquip.nome) + ".");
+                    }
+                    
                 }
             }
             else { controller.DisplayNarratorResponse("No, you don't."); }

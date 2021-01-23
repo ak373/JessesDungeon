@@ -582,6 +582,7 @@ public class GameController : MonoBehaviour
         ego.allStats[6].value = ego.equippedWeapon.damageDie;
         ego.allStats[7].value = ego.equippedWeapon.damage;
         ego.allStats[8].value = ego.equippedWeapon.critMultiplier;
+        ego.allStats[9].value = ego.equippedWeapon.toHitMod;
     }
     public void GetDressed(Armor newArmor)
     {
@@ -602,24 +603,24 @@ public class GameController : MonoBehaviour
     public void GetUnEquipped()
     {
         interactableItems.inventory.Add(ego.equippedWeapon);
-        ego.equippedWeapon = null;
         ego.allStats[6].value = 4;
         ego.allStats[7].value = 0;
         ego.allStats[8].value = 1.5f;
+        ego.equippedWeapon = null;
     }
     public void GetUnDressed()
     {
         interactableItems.inventory.Add(ego.equippedArmor);
-        ego.equippedArmor = null;
         ego.allStats[5].value = 0;
         ego.allStats[4].value += (1 - ego.equippedArmor.critResist);
+        ego.equippedArmor = null;
     }
     public void GetUnStrapped()
     {
         interactableItems.inventory.Add(ego.equippedShield);
-        ego.equippedShield = null;
         ego.allStats[3].value = 0;
         ego.allStats[4].value += (1 - ego.equippedShield.critResist);
+        ego.equippedShield = null;
     }
     public void GetStripped()
     {
