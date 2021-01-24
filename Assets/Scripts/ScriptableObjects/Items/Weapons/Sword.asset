@@ -18,6 +18,11 @@ MonoBehaviour:
   description: Unfortunately, this sword is not unnaturally propotioned or outfitted
     with a gun.
   unlocked: 0
+  beneficial: 0
+  useMessage: You raise it to the sky and a bolt of lightning strikes it in a most
+    heroic fashion!
+  useMessage2: filled with bravery!
+  useEffect: {fileID: 11400000, guid: bbcf152decae34748b5aa07b5e2ac5d7, type: 2}
   type: Slashing
   damage: 13
   damageDie: 6

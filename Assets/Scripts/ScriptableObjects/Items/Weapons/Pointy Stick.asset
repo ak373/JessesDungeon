@@ -18,6 +18,10 @@ MonoBehaviour:
   description: Force divided by surface area equals... I don't know this is too much
     pressure!
   unlocked: 0
+  beneficial: 0
+  useMessage: It retains its pointy nature!
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Piercing
   damage: 3
   damageDie: 6

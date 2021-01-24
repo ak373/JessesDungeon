@@ -19,5 +19,8 @@ MonoBehaviour:
     pointed objects out of your skin.
   unlocked: 0
   beneficial: 0
+  useMessage: To think they charge $85 dollars for these in some stores.
+  useMessage2: 
+  useEffect: {fileID: 0}
   damageReduction: 2
   critResist: 1

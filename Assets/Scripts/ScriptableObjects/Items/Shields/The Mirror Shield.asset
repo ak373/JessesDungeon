@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 2000
   description: Daah nah nah naaaah!
   unlocked: 0
+  beneficial: 0
+  useMessage: A glint of light catches it just right and reflects!
+  useMessage2: distracted!
+  useEffect: {fileID: 11400000, guid: a86c9e0055aa85a43b586983d5a5ab45, type: 2}
   armorClass: 4
   critResist: 0.9

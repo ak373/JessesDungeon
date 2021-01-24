@@ -18,6 +18,10 @@ MonoBehaviour:
   description: Now THAT'S a knife. Built for combat, the knife will have an easier
     time finding your enemy's body (+2 bonus).
   unlocked: 0
+  beneficial: 0
+  useMessage: All people trying to rob you run away.
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Piercing
   damage: 5
   damageDie: 6

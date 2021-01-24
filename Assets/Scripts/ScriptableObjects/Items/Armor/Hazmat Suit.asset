@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 1500
   description: Knives, swords, and guns are VERY hazardous materials.
   unlocked: 0
+  beneficial: 0
+  useMessage: All hazardous material is warded off!
+  useMessage2: 
+  useEffect: {fileID: 11400000, guid: bedd0a49b35e21b43805fee3b1b16213, type: 2}
   damageReduction: 10
   critResist: 0.8

@@ -17,8 +17,12 @@ MonoBehaviour:
   price: 500
   description: It's not the size of the dagger that counts -- but how you use it.
     It's balanced to connect (+5 bonus) and its poison will continue to harm its
-    victim (5 dmg/round x3).
+    victim (10 dmg/round x3).
   unlocked: 0
+  beneficial: 0
+  useMessage: While waving it in the air, some poison splashes around!
+  useMessage2: poisoned!
+  useEffect: {fileID: 11400000, guid: 53c5e410115261e4696a3bbb4eaa4da0, type: 2}
   type: Piercing
   damage: 3
   damageDie: 4

@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 15
   description: A big piece of wood with a handle. Why didn't you think of this sooner?
   unlocked: 0
+  beneficial: 0
+  useMessage: Your belongings feel safe.
+  useMessage2: 
+  useEffect: {fileID: 0}
   armorClass: 3
   critResist: 0.9

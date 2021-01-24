@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 120
   description: 'Stiff and studded: that''s how she likes it.'
   unlocked: 0
+  beneficial: 0
+  useMessage: What a stud!
+  useMessage2: Or dud.
+  useEffect: {fileID: 0}
   damageReduction: 3
   critResist: 0.8

@@ -18,5 +18,9 @@ MonoBehaviour:
   description: Composed of mismatched rings and metal shards, this is surely a "practicality
     over fashion" choice.
   unlocked: 0
+  beneficial: 0
+  useMessage: And you put it away at sonic speed!
+  useMessage2: Gotta go fast!
+  useEffect: {fileID: 0}
   damageReduction: 5
   critResist: 0.75

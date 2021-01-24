@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06f83bd5d8bbaae4e856b744c05bfd58, type: 3}
   m_Name: Shaken
   m_EditorClassIdentifier: 
-  title: Intimidated
+  title: Shaken
   abbreviation: TH
   stat: toHitMod
   stat2: 

@@ -451,6 +451,97 @@ public class Combat : MonoBehaviour
                         }
                         actionComplete = true;
                     }
+                    //Execute Use
+                    else if (ego.chosenAction == "Use")
+                    {
+                        if (ego.chosenItem is Weapon || ego.chosenItem is Armor || ego.chosenItem is Shield)
+                        {
+                            if (ego.chosenItem.useEffect != null)
+                            {
+                                battleLog.SetActive(true);
+                                battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                yield return new WaitForSeconds(.01f);
+                                messageComplete = false;
+                                StartCoroutine(BattleMessage(0));
+                                yield return new WaitUntil(MessageComplete);
+                                yield return new WaitForSeconds(.5f);
+                                battleText.text = ego.chosenItem.useMessage;
+                                yield return new WaitForSeconds(.01f);
+                                messageComplete = false;
+                                StartCoroutine(BattleMessage(0));
+                                yield return new WaitUntil(MessageComplete);
+                                if (ego.chosenItem.useMessage2 != null)
+                                {
+                                    yield return new WaitForSeconds(.5f);
+                                    if (ego.chosenTarget == ego) { battleText.text += $"You are {ego.chosenItem.useMessage2}"; }
+                                    else { battleText.text += $"{ego.chosenTarget} is {ego.chosenItem.useMessage2}"; }                                    
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(endingCharacter));
+                                    yield return new WaitUntil(MessageComplete);
+                                }
+                                ego.chosenTarget.activeEffects.Add(ego.chosenItem.useEffect);
+                                yield return new WaitForSeconds(1.25f);
+                                battleLogGreyScreen.SetActive(true);
+                                yield return new WaitForSeconds(.5f);
+                                battleLog.SetActive(false);
+                                yield return new WaitForSeconds(.5f);
+                                battleLogGreyScreen.SetActive(false);
+                            }
+                            else
+                            {
+                                battleLog.SetActive(true);
+                                battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                yield return new WaitForSeconds(.01f);
+                                messageComplete = false;
+                                StartCoroutine(BattleMessage(0));
+                                yield return new WaitUntil(MessageComplete);
+                                yield return new WaitForSeconds(.5f);
+                                battleText.text = ego.chosenItem.useMessage;
+                                yield return new WaitForSeconds(.01f);
+                                messageComplete = false;
+                                StartCoroutine(BattleMessage(0));
+                                yield return new WaitUntil(MessageComplete);
+                                if (ego.chosenItem.useMessage2 != null)
+                                {
+                                    yield return new WaitForSeconds(.5f);
+                                    battleText.text += ego.chosenItem.useMessage2;
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(endingCharacter));
+                                    yield return new WaitUntil(MessageComplete);
+                                }
+                                yield return new WaitForSeconds(1.25f);
+                                battleLogGreyScreen.SetActive(true);
+                                yield return new WaitForSeconds(.5f);
+                                battleLog.SetActive(false);
+                                yield return new WaitForSeconds(.5f);
+                                battleLogGreyScreen.SetActive(false);
+                            }
+                        }
+                        else if (ego.chosenItem is Undroppable)
+                        {
+                            battleLog.SetActive(true);
+                            battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            battleText.text = "By safely putting it away.";
+                            yield return new WaitForSeconds(.01f);
+                            messageComplete = false;
+                            StartCoroutine(BattleMessage(0));
+                            yield return new WaitUntil(MessageComplete);
+                            yield return new WaitForSeconds(1.25f);
+                            battleLogGreyScreen.SetActive(true);
+                            yield return new WaitForSeconds(.5f);
+                            battleLog.SetActive(false);
+                            yield return new WaitForSeconds(.5f);
+                            battleLogGreyScreen.SetActive(false);
+                        }
+                        else if (ego.chosenItem is Potion) { StartCoroutine(UsePotion()); }
+                        actionComplete = true;
+                    }
                 }
                 else //if (turnOrder[i] != jesse)
                 {
@@ -1190,6 +1281,7 @@ public class Combat : MonoBehaviour
                 {
                     selectedItem = alreadyListed[selectedElement];
                     int option = 0;
+                    bool useUsed = false;
                     while (true)
                     {
                         invOptions.SetActive(true);
@@ -1467,7 +1559,7 @@ public class Combat : MonoBehaviour
                                                 }
                                             }
                                         }
-                                        itemUsed = true;
+                                        useUsed = true;
                                         break;
                                     }
                                 }
@@ -1496,6 +1588,12 @@ public class Combat : MonoBehaviour
                                     }
                                 }
                             }
+                        }
+                    if (useUsed)
+                        {
+                            useUsed = false;
+                            itemUsed = true;
+                            break;
                         }
                     }
                 }

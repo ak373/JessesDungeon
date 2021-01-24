@@ -17,6 +17,10 @@ MonoBehaviour:
   price: 0
   description: Gross. But pointy!
   unlocked: 0
+  beneficial: 0
+  useMessage: Gross.
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Piercing
   damage: 5
   damageDie: 6

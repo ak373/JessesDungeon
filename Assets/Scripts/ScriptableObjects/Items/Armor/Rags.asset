@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 5
   description: What's a dungeon crawler without rags?
   unlocked: 0
+  beneficial: 0
+  useMessage: The dungeon room is now clean.
+  useMessage2: 
+  useEffect: {fileID: 0}
   damageReduction: 0
   critResist: 0.95

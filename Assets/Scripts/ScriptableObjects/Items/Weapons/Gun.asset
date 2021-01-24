@@ -18,6 +18,10 @@ MonoBehaviour:
   description: Can make a massive hole in your target if you can handle its massive
     kickback disrupting your aim (-5 penalty).
   unlocked: 0
+  beneficial: 0
+  useMessage: Menacingly, you hold the gun out and cock it.
+  useMessage2: intimidated!
+  useEffect: {fileID: 11400000, guid: 297e54ac3c3046146ad29262c7e52fd5, type: 2}
   type: Ranged
   damage: 30
   damageDie: 1

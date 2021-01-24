@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 3
   description: Well it looks like a shield...
   unlocked: 0
+  beneficial: 0
+  useMessage: It falls apart!
+  useMessage2: You tape it back together.
+  useEffect: {fileID: 0}
   armorClass: 1
   critResist: 0.95

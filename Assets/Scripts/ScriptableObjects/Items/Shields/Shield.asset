@@ -15,7 +15,12 @@ MonoBehaviour:
   noun: shield
   nome: shield
   price: 0
-  description: Perfect for phalanx formation - if you only had some friends.
+  description: A sturdy and well made sheet of metal fashioned into a protective
+    slab.
   unlocked: 0
+  beneficial: 0
+  useMessage: You begin to shield surf!
+  useMessage2: But end up just wobbling and falling off.
+  useEffect: {fileID: 0}
   armorClass: 5
   critResist: 0.85

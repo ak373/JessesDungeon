@@ -18,6 +18,10 @@ MonoBehaviour:
   description: Infused with magic, in your hands this weapon deals massive damage
     and always strikes true (+10 bonus).
   unlocked: 0
+  beneficial: 0
+  useMessage: The trident begins to emit a purple glow.
+  useMessage2: empowered by the trident!
+  useEffect: {fileID: 11400000, guid: 542ff171218084a4e8ec7063e96a6612, type: 2}
   type: Polearm
   damage: 30
   damageDie: 10

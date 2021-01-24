@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 70
   description: Provides a bit of protection, but still no match for a good stabbing.
   unlocked: 0
+  beneficial: 0
+  useMessage: You look strapping!
+  useMessage2: 
+  useEffect: {fileID: 0}
   damageReduction: 2
   critResist: 0.85

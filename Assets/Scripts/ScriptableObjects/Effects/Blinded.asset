@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06f83bd5d8bbaae4e856b744c05bfd58, type: 3}
+  m_Name: Blinded
+  m_EditorClassIdentifier: 
+  title: Blinded
+  abbreviation: TH AC
+  stat: toHitMod
+  stat2: armorClass
+  potency: -10
+  potency2: -5
+  color: {r: 1, g: 0, b: 0, a: 1}
+  duration: 5
+  description: Your To Hit suffers a -10 penalty and your Armor Class suffers a -5
+    penalty for 5 rounds.
+  turnOrderTick: 999

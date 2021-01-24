@@ -17,6 +17,10 @@ MonoBehaviour:
   price: 1
   description: A miracle of natural law.
   unlocked: 0
+  beneficial: 0
+  useMessage: Then you realize you'd rather eat with your hands.
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Blunt
   damage: 1
   damageDie: 3

@@ -17,6 +17,10 @@ MonoBehaviour:
   price: 20
   description: You could definitely stab something with this.
   unlocked: 0
+  beneficial: 0
+  useMessage: Cheese stands no chance.
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Piercing
   damage: 5
   damageDie: 6

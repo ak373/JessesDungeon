@@ -18,6 +18,9 @@ MonoBehaviour:
   description: Dah nah nah nah nah nah naaaah! Nah nah nah nah nah naaaaaaah!
   unlocked: 0
   beneficial: 0
+  useMessage: You get wet!
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Ranged
   damage: 0
   damageDie: 1

@@ -18,6 +18,10 @@ MonoBehaviour:
   description: Wielding this contraption like a lance-bazooka, each successful hit
     leads to an additional attack -- albeit at a -5 penalty.
   unlocked: 0
+  beneficial: 0
+  useMessage: Everyone is fairly impressed.
+  useMessage2: 
+  useEffect: {fileID: 0}
   type: Polearm
   damage: 7
   damageDie: 6

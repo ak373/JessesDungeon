@@ -17,6 +17,10 @@ MonoBehaviour:
   price: 500
   description: Known to be used by frequent party-goers.
   unlocked: 0
+  beneficial: 0
+  useMessage: Everybody starts disco dancing!
+  useMessage2: Then they stop.
+  useEffect: {fileID: 0}
   type: Blunt
   damage: 15
   damageDie: 8

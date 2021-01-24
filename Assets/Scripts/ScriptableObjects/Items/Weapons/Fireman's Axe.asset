@@ -18,6 +18,10 @@ MonoBehaviour:
   description: This emergency axe was not made for combat, affecting the precision
     of your swings (-2 penalty).
   unlocked: 0
+  beneficial: 0
+  useMessage: You hack open a door and save a child!
+  useMessage2: You are praised a hero by many, and disdained by a hateful few.
+  useEffect: {fileID: 0}
   type: Slashing
   damage: 15
   damageDie: 8

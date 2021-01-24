@@ -17,5 +17,9 @@ MonoBehaviour:
   price: 10
   description: Can't top this one.
   unlocked: 0
+  beneficial: 0
+  useMessage: Strays will stop coming by your property!
+  useMessage2: 
+  useEffect: {fileID: 0}
   armorClass: 2
   critResist: 0.9

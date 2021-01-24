@@ -16,6 +16,10 @@ MonoBehaviour:
   nome: soup bowl
   price: 1
   description: Not very slick.
+  unlocked: 0
+  beneficial: 0
+  useMessage: It's far easier than a plate.
+  useMessage2: 
+  useEffect: {fileID: 0}
   armorClass: 1
   critResist: 0.95
-  unlocked: 0
