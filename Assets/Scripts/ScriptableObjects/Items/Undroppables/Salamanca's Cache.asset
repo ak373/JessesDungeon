@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e6d319a735e0f24bb6e221cb3d221d4, type: 3}
+  m_Name: Salamanca's Cache
+  m_EditorClassIdentifier: 
+  noun: salamanca's
+  nome: salamanca's cache
+  price: 0
+  description: Hefty hefty HEFTY!
+  unlocked: 0
+  beneficial: 0
+  useMessage: Everybody flocks to you!
+  useMessage2: ...But you know it's only because of your money :(
+  useEffect: {fileID: 0}

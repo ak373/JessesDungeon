@@ -916,6 +916,7 @@ public class Combat : MonoBehaviour
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[1]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[3]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[4]);
                     currentArrowPosition = 0;
                     egoDoneArrow.SetActive(false);
                     arrow.SetActive(true);
@@ -1239,6 +1240,7 @@ public class Combat : MonoBehaviour
             Item selectedItem = alreadyListed[0];
             int selectedElement = 0;
             bool itemUsed = false;
+            bool dropUsed = false;
             while (true)
             {
                 invText.text = normalInvText;
@@ -1281,6 +1283,12 @@ public class Combat : MonoBehaviour
                 {
                     selectedItem = alreadyListed[selectedElement];
                     int option = 0;
+                    invActions[0].color = Color.white;
+                    if (selectedItem is Undroppable || selectedItem is Potion)
+                    {
+                        option = 1;
+                        invActions[0].color = darkGrey;
+                    }
                     bool useUsed = false;
                     while (true)
                     {
@@ -1288,8 +1296,6 @@ public class Combat : MonoBehaviour
                         invOptionsBorder.SetActive(true);
                         if (selectedItem is Undroppable || selectedItem is Potion)
                         {
-                            option = 1;
-                            invActions[0].color = darkGrey;
                             if (option < 1) { option = 2; }
                             if (option > 2) { option = 1; }
                         }
@@ -1338,6 +1344,7 @@ public class Combat : MonoBehaviour
                                     if (selectedItem is Shield && ego.equippedWeapon.twoHanded)
                                     {
                                         controller.OpenPopUpWindow("", "", $"You can't equip the {selectedItem.nome} while wielding a two-handed weapon.", "", "", "", "", "Press ESC to return");
+                                        controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                         yield return new WaitUntil(controller.EscPressed);
                                         controller.ClosePopUpWindow();
                                         break;
@@ -1364,10 +1371,12 @@ public class Combat : MonoBehaviour
                                             {
                                                 if (yesSelected) { controller.OpenPopUpWindow("", "", "Equip a shield as well, hero?", "", "<b>[Yes]</b><color=white>! Good thinking.</color>", "", "<color=white>Nah. It'll be fine.</color>", ""); }
                                                 else { controller.OpenPopUpWindow("", "", "Equip a shield as well, hero?", "", "<color=white>Yes! Good thinking.</color>", "", "<b>[Nah]</b><color=white>. It'll be fine.</color>", ""); }
+                                                controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                                 yield return new WaitUntil(controller.LeftRightEnterPressed);
                                                 if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
                                                 else if (Input.GetKeyDown(KeyCode.Return))
                                                 {
+                                                    controller.popUpMessage.font = controller.achievements.originalFont;
                                                     controller.ClosePopUpWindow();
                                                     //allow shield also to be equipped
                                                     if (yesSelected)
@@ -1578,10 +1587,24 @@ public class Combat : MonoBehaviour
                                     {
                                         if (yesSelected)
                                         {
-                                            ego.displayAction = "Drop";
-                                            ego.chosenAction = "Drop";
-                                            ego.chosenItem = selectedItem;
-                                            itemUsed = true;
+                                            if (selectedItem is Undroppable)
+                                            {
+                                                controller.OpenPopUpWindow($"Oops!", "", "You spend the remainder of the battle on all fours searching for your lost quest item. There was one time when you thought you found it, but it was actually just your arm as it got hacked off by your foe. You bleed out, lose consciousness, and eventually die.", "", "", "", "", "Press ESC to exit");
+                                                controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                                yield return new WaitUntil(controller.EscPressed);
+                                                controller.OpenPopUpWindow($"Nah you fine.", "", $"After a flash of an outer body experience, you decide just to put {myTI.ToTitleCase(selectedItem.nome)} away.", "", "", "", "", "Press ESC to return");
+                                                controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                                yield return new WaitForSeconds(.25f);
+                                            }
+                                            else
+                                            {
+                                                controller.OpenPopUpWindow($"", "", $"You drop the {myTI.ToTitleCase(selectedItem.nome)}.", "", "", "", "", "Press ESC to return");
+                                                controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                                controller.interactableItems.inventory.Remove(selectedItem);
+                                            }
+                                            controller.popUpMessage.font = controller.achievements.originalFont;
+                                            dropUsed = true;
+                                            yield return new WaitUntil(controller.EscPressed);
                                         }
                                         controller.ClosePopUpWindow();
                                         break;
@@ -1595,13 +1618,26 @@ public class Combat : MonoBehaviour
                             itemUsed = true;
                             break;
                         }
+                    if (dropUsed)
+                        {
+                            itemUsed = true;
+                            break;
+                        }
                     }
                 }
                 if (itemUsed)
                 {
                     itemUsed = false;
-                    actionSelected = true;
-                    inventoryComplete = true;
+                    if (dropUsed)
+                    {
+                        dropUsed = false;
+                        StartCoroutine(DisplayBattleInventory());
+                    }
+                    else
+                    {
+                        actionSelected = true;
+                        inventoryComplete = true;
+                    }                    
                     break;
                 }
             }
