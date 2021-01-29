@@ -141,6 +141,10 @@ public class GameController : MonoBehaviour
         ego.conversation = 0;
         ego.currentInit = 0;
         ego.displayAction = "";
+        ego.chosenAction = "";
+        ego.chosenItem = null;
+        ego.chosenItem2 = null;
+        ego.chosenTarget = null;
     //enterToContinueDialogue = false;
     timeDelay = 1;
         sentences = new Queue<string>();

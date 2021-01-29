@@ -11,6 +11,7 @@ public class Character : ScriptableObject
     public Weapon equippedWeapon;
     public Shield equippedShield;
     [HideInInspector] public int currentInit;
+    [HideInInspector] public int currentTurnOrder;
     [HideInInspector] public string displayAction;
     [HideInInspector] public string chosenAction;
     [HideInInspector] public Character chosenTarget;

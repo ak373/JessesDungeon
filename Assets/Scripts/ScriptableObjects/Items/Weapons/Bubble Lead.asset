@@ -26,4 +26,4 @@ MonoBehaviour:
   damageDie: 1
   critMultiplier: 1
   toHitMod: 5
-  twoHanded: 0
+  twoHanded: 1

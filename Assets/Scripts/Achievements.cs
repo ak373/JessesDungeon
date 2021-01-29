@@ -70,7 +70,7 @@ public class Achievements : MonoBehaviour
     {
         controller.escToContinue = false;
         controller.currentActiveInput = "yesno";
-        controller.OverwriteMainWindow($"<size=15><b>Done Deeds</size></b>\n\n{doneDeedsDisplayed}\n\n-------------------------------------\n[Deeds] to do\n[Erase] all deeds\n\nPress ESC to return.");
+        controller.OverwriteMainWindow($"<size=40><b>Done Deeds</size></b>\n\n{doneDeedsDisplayed}\n\n-------------------------------------\n[Deeds] to do\n[Erase] all deeds\n\nPress ESC to return.");
         while (true)
         {
             controller.userInput = null;
@@ -128,7 +128,7 @@ public class Achievements : MonoBehaviour
     {
         controller.escToContinue = false;
         controller.currentActiveInput = "yesno";
-        controller.OverwriteMainWindow($"<size=15><b>To Do Deeds</size></b>\n\n{toDoDeedsDisplayed}\n\n-------------------------------------\n[Deeds] done\n[Erase] all deeds\n\nPress ESC to return.");
+        controller.OverwriteMainWindow($"<size=40><b>To Do Deeds</size></b>\n\n{toDoDeedsDisplayed}\n\n-------------------------------------\n[Deeds] done\n[Erase] all deeds\n\nPress ESC to return.");
         while (true)
         {
             controller.userInput = null;
