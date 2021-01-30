@@ -28,7 +28,7 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
-    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen;
+    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen;
     public TMP_Text battleText, effectsText, invText;
     public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder;
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
@@ -42,6 +42,8 @@ public class Combat : MonoBehaviour
     Character[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
     List<BadGuy> deadThisRound = new List<BadGuy>();
+    List<Item> lootBox = new List<Item>();
+    int lootPurse = 0;
     int currentArrowPosition, endingCharacter;
     bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete;
     bool unstrap = false;
@@ -95,7 +97,10 @@ public class Combat : MonoBehaviour
     {
         curHPEgo.text = ego.allStats[0].value.ToString();
         maxHPEgo.text = ego.allStats[2].value.ToString();
-        turnOrderBlackScreen.SetActive(false);        
+        turnOrderBlackScreen.SetActive(false);
+        //clear loot list
+        lootBox.Clear();
+        lootPurse = 0;
 
         //populate badguy array
         for (int i = 0; i < numberOfBadGuys; i++)
@@ -785,7 +790,6 @@ public class Combat : MonoBehaviour
     IEnumerator EgoActionSelect()
     {
         int attackSelectionMemory = -1;
-        int borderToUse = 0;
         IEnumerator selection;
         currentArrowPosition = 0;
         egoDoneArrow.SetActive(false);
@@ -817,7 +821,7 @@ public class Combat : MonoBehaviour
                     {
                         if (activeBadGuys[i] != null) { activeBadGuyBorders.Add(activeBadGuys[i].combatBorder); }
                     }
-
+                    //
                     while (true)
                     {
                         if (attackSelectionMemory != -1)
@@ -830,33 +834,31 @@ public class Combat : MonoBehaviour
                         yield return new WaitForSeconds(.01f);
                         selection = SelectAnimation(activeBadGuyBorders[borderSelected]);
                         StartCoroutine(selection);
-                        int counter = 0;
-                        for (int i = 0; i < turnOrderNames.Length; i++)
+                        //take ego out of name highlight possibility
+                        BadGuy currentSelection = activeBadGuys[0];
+                        for (int i = 0; i < activeBadGuys.Length; i++)
                         {
-                            if (turnOrderNames[i].text == "You") { break; }
-                            counter++;
+                            if (activeBadGuys[i] != null)
+                            {
+                                if (activeBadGuys[i].combatBorder == activeBadGuyBorders[borderSelected]) { currentSelection = activeBadGuys[i]; }
+                            }
                         }
-                        Debug.Log("counter" + counter);
-                        int tweakedBorderSelected = borderSelected + 1;
-                        Debug.Log("borderSelected" + borderSelected);
-                        Debug.Log("tweakedBorderSelected" + tweakedBorderSelected);
-                        if (borderSelected >= counter) { borderToUse = tweakedBorderSelected; }
-                        else { borderToUse = borderSelected; }
-
-                        turnOrderNames[borderToUse].text = BoldText(turnOrderNames[borderToUse].text);
+                        int nameToHighlight = currentSelection.currentTurnOrder;
+                        //
+                        turnOrderNames[nameToHighlight].text = BoldText(turnOrderNames[nameToHighlight].text);
                         yield return new WaitUntil(controller.LeftRightEnterEscPressed);
                         if (Input.GetKeyDown(KeyCode.RightArrow))
                         {
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
-                            turnOrderNames[borderToUse].text = DeBoldText(turnOrderNames[borderToUse].text);
+                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                             borderSelected--;
                         }
                         else if (Input.GetKeyDown(KeyCode.LeftArrow))
                         {
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
-                            turnOrderNames[borderToUse].text = DeBoldText(turnOrderNames[borderToUse].text);
+                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                             borderSelected++;
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
@@ -866,7 +868,7 @@ public class Combat : MonoBehaviour
                             egoCombatOptions[currentArrowPosition].color = Color.white;
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
-                            turnOrderNames[borderToUse].text = DeBoldText(turnOrderNames[borderToUse].text);
+                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                             attackSelectionMemory = borderSelected;
                             break;
                         }
@@ -874,7 +876,7 @@ public class Combat : MonoBehaviour
                         {
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
-                            turnOrderNames[borderToUse].text = DeBoldText(turnOrderNames[borderToUse].text);
+                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                             ego.displayAction = "Attack";
                             ego.chosenAction = "Attack";
                             //assign chosen target to ego.chosentarget
@@ -1528,21 +1530,32 @@ public class Combat : MonoBehaviour
                                     if (borderSelected >= activeBorders.Count) { borderSelected = 0; }
                                     yield return new WaitForSeconds(.01f);
                                     selection = SelectAnimation(activeBorders[borderSelected]);
+                                    //match target with turn order name
+                                    Character currentSelection = ego;
+                                    for (int i = 0; i < activeBadGuys.Length; i++)
+                                    {
+                                        if (activeBadGuys[i] != null)
+                                        {
+                                            if (activeBadGuys[i].combatBorder == activeBorders[borderSelected]) { currentSelection = activeBadGuys[i]; }
+                                        }
+                                    }
+                                    int nameToHighlight = currentSelection.currentTurnOrder;
+                                    //
                                     StartCoroutine(selection);
-                                    turnOrderNames[borderSelected].text = BoldText(turnOrderNames[borderSelected].text);
+                                    turnOrderNames[nameToHighlight].text = BoldText(turnOrderNames[nameToHighlight].text);
                                     yield return new WaitUntil(controller.LeftRightUpDownEnterEscPressed);
                                     if (Input.GetKeyDown(KeyCode.RightArrow))
                                     {
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
-                                        turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                        turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                         borderSelected--;
                                     }
                                     else if (Input.GetKeyDown(KeyCode.LeftArrow))
                                     {
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
-                                        turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                        turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                         borderSelected++;
                                     }
                                     else if (Input.GetKeyDown(KeyCode.DownArrow))
@@ -1551,7 +1564,7 @@ public class Combat : MonoBehaviour
                                         {
                                             StopCoroutine(selection);
                                             activeBorders[borderSelected].SetActive(true);
-                                            turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                             selfSelectionMemory = borderSelected;
                                             borderSelected = activeBorders.IndexOf(borderEgo);
                                         }
@@ -1559,7 +1572,7 @@ public class Combat : MonoBehaviour
                                         {
                                             StopCoroutine(selection);
                                             activeBorders[borderSelected].SetActive(true);
-                                            turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                         }
                                     }
                                     else if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -1568,14 +1581,14 @@ public class Combat : MonoBehaviour
                                         {
                                             StopCoroutine(selection);
                                             activeBorders[borderSelected].SetActive(true);
-                                            turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                             borderSelected = selfSelectionMemory;
                                         }
                                         else
                                         {
                                             StopCoroutine(selection);
                                             activeBorders[borderSelected].SetActive(true);
-                                            turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                            turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                             continue;
                                         }
                                     }
@@ -1587,7 +1600,7 @@ public class Combat : MonoBehaviour
                                         invOptionsBorder.SetActive(true);
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
-                                        turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                        turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                         itemSelectionMemory = borderSelected;
                                         break;
                                     }
@@ -1595,7 +1608,7 @@ public class Combat : MonoBehaviour
                                     {
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
-                                        turnOrderNames[borderSelected].text = DeBoldText(turnOrderNames[borderSelected].text);
+                                        turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
                                         ego.displayAction = "Use";
                                         ego.chosenAction = "Use";
                                         ego.chosenItem = selectedItem;
@@ -1879,10 +1892,6 @@ public class Combat : MonoBehaviour
     }
     IEnumerator EndTurn()
     {
-        bool endBattle = true;
-
-        turnOrderBlackScreen.SetActive(true);
-        yield return new WaitForSeconds(.5f);
         //Clear out the dead
         for (int i = 0; i < activeBadGuys.Length; i++)
         {
@@ -1892,28 +1901,44 @@ public class Combat : MonoBehaviour
                 activeBadGuys[i] = null;
             }
         }
+        //check if battle is over
+        bool endBattle = true;
         for (int i = 0; i < activeBadGuys.Length; i++)
         {
             if (activeBadGuys[i] != null) { endBattle = false; }
         }
         yield return new WaitForSeconds(.01f);
         //Reset turn
-        WhiteWash();
         if (!endBattle)
         {
+            turnOrderBlackScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            WhiteWash();
             CalculateTurnOrder();
             DisplayTurnOrder();
         }    
         yield return new WaitForSeconds(.5f);
         if (endBattle)
         {
+            //clear remaining baddie from turn list
+            for (int i = 0; i < turnOrder.Length; i++)
+            {
+                if (turnOrder[i] != ego)
+                {
+                    turnOrderNames[i].text = "";
+                    turnOrder[i] = null;
+                }
+            }
+            fightOverFade.SetActive(true);
             battleLog.SetActive(true);
             battleText.text = $"You won!";
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
             StartCoroutine(BattleMessage(0));
             yield return new WaitUntil(MessageComplete);
-            //yield return new WaitForSeconds(.75f);
+            yield return new WaitForSeconds(.75f);
+            fightOverFadedScreen.SetActive(true);
+            fightOverFade.SetActive(false);
             //battleLogGreyScreen.SetActive(true);
             //yield return new WaitForSeconds(.5f);
             //battleLog.SetActive(false);
@@ -1955,6 +1980,9 @@ public class Combat : MonoBehaviour
     }
     IEnumerator ClearTheDead(BadGuy deadGuy)
     {
+        for (int i = 0; i < deadGuy.itemLoot.Count; i++) { lootBox.Add(deadGuy.itemLoot[i]); }
+        lootPurse += Random.Range(deadGuy.crystalLootMin, deadGuy.crystalLootMax + 1);
+
         deadThisRound.Add(deadGuy);
         enemySlotGreyScreen.transform.position = deadGuy.combatSlot.transform.position;
         enemySlotGreyScreen.SetActive(true);
@@ -1964,7 +1992,7 @@ public class Combat : MonoBehaviour
         enemySlotGreyScreen.SetActive(false);
         deadGuy.activeEffects.Clear();
         deadGuy.chosenAction = "";
-        deadGuy.displayAction = "";
+        deadGuy.displayAction = "Dead";
         deadGuy.chosenTarget = null;
     }
     void WhiteWash()
@@ -2057,7 +2085,8 @@ public class Combat : MonoBehaviour
         //turn order actions
         for (int i = 0; i < turnOrderActions.Length; i++)
         {
-            if (turnOrder[i] != null) { turnOrderActions[i].text = turnOrder[i].displayAction; }            
+            if (turnOrder[i] != null) { turnOrderActions[i].text = turnOrder[i].displayAction; }
+            else { turnOrderActions[i].text = ""; }
         }
 
         //target HP non-negative
