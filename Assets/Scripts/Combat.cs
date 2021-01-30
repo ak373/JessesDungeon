@@ -30,7 +30,7 @@ public class Combat : MonoBehaviour
     public TMP_Text[] egoCombatOptions;
     public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen;
     public TMP_Text battleText, effectsText, invText;
-    public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder;
+    public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder, continueArrow;
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
     public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
@@ -45,7 +45,7 @@ public class Combat : MonoBehaviour
     List<Item> lootBox = new List<Item>();
     int lootPurse = 0;
     int currentArrowPosition, endingCharacter;
-    bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete;
+    bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete, multipleCorpses;
     bool unstrap = false;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
@@ -101,6 +101,9 @@ public class Combat : MonoBehaviour
         //clear loot list
         lootBox.Clear();
         lootPurse = 0;
+        multipleCorpses = true;
+        if (numberOfBadGuys == 1) { multipleCorpses = false; }
+        
 
         //populate badguy array
         for (int i = 0; i < numberOfBadGuys; i++)
@@ -1931,14 +1934,181 @@ public class Combat : MonoBehaviour
             }
             fightOverFade.SetActive(true);
             battleLog.SetActive(true);
-            battleText.text = $"You won!";
+            battleText.text = $"\nYou won!";
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
             StartCoroutine(BattleMessage(0));
             yield return new WaitUntil(MessageComplete);
-            yield return new WaitForSeconds(.75f);
+            yield return new WaitForSeconds(.25f);
+            battleText.text = $"You won!";
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter -2));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
             fightOverFadedScreen.SetActive(true);
             fightOverFade.SetActive(false);
+            yield return new WaitForSeconds(.25f);
+            continueArrow.SetActive(true);
+            yield return new WaitUntil(controller.EnterPressed);
+            continueArrow.SetActive(false);
+            yield return new WaitForSeconds(.15f);
+            if (multipleCorpses)
+            {
+                if (lootPurse == 0) { battleText.text = $"Not a single crystal between all of them. Must've been the losers at last night's poker game."; }
+                else if (lootPurse == 1) { battleText.text = $"You find a single measly blue crystal; what a way to make a living!"; }
+                else { battleText.text = $"Searching the grotesque carcasses, you find {lootPurse} crystals, which you take."; }
+            }
+            else
+            {
+                if (lootPurse == 0) { battleText.text = $"Not a single crystal. Must've been the big loser at last night's poker game."; }
+                else if (lootPurse == 1) { battleText.text = $"You find a single measly blue crystal; what a way to make a living!"; }
+                else { battleText.text = $"Searching the grotesque carcass, you find {lootPurse} crystals, which you take."; }
+            }
+            ego.blueCrystals += lootPurse;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            if (lootBox.Count > 0)
+            {
+                yield return new WaitForSeconds(1f);
+                if (lootBox.Count == 1)
+                {
+                    if (multipleCorpses) { battleText.text = $"And the enemies left a present!\n\n"; }
+                    else { battleText.text = $"And the enemy left a present!\n\n"; }
+                    yield return new WaitForSeconds(.01f);
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(0));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    continueArrow.SetActive(true);
+                    yield return new WaitUntil(controller.EnterPressed);
+                    continueArrow.SetActive(false);
+                    yield return new WaitForSeconds(.15f);
+                    battleText.text += $"The {myTI.ToTitleCase(lootBox[0].nome)} looks useful.";
+                    yield return new WaitForSeconds(.01f);
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(endingCharacter));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    battleText.text += $" You take it.";
+                    yield return new WaitForSeconds(.01f);
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(endingCharacter));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    continueArrow.SetActive(true);
+                    yield return new WaitUntil(controller.EnterPressed);
+                    continueArrow.SetActive(false);
+                    yield return new WaitForSeconds(.15f);
+                }
+                else
+                {
+                    if (multipleCorpses) { battleText.text = $"And the enemies left some presents!\n\n"; }
+                    else { battleText.text = $"And the enemy left some presents!\n\n"; }
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(0));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    continueArrow.SetActive(true);
+                    yield return new WaitUntil(controller.EnterPressed);
+                    continueArrow.SetActive(false);
+                    yield return new WaitForSeconds(.15f);
+                    battleText.text += $" The ";
+                    //determine syntax
+                    List<LootCounter> transientLootList = new List<LootCounter>();
+                    LootCounter transientLootCounter = null;
+                    transientLootCounter.item = lootBox[0];
+                    transientLootCounter.count = 1;
+                    transientLootList.Add(transientLootCounter);
+                    for (int i = 1; i < lootBox.Count; i++)
+                    {
+                        for (int j = 0; j < transientLootList.Count; j++)
+                        {
+                            if (transientLootList[j].item.nome == lootBox[i].nome) { transientLootList[j].count++; }
+                            else
+                            {
+                                transientLootCounter.item = lootBox[i];
+                                transientLootCounter.count = 1;
+                                transientLootList.Add(transientLootCounter);
+                            }
+                        }
+                    }
+                    //now apply syntax
+                    if (transientLootList.Count == 1)
+                    {
+                        if (lootBox[0].nome[lootBox[0].nome.Length - 1] == 's') { battleText.text += $"{myTI.ToTitleCase(lootBox[0].nome)} "; }
+                        else { battleText.text += $"{myTI.ToTitleCase(lootBox[0].nome)}s "; }                        
+                    }
+                    else if (transientLootList.Count == 2)
+                    {
+                        if (transientLootList[0].count == 1) { battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)} and "; }
+                        else
+                        {
+                            if (transientLootList[0].item.nome[transientLootList[0].item.nome.Length - 1] == 's') { battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)} and "; }
+                            else { battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)}s and "; }
+                        }
+                        if (transientLootList[1].count == 1) { battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)} "; }
+                        else
+                        {
+                            if (transientLootList[1].item.nome[transientLootList[1].item.nome.Length - 1] == 's') { battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)} "; }
+                            else { battleText.text += $"{myTI.ToTitleCase(transientLootList[1].item.nome)}s "; }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < transientLootList.Count; i++)
+                        {
+                            if (transientLootList[i].count == 1)
+                            {
+                                battleText.text += myTI.ToTitleCase(transientLootList[0].item.nome);
+                                if (i == transientLootList.Count - 2) { battleText.text += ", and the "; }
+                                else if (i == transientLootList.Count - 1) { battleText.text += " "; }
+                                else { battleText.text += ", the "; }
+                            }
+                            else
+                            {
+                                if (transientLootList[0].item.nome[transientLootList[0].item.nome.Length - 1] == 's')
+                                {
+                                    battleText.text += myTI.ToTitleCase(transientLootList[0].item.nome);
+                                    if (i == transientLootList.Count - 2) { battleText.text += ", and the "; }
+                                    else if (i == transientLootList.Count - 1) { battleText.text += " "; }
+                                    else { battleText.text += ", the "; }
+                                }
+                                else
+                                {
+                                    battleText.text += $"{myTI.ToTitleCase(transientLootList[0].item.nome)}s";
+                                    if (i == transientLootList.Count - 2) { battleText.text += ", and the "; }
+                                    else if (i == transientLootList.Count - 1) { battleText.text += " "; }
+                                    else { battleText.text += ", the "; }
+                                }
+                            }
+                        }
+                    }                    
+                    battleText.text += $"look useful.";
+                    yield return new WaitForSeconds(.01f);
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(endingCharacter));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    battleText.text += $" You take them.";
+                    yield return new WaitForSeconds(.01f);
+                    messageComplete = false;
+                    StartCoroutine(BattleMessage(endingCharacter));
+                    yield return new WaitUntil(MessageComplete);
+                    yield return new WaitForSeconds(.25f);
+                    continueArrow.SetActive(true);
+                    yield return new WaitUntil(controller.EnterPressed);
+                    continueArrow.SetActive(false);
+                    yield return new WaitForSeconds(.15f);
+                }
+                for (int i = 0; i < lootBox.Count; i++)
+                {
+                    controller.interactableItems.inventory.Add(lootBox[i]);
+                }                
+            }
+            
             //battleLogGreyScreen.SetActive(true);
             //yield return new WaitForSeconds(.5f);
             //battleLog.SetActive(false);

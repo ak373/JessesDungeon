@@ -91,6 +91,7 @@
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\ListenTo.cs" />
     <Compile Include="Assets\Scripts\LookAt.cs" />
+    <Compile Include="Assets\Scripts\LootCounter.cs" />
     <Compile Include="Assets\Scripts\MiniMap.cs" />
     <Compile Include="Assets\Scripts\NPCTalk.cs" />
     <Compile Include="Assets\Scripts\No.cs" />
