@@ -28,12 +28,15 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
-    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen;
+    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen, fightOverWhiteScreen;
     public TMP_Text battleText, effectsText, invText;
     public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder, continueArrow;
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
     public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
+    public AudioSource cursorMove, cursorSelect, cursorCancel;
+    public AudioSource badGuyCursorMove, badGuyCursorSelect;
+    public AudioSource winBattle;
     public Effect[] allEffects;
     [HideInInspector] public float scrollRectValue;
 
@@ -97,13 +100,14 @@ public class Combat : MonoBehaviour
     {
         curHPEgo.text = ego.allStats[0].value.ToString();
         maxHPEgo.text = ego.allStats[2].value.ToString();
+        //reset previous battle gameobjects
         turnOrderBlackScreen.SetActive(false);
+        fightOverFadedScreen.SetActive(false);
         //clear loot list
         lootBox.Clear();
         lootPurse = 0;
         multipleCorpses = true;
         if (numberOfBadGuys == 1) { multipleCorpses = false; }
-        
 
         //populate badguy array
         for (int i = 0; i < numberOfBadGuys; i++)
@@ -804,10 +808,19 @@ public class Combat : MonoBehaviour
             if (currentArrowPosition > 5) { currentArrowPosition = 0; }
             arrow.transform.position = egoArrowPositions[currentArrowPosition].transform.position;
             yield return new WaitUntil(controller.UpDownEnterPressed);
-            if (Input.GetKeyDown(KeyCode.UpArrow)) { currentArrowPosition--; }
-            else if (Input.GetKeyDown(KeyCode.DownArrow)) { currentArrowPosition++; }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                cursorMove.Play();
+                currentArrowPosition--;
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                cursorMove.Play();
+                currentArrowPosition++;
+            }
             else if (Input.GetKeyDown(KeyCode.Return))
             {
+                cursorSelect.Play();
                 egoDoneArrow.transform.position = arrow.transform.position;
                 egoDoneArrow.SetActive(true);
                 arrow.SetActive(false);
@@ -852,6 +865,7 @@ public class Combat : MonoBehaviour
                         yield return new WaitUntil(controller.LeftRightEnterEscPressed);
                         if (Input.GetKeyDown(KeyCode.RightArrow))
                         {
+                            cursorMove.Play();
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
                             turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -859,6 +873,7 @@ public class Combat : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.LeftArrow))
                         {
+                            cursorMove.Play();
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
                             turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -866,6 +881,7 @@ public class Combat : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
                         {
+                            cursorCancel.Play();
                             egoDoneArrow.SetActive(false);
                             arrow.SetActive(true);
                             egoCombatOptions[currentArrowPosition].color = Color.white;
@@ -877,6 +893,7 @@ public class Combat : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
+                            cursorSelect.Play();
                             StopCoroutine(selection);
                             activeBadGuyBorders[borderSelected].SetActive(true);
                             turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -1007,10 +1024,19 @@ public class Combat : MonoBehaviour
 
 
                             yield return new WaitUntil(controller.UpDownEnterEscPressed);
-                            if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedElement--; }
-                            else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedElement++; }
+                            if (Input.GetKeyDown(KeyCode.UpArrow))
+                            {
+                                cursorMove.Play();
+                                selectedElement--;
+                            }
+                            else if (Input.GetKeyDown(KeyCode.DownArrow))
+                            {
+                                cursorMove.Play();
+                                selectedElement++;
+                            }
                             else if (Input.GetKeyDown(KeyCode.Escape))
                             {
+                                cursorCancel.Play();
                                 effectsText.text = normalEffectsText;
                                 egoDoneArrow.SetActive(false);
                                 arrow.SetActive(true);
@@ -1019,6 +1045,7 @@ public class Combat : MonoBehaviour
                             }
                             else if (Input.GetKeyDown(KeyCode.Return))
                             {
+                                cursorSelect.Play();
                                 selectedEffect = ego.activeEffects[selectedElement];
                                 controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
                                 //copying font from achievements for simplicity
@@ -1073,6 +1100,7 @@ public class Combat : MonoBehaviour
         
         while (howManyMoves != 0)
         {
+            badGuyCursorMove.Play();
             howManyMoves--;
             currentArrowPosition++;
             if (currentArrowPosition > 1 && Random.Range(1, 21) == 1)
@@ -1096,6 +1124,7 @@ public class Combat : MonoBehaviour
                 stutter = false;
             }
         }
+        badGuyCursorSelect.Play();
         if (badGuy.combatSlot == slot1)
         {
             slot1DoneArrow.transform.position = arrow.transform.position;
@@ -1295,10 +1324,19 @@ public class Combat : MonoBehaviour
                 InvStats(alreadyListed[selectedElement]);
 
                 yield return new WaitUntil(controller.UpDownEnterEscPressed);
-                if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedElement--; }
-                else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedElement++; }
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    cursorMove.Play();
+                    selectedElement--;
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    cursorMove.Play();
+                    selectedElement++;
+                }
                 else if (Input.GetKeyDown(KeyCode.Escape))
-                {                    
+                {
+                    cursorCancel.Play();
                     invDisplay.SetActive(false);
                     invDisplayBorder.SetActive(false);
                     egoDoneArrow.SetActive(false);
@@ -1309,6 +1347,7 @@ public class Combat : MonoBehaviour
                 }
                 else if (Input.GetKeyDown(KeyCode.Return))
                 {
+                    cursorSelect.Play();
                     selectedItem = alreadyListed[selectedElement];
                     int option = 0;
                     invActions[0].color = Color.white;
@@ -1338,18 +1377,21 @@ public class Combat : MonoBehaviour
                         yield return new WaitUntil(controller.UpDownEnterEscPressed);
                         if (Input.GetKeyDown(KeyCode.UpArrow))
                         {
+                            cursorMove.Play();
                             StopCoroutine(blinker);
                             invActions[option].color = Color.white;
                             option--;
                         }
                         else if (Input.GetKeyDown(KeyCode.DownArrow))
                         {
+                            cursorMove.Play();
                             StopCoroutine(blinker);
                             invActions[option].color = Color.white;
                             option++;
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
                         {
+                            cursorCancel.Play();
                             StopCoroutine(blinker);
                             invActions[option].color = Color.white;
                             invOptions.SetActive(false);
@@ -1358,6 +1400,7 @@ public class Combat : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
+                            cursorSelect.Play();
                             StopCoroutine(blinker);
                             invActions[option].color = Color.white;
                             invOptions.SetActive(false);
@@ -1401,9 +1444,14 @@ public class Combat : MonoBehaviour
                                                 else { controller.OpenPopUpWindow("", "", "Equip a shield as well, hero?", "", "<color=white>Yes! Good thinking.</color>", "", "<b>[Nah]</b><color=white>. It'll be fine.</color>", ""); }
                                                 controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                                 yield return new WaitUntil(controller.LeftRightEnterPressed);
-                                                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+                                                {
+                                                    cursorMove.Play();
+                                                    yesSelected = !yesSelected;
+                                                }
                                                 else if (Input.GetKeyDown(KeyCode.Return))
                                                 {
+                                                    cursorSelect.Play();
                                                     controller.popUpMessage.font = controller.achievements.originalFont;
                                                     controller.ClosePopUpWindow();
                                                     //allow shield also to be equipped
@@ -1439,10 +1487,19 @@ public class Combat : MonoBehaviour
                                                             InvStats(alreadyListed[selectedShieldElement]);
 
                                                             yield return new WaitUntil(controller.UpDownEnterEscPressed);
-                                                            if (Input.GetKeyDown(KeyCode.UpArrow)) { selectedShieldElement--; }
-                                                            else if (Input.GetKeyDown(KeyCode.DownArrow)) { selectedShieldElement++; }
+                                                            if (Input.GetKeyDown(KeyCode.UpArrow))
+                                                            {
+                                                                cursorMove.Play();
+                                                                selectedShieldElement--;
+                                                            }
+                                                            else if (Input.GetKeyDown(KeyCode.DownArrow))
+                                                            {
+                                                                cursorMove.Play();
+                                                                selectedShieldElement++;
+                                                            }
                                                             else if (Input.GetKeyDown(KeyCode.Escape))
                                                             {
+                                                                cursorSelect.Play();
                                                                 selectedShield = null;
                                                                 break;
                                                             }
@@ -1450,6 +1507,7 @@ public class Combat : MonoBehaviour
                                                             {
                                                                 if (alreadyListed[selectedShieldElement] is Shield)
                                                                 {
+                                                                    cursorSelect.Play();
                                                                     selectedShield = alreadyListed[selectedShieldElement];
                                                                     break;
                                                                 }
@@ -1484,9 +1542,14 @@ public class Combat : MonoBehaviour
                                             if (yesSelected) { controller.OpenPopUpWindow("", "", "This weapon is two-handed, so your shield will also be unequipped.", "", "<b>[Yeah]</b><color=white>, duh.</color>", "", "<color=white>No! As if!</color>", ""); }
                                             else { controller.OpenPopUpWindow("", "", "This weapon is two-handed, so your shield will also be unequipped.", "", "<color=white>Yeah, duh.</color>", "", "<b>[No]</b><color=white>! As if!</color>", ""); }
                                             yield return new WaitUntil(controller.LeftRightEnterPressed);
-                                            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+                                            {
+                                                cursorMove.Play();
+                                                yesSelected = !yesSelected;
+                                            }
                                             else if (Input.GetKeyDown(KeyCode.Return))
                                             {
+                                                cursorSelect.Play();
                                                 controller.ClosePopUpWindow();
                                                 if (yesSelected) { unstrap = true; }
                                                 else { failedEquip = true; }
@@ -1549,6 +1612,7 @@ public class Combat : MonoBehaviour
                                     yield return new WaitUntil(controller.LeftRightUpDownEnterEscPressed);
                                     if (Input.GetKeyDown(KeyCode.RightArrow))
                                     {
+                                        cursorMove.Play();
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
                                         turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -1556,6 +1620,7 @@ public class Combat : MonoBehaviour
                                     }
                                     else if (Input.GetKeyDown(KeyCode.LeftArrow))
                                     {
+                                        cursorMove.Play();
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
                                         turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -1563,6 +1628,7 @@ public class Combat : MonoBehaviour
                                     }
                                     else if (Input.GetKeyDown(KeyCode.DownArrow))
                                     {
+                                        cursorMove.Play();
                                         if (activeBorders[borderSelected] != borderEgo)
                                         {
                                             StopCoroutine(selection);
@@ -1580,6 +1646,7 @@ public class Combat : MonoBehaviour
                                     }
                                     else if (Input.GetKeyDown(KeyCode.UpArrow))
                                     {
+                                        cursorMove.Play();
                                         if (activeBorders[borderSelected] == borderEgo)
                                         {
                                             StopCoroutine(selection);
@@ -1597,6 +1664,7 @@ public class Combat : MonoBehaviour
                                     }
                                     else if (Input.GetKeyDown(KeyCode.Escape))
                                     {
+                                        cursorCancel.Play();
                                         invDisplay.SetActive(true);
                                         invDisplayBorder.SetActive(true);
                                         invOptions.SetActive(true);
@@ -1609,6 +1677,7 @@ public class Combat : MonoBehaviour
                                     }
                                     else if (Input.GetKeyDown(KeyCode.Return))
                                     {
+                                        cursorSelect.Play();
                                         StopCoroutine(selection);
                                         activeBorders[borderSelected].SetActive(true);
                                         turnOrderNames[nameToHighlight].text = DeBoldText(turnOrderNames[nameToHighlight].text);
@@ -1641,9 +1710,14 @@ public class Combat : MonoBehaviour
                                     if (yesSelected) { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<b>[Yes]</b><color=white>. I'm not afraid.</color>", "", "<color=white>No! Take me back!</color>", ""); }
                                     else { controller.OpenPopUpWindow($"Drop {selectedItem.nome}?", "", "This action cannot be undone.", "", "<color=white>Yes. I'm not afraid.</color>", "", "<b>[No]</b><color=white>! Take me back!</color>", ""); }
                                     yield return new WaitUntil(controller.LeftRightEnterPressed);
-                                    if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)) { yesSelected = !yesSelected; }
+                                    if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+                                    {
+                                        cursorMove.Play();
+                                        yesSelected = !yesSelected;
+                                    }
                                     else if (Input.GetKeyDown(KeyCode.Return))
                                     {
+                                        cursorSelect.Play();
                                         if (yesSelected)
                                         {
                                             if (selectedItem is Undroppable)
@@ -1671,6 +1745,7 @@ public class Combat : MonoBehaviour
                                 }
                             }
                         }
+                        //boolean gatekeepers
                     if (useUsed)
                         {
                             useUsed = false;
@@ -1704,6 +1779,7 @@ public class Combat : MonoBehaviour
         else
         {
             yield return new WaitUntil(controller.EscPressed);
+            cursorCancel.Play();
             invDisplay.SetActive(false);
             invDisplayBorder.SetActive(false);
             egoDoneArrow.SetActive(false);
@@ -1923,6 +1999,7 @@ public class Combat : MonoBehaviour
         yield return new WaitForSeconds(.5f);
         if (endBattle)
         {
+            winBattle.Play();
             //clear remaining baddie from turn list
             for (int i = 0; i < turnOrder.Length; i++)
             {
@@ -1974,14 +2051,13 @@ public class Combat : MonoBehaviour
             continueArrow.SetActive(true);
             yield return new WaitUntil(controller.EnterPressed);
             continueArrow.SetActive(false);
-            yield return new WaitForSeconds(.05f);
+            yield return new WaitForSeconds(.15f);
             if (lootBox.Count > 0)
             {
-                yield return new WaitForSeconds(1f);
                 if (lootBox.Count == 1)
                 {
-                    if (multipleCorpses) { battleText.text = $"And the enemies left a present!\n\n"; }
-                    else { battleText.text = $"And the enemy left a present!\n\n"; }
+                    if (multipleCorpses) { battleText.text = $"And the enemies left a present!"; }
+                    else { battleText.text = $"And the enemy left a present!"; }
                     yield return new WaitForSeconds(.01f);
                     messageComplete = false;
                     StartCoroutine(BattleMessage(0));
@@ -1991,7 +2067,7 @@ public class Combat : MonoBehaviour
                     yield return new WaitUntil(controller.EnterPressed);
                     continueArrow.SetActive(false);
                     yield return new WaitForSeconds(.05f);
-                    battleText.text += $"The {myTI.ToTitleCase(lootBox[0].nome)} looks useful.";
+                    battleText.text += $"\n\nThe {myTI.ToTitleCase(lootBox[0].nome)} looks useful.";
                     yield return new WaitForSeconds(.01f);
                     messageComplete = false;
                     StartCoroutine(BattleMessage(endingCharacter));
@@ -2119,14 +2195,20 @@ public class Combat : MonoBehaviour
                 for (int i = 0; i < lootBox.Count; i++)
                 {
                     controller.interactableItems.inventory.Add(lootBox[i]);
-                }                
+                }
             }
-            
-            //battleLogGreyScreen.SetActive(true);
-            //yield return new WaitForSeconds(.5f);
-            //battleLog.SetActive(false);
-            //yield return new WaitForSeconds(.5f);
-            //battleLogGreyScreen.SetActive(false);
+            yield return new WaitForSeconds(.25f);
+
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.3f);
+            fightOverWhiteScreen.SetActive(true);
+            yield return new WaitForSeconds(.2f);
+            battleLogGreyScreen.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            //fightOverWhiteScreen.SetActive(false);
+            //return to game
         }
         else
         {
