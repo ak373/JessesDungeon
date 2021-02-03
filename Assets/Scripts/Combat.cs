@@ -34,9 +34,10 @@ public class Combat : MonoBehaviour
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
     public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
-    public AudioSource cursorMove, cursorSelect, cursorCancel;
-    public AudioSource badGuyCursorMove, badGuyCursorSelect;
-    public AudioSource winBattle;
+    public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
+    public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn;
+    public AudioSource winBattle, winCoda, hit, criticalHit, miss;
+    public AudioSource creeperMusic;
     public Effect[] allEffects;
     [HideInInspector] public float scrollRectValue;
 
@@ -98,6 +99,7 @@ public class Combat : MonoBehaviour
 
     public void InitiateCombat(BadGuy badGuy, int numberOfBadGuys)
     {
+        PlayBadGuyTheme();
         curHPEgo.text = ego.allStats[0].value.ToString();
         maxHPEgo.text = ego.allStats[2].value.ToString();
         //reset previous battle gameobjects
@@ -196,6 +198,12 @@ public class Combat : MonoBehaviour
         CalculateTurnOrder();
         DisplayTurnOrder();
         StartCoroutine(TurnDistributor());
+
+
+        void PlayBadGuyTheme()
+        {
+            if (badGuy.nome == "The Creeper in the Dark") { creeperMusic.Play(); }
+        }
     }
     void CalculateTurnOrder()
     {
@@ -357,8 +365,11 @@ public class Combat : MonoBehaviour
                 {
                     if (turnOrder[i].activeEffects[j].title == "Guarded") { RemoveEffect(turnOrder[i], turnOrder[i].activeEffects[j]); }
                 }
+                //short break
+                yield return new WaitForSeconds(.5f);
                 if (turnOrder[i] == ego)
                 {
+                    egoTurn.Play();
                     StartCoroutine(SelectFlicker(borderEgo));
                     //Execute Attack
                     if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
@@ -566,6 +577,7 @@ public class Combat : MonoBehaviour
                 else //if (turnOrder[i] != jesse)
                 {
                     BadGuy currentTurn = (BadGuy)turnOrder[i];
+                    badGuyTurn.Play();
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
                     else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion()); }
@@ -618,6 +630,7 @@ public class Combat : MonoBehaviour
 
         if (attackRoll >= egoArmorClass && (d20 < 20))
         {
+            hit.Play();
             if (message[message.Length -1] == '!') { battleText.text += " A"; }
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd hits for {rolledDamage} damage!";
@@ -628,6 +641,7 @@ public class Combat : MonoBehaviour
         }
         else if (d20 == 20)
         {
+            criticalHit.Play();
             if (message[message.Length - 1] == '!') { battleText.text += " A"; }
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd critically hits for {rolledDamage} damage!";
@@ -638,11 +652,13 @@ public class Combat : MonoBehaviour
         }
         else if (attackRoll == (egoArmorClass -1))
         {
+            miss.Play();
             if (message[message.Length - 1] == '!') { battleText.text += " Just missed!"; }
             else if (message[message.Length - 1] == ',') { battleText.text += " and just missed!"; }
         }
         else
         {
+            miss.Play();
             if (message[message.Length - 1] == '!') { battleText.text += " B"; }
             else if (message[message.Length - 1] == ',') { battleText.text += " b"; }
             battleText.text += "ut misses!";
@@ -766,6 +782,7 @@ public class Combat : MonoBehaviour
 
         if (attackRoll >= badGuyArmorClass && (d20 < 20))
         {
+            hit.Play();
             battleText.text += $" and hit for {rolledDamage} damage!";
             
             badGuy.allStats[1].value = badGuy.allStats[0].value - rolledDamage;
@@ -774,14 +791,23 @@ public class Combat : MonoBehaviour
         }
         else if (d20 == 20)
         {
+            criticalHit.Play();
             battleText.text += $" and critically hit for {rolledDamage} damage!";
 
             badGuy.allStats[1].value = badGuy.allStats[0].value - rolledDamage;
             StopCoroutine(HPRoll(badGuy));
             StartCoroutine(HPRoll(badGuy));
         }
-        else if (attackRoll == (badGuyArmorClass - 1)) { battleText.text += " and just miss!"; }
-        else { battleText.text += " but miss!"; }
+        else if (attackRoll == (badGuyArmorClass - 1))
+        {
+            miss.Play();
+            battleText.text += " and just miss!";
+        }
+        else
+        {
+            miss.Play();
+            battleText.text += " but miss!";
+        }
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
@@ -1999,6 +2025,7 @@ public class Combat : MonoBehaviour
         yield return new WaitForSeconds(.5f);
         if (endBattle)
         {
+            creeperMusic.Stop();
             winBattle.Play();
             //clear remaining baddie from turn list
             for (int i = 0; i < turnOrder.Length; i++)
@@ -2030,6 +2057,7 @@ public class Combat : MonoBehaviour
             yield return new WaitUntil(controller.EnterPressed);
             continueArrow.SetActive(false);
             yield return new WaitForSeconds(.1f);
+            winCoda.Play();
             if (multipleCorpses)
             {
                 if (lootPurse == 0) { battleText.text = $"Not a single crystal between all of them. Must've been the losers at last night's poker game."; }
@@ -2207,6 +2235,7 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.2f);
             battleLogGreyScreen.SetActive(false);
             yield return new WaitForSeconds(.5f);
+            winCoda.Stop();
             //fightOverWhiteScreen.SetActive(false);
             //return to game
         }
@@ -2215,7 +2244,6 @@ public class Combat : MonoBehaviour
             turnOrderBlackScreen.SetActive(false);
             StartCoroutine(TurnDistributor());
         }
-        
     }
     IEnumerator CheckTheDead()
     {
