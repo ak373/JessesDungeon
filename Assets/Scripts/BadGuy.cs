@@ -7,7 +7,6 @@ using TMPro;
 public class BadGuy : Character
 {
     public List<Item> itemLoot = new List<Item>();
-    public Potion[] potionBelt;
     public int crystalLootMin;
     public int crystalLootMax;
     [TextArea(2,5)]

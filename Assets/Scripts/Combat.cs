@@ -35,9 +35,9 @@ public class Combat : MonoBehaviour
     public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
-    public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn;
+    public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
     public AudioSource winBattle, winCoda, hit, criticalHit, miss;
-    public AudioSource creeperMusic;
+    public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
     [HideInInspector] public float scrollRectValue;
 
@@ -53,6 +53,7 @@ public class Combat : MonoBehaviour
     bool unstrap = false;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+    AudioSource currentTheme;
 
     GameController controller;
     // Start is called before the first frame update
@@ -99,7 +100,8 @@ public class Combat : MonoBehaviour
 
     public void InitiateCombat(BadGuy badGuy, int numberOfBadGuys)
     {
-        PlayBadGuyTheme();
+        FindBadGuyTheme();
+        currentTheme.Play();
         curHPEgo.text = ego.allStats[0].value.ToString();
         maxHPEgo.text = ego.allStats[2].value.ToString();
         //reset previous battle gameobjects
@@ -200,9 +202,12 @@ public class Combat : MonoBehaviour
         StartCoroutine(TurnDistributor());
 
 
-        void PlayBadGuyTheme()
+        void FindBadGuyTheme()
         {
-            if (badGuy.nome == "The Creeper in the Dark") { creeperMusic.Play(); }
+            if (badGuy.nome == "The Creeper in the Dark"){ currentTheme = creeperMusic; }
+            else if (badGuy.nome == "An Aggressive Peace Monger") { currentTheme = mongerMusic; }
+            else if (badGuy.nome == "A Bold Yet Discretionary Strategist") { currentTheme = strategistMusic; }
+            else if (badGuy.nome == "A Big Burly Brute") { currentTheme = bruteMusic; }
         }
     }
     void CalculateTurnOrder()
@@ -570,7 +575,7 @@ public class Combat : MonoBehaviour
                             yield return new WaitForSeconds(.5f);
                             battleLogGreyScreen.SetActive(false);
                         }
-                        else if (ego.chosenItem is Potion) { StartCoroutine(UsePotion()); }
+                        else if (ego.chosenItem is Potion) { StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget)); }
                         actionComplete = true;
                     }
                 }
@@ -580,7 +585,7 @@ public class Combat : MonoBehaviour
                     badGuyTurn.Play();
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
-                    else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion()); }
+                    else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion(currentTurn, currentTurn.potionBelt[0])); }
                     else { StartCoroutine(SpecialAbility()); }
                 }
                 yield return new WaitUntil(ActionComplete);
@@ -675,9 +680,57 @@ public class Combat : MonoBehaviour
         battleLogGreyScreen.SetActive(false);
         actionComplete = true;
     }
-    IEnumerator UsePotion()
+    IEnumerator UsePotion(Character user, Potion potion, Character target = null)
     {
-        yield return new WaitForSeconds(1f);
+        if (target == null) { target = user; }
+        string verbs = "drinks";
+        if (!potion.beneficial) { verbs = "throws"; }
+
+
+
+        battleLog.SetActive(true);
+        battleText.text = $"{user.nome} takes out a {potion.nome}, and {verbs} it. ";
+        yield return new WaitForSeconds(.01f);
+        messageComplete = false;
+        StartCoroutine(BattleMessage(0));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.5f);
+        //remove potion and change stats
+        for (int i = 0; i < user.potionBelt.Count; i++)
+        {
+            if (potion.nome == user.potionBelt[i].nome)
+            {
+                user.potionBelt.Remove(user.potionBelt[i]);
+                break;
+            }
+        }
+        if (potion.allStatsNumber == 1) { user.allStats[1].value += potion.potency; }
+        else { user.allStats[potion.allStatsNumber].effectValue += potion.potency; }
+        //
+        //made for just HP currently
+        if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
+        
+        if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
+        {
+            if (user is Ego) { battleText.text += "Your HP are maxed out!"; }
+            else { battleText.text += $"{user.nome}'s HP are maxed out!"; }
+        }
+        else
+        {
+            if (user is Ego) { battleText.text += $"You regain {potion.potency} HP!"; }
+            else { battleText.text += $"{user.nome} regains {potion.potency} HP!"; }            
+        }
+        //
+        yield return new WaitForSeconds(.01f);
+        messageComplete = false;
+        StartCoroutine(BattleMessage(endingCharacter));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.75f);
+        battleLogGreyScreen.SetActive(true);
+        yield return new WaitForSeconds(.5f);
+        battleLog.SetActive(false);
+        yield return new WaitForSeconds(.5f);
+        battleLogGreyScreen.SetActive(false);
         actionComplete = true;
     }
     IEnumerator SpecialAbility()
@@ -1235,7 +1288,7 @@ public class Combat : MonoBehaviour
         if (currentHP >= (.25 * combinedMaxHP)) { return RegularAction(); }
         else if (currentHP >= (.25 * combinedMaxHP))
         {
-            if (badGuy.potionBelt.Length > 0) { return "Inventory"; }
+            if (badGuy.potionBelt.Count > 0) { return "Inventory"; }
             else
             {   //strategist call for help
                 if (badGuy.nome == "A Bold Yet Discretionary Strategist") { return "Call"; }
@@ -2025,7 +2078,7 @@ public class Combat : MonoBehaviour
         yield return new WaitForSeconds(.5f);
         if (endBattle)
         {
-            creeperMusic.Stop();
+            currentTheme.Stop();
             winBattle.Play();
             //clear remaining baddie from turn list
             for (int i = 0; i < turnOrder.Length; i++)
@@ -2276,6 +2329,7 @@ public class Combat : MonoBehaviour
         for (int i = 0; i < deadGuy.itemLoot.Count; i++) { lootBox.Add(deadGuy.itemLoot[i]); }
         lootPurse += Random.Range(deadGuy.crystalLootMin, deadGuy.crystalLootMax + 1);
 
+        badGuyDie.Play();
         deadThisRound.Add(deadGuy);
         enemySlotGreyScreen.transform.position = deadGuy.combatSlot.transform.position;
         enemySlotGreyScreen.SetActive(true);

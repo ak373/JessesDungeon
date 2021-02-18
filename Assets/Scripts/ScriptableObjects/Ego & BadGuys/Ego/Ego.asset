@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13aea07fff8a60848bc5dbf7e2a32ce2, type: 3}
   m_Name: Ego
   m_EditorClassIdentifier: 
-  nome: Ego
+  nome: You
   allStats:
   - {fileID: 11400000, guid: d21e0c21411f92147a2aabf8a778c90a, type: 2}
   - {fileID: 11400000, guid: 6880f16464d08564785b1f03b8c3e930, type: 2}
@@ -29,10 +29,14 @@ MonoBehaviour:
   equippedArmor: {fileID: 0}
   equippedWeapon: {fileID: 0}
   equippedShield: {fileID: 0}
+  potionBelt: []
   currentInit: 4
+  currentTurnOrder: 0
   displayAction: 
   chosenAction: Attack
   chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
   blueCrystals: 0
   fightClubRank: 0
   conversation: 0

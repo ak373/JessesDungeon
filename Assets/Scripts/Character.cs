@@ -10,6 +10,7 @@ public class Character : ScriptableObject
     public Armor equippedArmor;
     public Weapon equippedWeapon;
     public Shield equippedShield;
+    public List<Potion> potionBelt = new List<Potion>();
     [HideInInspector] public int currentInit;
     [HideInInspector] public int currentTurnOrder;
     [HideInInspector] public string displayAction;
