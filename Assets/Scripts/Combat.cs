@@ -36,7 +36,8 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, hit, criticalHit, miss;
+    public AudioSource winBattle, winCoda, hit, criticalHit, miss, potionDrink, potionThrow;
+    public AudioSource goodEffect, badEffect, goodInstant, badInstant;
     public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
     [HideInInspector] public float scrollRectValue;
@@ -49,7 +50,7 @@ public class Combat : MonoBehaviour
     List<Item> lootBox = new List<Item>();
     int lootPurse = 0;
     int currentArrowPosition, endingCharacter;
-    bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete, multipleCorpses;
+    bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete;
     bool unstrap = false;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
@@ -575,7 +576,12 @@ public class Combat : MonoBehaviour
                             yield return new WaitForSeconds(.5f);
                             battleLogGreyScreen.SetActive(false);
                         }
-                        else if (ego.chosenItem is Potion) { StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget)); }
+                        else if (ego.chosenItem is Potion)
+                        {
+                            StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget));
+                            yield return new WaitUntil(PotionComplete);
+                            potionComplete = false;
+                        }
                         actionComplete = true;
                     }
                 }
@@ -683,19 +689,11 @@ public class Combat : MonoBehaviour
     IEnumerator UsePotion(Character user, Potion potion, Character target = null)
     {
         if (target == null) { target = user; }
-        string verbs = "drinks";
-        if (!potion.beneficial) { verbs = "throws"; }
-
-
-
-        battleLog.SetActive(true);
-        battleText.text = $"{user.nome} takes out a {potion.nome}, and {verbs} it. ";
-        yield return new WaitForSeconds(.01f);
-        messageComplete = false;
-        StartCoroutine(BattleMessage(0));
-        yield return new WaitUntil(MessageComplete);
-        yield return new WaitForSeconds(.5f);
-        //remove potion and change stats
+        string verb = "drinks";
+        string badGuyWithAnS = "";
+        if (!potion.beneficial) { verb = "throws"; }
+        if (user is BadGuy) { badGuyWithAnS = "s"; }
+        //remove potion (currently no ego potionbelt)
         for (int i = 0; i < user.potionBelt.Count; i++)
         {
             if (potion.nome == user.potionBelt[i].nome)
@@ -704,34 +702,49 @@ public class Combat : MonoBehaviour
                 break;
             }
         }
-        if (potion.allStatsNumber == 1) { user.allStats[1].value += potion.potency; }
-        else { user.allStats[potion.allStatsNumber].effectValue += potion.potency; }
         //
-        //made for just HP currently
-        if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
-        
-        if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
+        battleLog.SetActive(true);
+        battleText.text = $"{user.nome} take{badGuyWithAnS} out a {potion.nome} and {verb}{badGuyWithAnS} it. ";
+        yield return new WaitForSeconds(.01f);
+        messageComplete = false;
+        StartCoroutine(BattleMessage(0));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(.5f);
+        //potion effect
+        if (potion.allStatsNumber == 1)
         {
-            if (user is Ego) { battleText.text += "Your HP are maxed out!"; }
-            else { battleText.text += $"{user.nome}'s HP are maxed out!"; }
+            goodInstant.Play();
+            user.allStats[1].value += potion.potency;
+            if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
+            if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
+            {
+                if (user is Ego) { battleText.text += "Your HP are maxed out!"; }
+                else { battleText.text += $"{user.nome}'s HP are maxed out!"; }
+            }
+            else
+            {
+                if (user is Ego) { battleText.text += $"You regain {potion.potency} HP!"; }
+                else { battleText.text += $"{user.nome} regains {potion.potency} HP!"; }
+            }
         }
         else
         {
-            if (user is Ego) { battleText.text += $"You regain {potion.potency} HP!"; }
-            else { battleText.text += $"{user.nome} regains {potion.potency} HP!"; }            
+            //must add good/bad effect/instant instances
+            user.allStats[potion.allStatsNumber].effectValue += potion.potency;
+            target.activeEffects.Add(potion.useEffect);
+            battleText.text += potion.useMessage;
         }
-        //
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
-        yield return new WaitForSeconds(.75f);
+        yield return new WaitForSeconds(1.25f);
         battleLogGreyScreen.SetActive(true);
         yield return new WaitForSeconds(.5f);
         battleLog.SetActive(false);
         yield return new WaitForSeconds(.5f);
         battleLogGreyScreen.SetActive(false);
-        actionComplete = true;
+        potionComplete = true;
     }
     IEnumerator SpecialAbility()
     {
@@ -1045,6 +1058,7 @@ public class Combat : MonoBehaviour
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[3]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[4]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[5]);
                     for (int i = 0; i < activeBadGuys.Length; i++)
                     {
                         if (activeBadGuys[i] != null) { activeBadGuys[i].allStats[0].value = 1; }
@@ -1662,7 +1676,11 @@ public class Combat : MonoBehaviour
                                     if (activeBadGuys[i] != null) { activeBorders.Add(activeBadGuys[i].combatBorder); }
                                 }
                                 activeBorders.Add(borderEgo);
-                                if (selectedItem.beneficial) { borderSelected = activeBorders.IndexOf(borderEgo); }
+                                if (selectedItem.beneficial)
+                                {
+                                    borderSelected = activeBorders.IndexOf(borderEgo);
+                                    selfSelectionMemory = 0;
+                                }
 
                                 while (true)
                                 {
@@ -2396,6 +2414,7 @@ public class Combat : MonoBehaviour
     bool MessageComplete() { return messageComplete; }
     bool InventoryComplete() { return inventoryComplete; }
     bool DeadCheckComplete() { return deadCheckComplete; }
+    bool PotionComplete() { return potionComplete; }
 
 
 
