@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Death
   abbreviation: 
-  stat: currentHitPoints
-  stat2: 
+  allStatsNumber: 1
+  allStatsNumber2: -1
   potency: -32000
   potency2: 0
   color: {r: 0, g: 0, b: 0, a: 1}
-  duration: 0
+  duration: -1
   description: You die.
-  turnOrderTick: 999
+  turnOrderTick: 1

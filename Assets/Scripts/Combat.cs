@@ -711,6 +711,7 @@ public class Combat : MonoBehaviour
         yield return new WaitUntil(MessageComplete);
         yield return new WaitForSeconds(.5f);
         //potion effect
+        //need additional code for HoT and DoT effects
         if (potion.allStatsNumber == 1)
         {
             goodInstant.Play();
@@ -730,8 +731,7 @@ public class Combat : MonoBehaviour
         else
         {
             //must add good/bad effect/instant instances
-            user.allStats[potion.allStatsNumber].effectValue += potion.potency;
-            target.activeEffects.Add(potion.useEffect);
+            AddEffect(target, user.currentTurnOrder, potion.useEffect);
             battleText.text += potion.useMessage;
         }
         yield return new WaitForSeconds(.01f);
@@ -766,12 +766,9 @@ public class Combat : MonoBehaviour
         }
 
         //modify stats
-        for (int i = 0; i < target.allStats.Length; i++)
-        {
-            if (effect.stat == target.allStats[i].title) { target.allStats[i].effectValue += effect.potency; }
-            if (effect.stat2 != null) { if (effect.stat2 == target.allStats[i].title) { target.allStats[i].effectValue += effect.potency2; } }
-        }
-
+        target.allStats[effect.allStatsNumber].effectValue += effect.potency;
+        if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
+        
         //add effect
         effect.turnOrderTick = turnOrderOfCaster;
         target.activeEffects.Add(effect);
@@ -796,11 +793,8 @@ public class Combat : MonoBehaviour
         }
 
         //modify stats
-        for (int i = 0; i < target.allStats.Length; i++)
-        {
-            if (effect.stat == target.allStats[i].title) { target.allStats[i].effectValue -= effect.potency; }
-            if (effect.stat2 != null) { if (effect.stat2 == target.allStats[i].title) { target.allStats[i].effectValue -= effect.potency2; } }
-        }
+        target.allStats[effect.allStatsNumber].effectValue -= effect.potency;
+        if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue -= effect.potency2; }
 
         //remove effect
         target.activeEffects.Remove(effect);
@@ -1140,7 +1134,9 @@ public class Combat : MonoBehaviour
                             {
                                 cursorSelect.Play();
                                 selectedEffect = ego.activeEffects[selectedElement];
-                                controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", "", "Press ESC to return");
+                                string duration = "";
+                                if (selectedEffect.duration > 0) { duration = $"Rounds Remaining: {selectedEffect.duration}"; }
+                                controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", duration, "Press ESC to return");
                                 //copying font from achievements for simplicity
                                 controller.achievements.originalFont = controller.popUpMessage.font;
                                 controller.popUpMessage.font = controller.achievements.deedDescriptionFont;

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Intimidated
   abbreviation: TH
-  stat: toHitMod
-  stat2: 
+  allStatsNumber: 9
+  allStatsNumber2: -1
   potency: -3
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}

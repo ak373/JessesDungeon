@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Poisoned (Light)
   abbreviation: HP
-  stat: targetHP
-  stat2: 
+  allStatsNumber: 1
+  allStatsNumber2: -1
   potency: -5
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}

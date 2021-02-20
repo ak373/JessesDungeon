@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Guarded
   abbreviation: AC DR
-  stat: armorClass
-  stat2: damageReduction
+  allStatsNumber: 3
+  allStatsNumber2: 5
   potency: 5
   potency2: 2
   color: {r: 0, g: 1, b: 0, a: 1}
-  duration: 2
+  duration: -1
   description: Your Armor Class gets a +5 bonus and your Damage Reduction increases
     by 2 until your next action.
-  turnOrderTick: 3
+  turnOrderTick: 1

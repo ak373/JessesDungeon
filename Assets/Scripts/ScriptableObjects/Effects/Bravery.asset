@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Bravery
   abbreviation: DR
-  stat: dmgReduction
-  stat2: 
+  allStatsNumber: 5
+  allStatsNumber2: -1
   potency: 3
   potency2: 0
   color: {r: 0, g: 1, b: 0, a: 1}

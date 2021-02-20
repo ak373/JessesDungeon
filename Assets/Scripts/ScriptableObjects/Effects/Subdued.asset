@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Subdued
   abbreviation: In
-  stat: currentInit
-  stat2: 
+  allStatsNumber: 10
+  allStatsNumber2: -1
   potency: -20
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}

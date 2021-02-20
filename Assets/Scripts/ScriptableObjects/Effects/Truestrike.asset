@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Truestrike
   abbreviation: TH
-  stat: toHitMod
-  stat2: 
+  allStatsNumber: 9
+  allStatsNumber2: -1
   potency: 10
   potency2: 0
   color: {r: 0, g: 1, b: 0, a: 1}

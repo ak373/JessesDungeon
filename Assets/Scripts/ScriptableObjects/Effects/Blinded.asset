@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Blinded
   abbreviation: TH AC
-  stat: toHitMod
-  stat2: armorClass
+  allStatsNumber: 9
+  allStatsNumber2: 3
   potency: -10
   potency2: -5
   color: {r: 1, g: 0, b: 0, a: 1}

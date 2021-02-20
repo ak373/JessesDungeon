@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Cure
   abbreviation: 
-  stat: currentHitPoints
-  stat2: 
+  allStatsNumber: -1
+  allStatsNumber2: -1
   potency: 0
   potency2: 0
   color: {r: 0, g: 0, b: 0, a: 1}
-  duration: 0
+  duration: -1
   description: All poison is cured.
   turnOrderTick: 999
