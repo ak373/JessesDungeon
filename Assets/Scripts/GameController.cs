@@ -145,6 +145,7 @@ public class GameController : MonoBehaviour
         ego.chosenItem = null;
         ego.chosenItem2 = null;
         ego.chosenTarget = null;
+        ego.potionBelt.Clear();
     //enterToContinueDialogue = false;
     timeDelay = 1;
         sentences = new Queue<string>();
@@ -908,6 +909,8 @@ public class GameController : MonoBehaviour
     public bool UpDownEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
     public bool LeftRightUpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
+    public bool RightUpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
+    public bool LeftUpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
     public bool UpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Globalization;
+using TMPro;
 
 public class InteractableItems : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class InteractableItems : MonoBehaviour
     [HideInInspector] public List<string> notYetSearched = new List<string>();
     [HideInInspector] public List<string> alreadySearched = new List<string>();
     public GameObject inventoryStats;
+    public TMP_Text potion0, potion1, potion2;
+    public Ego ego;
     GameController controller;
     [HideInInspector] public bool traySearch = false;
 
@@ -51,6 +54,7 @@ public class InteractableItems : MonoBehaviour
 
         controller.currentActiveInput = "inventory";
         inventoryStats.SetActive(true);
+        DisplayPotionBelt();
         alreadyListed.Clear();
         toPassIn = "";
         if (inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
@@ -75,6 +79,15 @@ public class InteractableItems : MonoBehaviour
         toPassIn += "\n\n-------------------------------------\nInspect\nEquip\nDrop\nUse\n\nAchievements\n\nPress ESC to return";
         controller.escToContinue = true;
         controller.OverwriteMainWindow(toPassIn);        
+    }
+    public void DisplayPotionBelt()
+    {
+        potion0.text = "";
+        potion1.text = "";
+        potion2.text = "";
+        if (ego.potionBelt[0] != null) { potion0.text = ego.potionBelt[0].nome; }
+        if (ego.potionBelt[1] != null) { potion1.text = ego.potionBelt[1].nome; }
+        if (ego.potionBelt[2] != null) { potion2.text = ego.potionBelt[2].nome; }
     }
 
     public Dictionary<string, string[]> Search (string[] separatedInputWords)

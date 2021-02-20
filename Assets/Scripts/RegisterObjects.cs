@@ -8,6 +8,7 @@ public class RegisterObjects : MonoBehaviour
     //public Shield soupBowl;
     //public Weapon rustyWoodenSpoon;
     //public Weapon bubbleLead;
+    public Potion[] allPotions;
     public Item[] allItems;
     public InteractableObject[] allObjects;
 
