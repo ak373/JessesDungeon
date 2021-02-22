@@ -18,9 +18,9 @@ MonoBehaviour:
   description: This potion will recover 20 HP.
   unlocked: 0
   beneficial: 1
-  useMessage: 
-  useMessage2: 
-  useEffect: {fileID: 0}
+  useMessage: regain 20 HP!
+  useMessage2: regains 20 HP!
+  useEffect: {fileID: 11400000, guid: 9d4c808a5846b754b95bd46336a73db1, type: 2}
   allStatsNumber: 1
   potency: 20
   duration: 0

@@ -19,6 +19,8 @@ MonoBehaviour:
   potency: -2
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}
-  duration: -1
+  duration: -2
+  beneficial: 0
+  compounding: 0
   description: You suffer a -2 penalty to your Armor Class for each flanking opponent.
   turnOrderTick: 1

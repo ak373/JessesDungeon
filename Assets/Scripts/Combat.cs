@@ -592,7 +592,7 @@ public class Combat : MonoBehaviour
                     badGuyTurn.Play();
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
-                    else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion(currentTurn, currentTurn.potionBelt[0])); }
+                    else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion(currentTurn, currentTurn.potionBelt[0], currentTurn.chosenTarget)); }
                     else { StartCoroutine(SpecialAbility()); }
                 }
                 yield return new WaitUntil(ActionComplete);
@@ -647,7 +647,7 @@ public class Combat : MonoBehaviour
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd hits for {rolledDamage} damage!";
 
-            ego.allStats[1].value = ego.allStats[0].value - rolledDamage;
+            ego.allStats[1].value = ego.allStats[1].value - rolledDamage;
             StopCoroutine(HPRoll(ego));
             StartCoroutine(HPRoll(ego));            
         }
@@ -658,7 +658,7 @@ public class Combat : MonoBehaviour
             else if (message[message.Length - 1] == ',') { battleText.text += " a"; }
             battleText.text += $"nd critically hits for {rolledDamage} damage!";
 
-            ego.allStats[1].value = ego.allStats[0].value - rolledDamage;
+            ego.allStats[1].value = ego.allStats[1].value - rolledDamage;
             StopCoroutine(HPRoll(ego));
             StartCoroutine(HPRoll(ego));
         }
@@ -687,14 +687,13 @@ public class Combat : MonoBehaviour
         battleLogGreyScreen.SetActive(false);
         actionComplete = true;
     }
-    IEnumerator UsePotion(Character user, Potion potion, Character target = null)
+    IEnumerator UsePotion(Character user, Potion potion, Character target)
     {
-        if (target == null) { target = user; }
-        string verb = "drinks";
-        string badGuyWithAnS = "";
-        if (!potion.beneficial) { verb = "throws"; }
-        if (user is BadGuy) { badGuyWithAnS = "s"; }
-        //remove potion
+        string verb = "drink";
+        string s = "";
+        if (!potion.beneficial) { verb = "throw"; }
+        if (user is BadGuy) { s = "s"; }
+        //remove potion from belt
         for (int i = 0; i < user.potionBelt.Count; i++)
         {
             if (potion.nome == user.potionBelt[i].nome)
@@ -703,37 +702,48 @@ public class Combat : MonoBehaviour
                 break;
             }
         }
-        //
+        //determine proper wording
         battleLog.SetActive(true);
-        battleText.text = $"{user.nome} take{badGuyWithAnS} out a {potion.nome} and {verb}{badGuyWithAnS} it. ";
+        //odd case: user gives other beneficial
+        if (potion.beneficial && user != target) { battleText.text = $"{user.nome} take{s} out a {potion.nome} and give{s} it to {target.nome}. "; }
+        //odd case: user uses detrimental on self
+        else if (!potion.beneficial && user == target)
+        {
+            if (user is Ego) { battleText.text = $"You take out a {potion.nome} and break it over your head. "; }
+            else { battleText.text = $"{user.nome} takes out a {potion.nome} and breaks it over his head. "; }
+        }
+        //regular case
+        else { battleText.text = $"{user.nome} take{s} out a {potion.nome} and {verb}{s} it. "; }
+        
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(0));
         yield return new WaitUntil(MessageComplete);
         yield return new WaitForSeconds(.5f);
         //potion effect
-        //need additional code for HoT and DoT effects
+        AddEffect(target, user.currentTurnOrder, potion.useEffect);
+        //battle text pt2
+        //case: overheal
         if (potion.allStatsNumber == 1)
         {
-            goodInstant.Play();
-            user.allStats[1].value += potion.potency;
             if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
             if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
             {
-                if (user is Ego) { battleText.text += "Your HP are maxed out!"; }
+                if (target is Ego) { battleText.text += "Your HP are maxed out!"; }
                 else { battleText.text += $"{user.nome}'s HP are maxed out!"; }
             }
+            //same as regular case
             else
             {
-                if (user is Ego) { battleText.text += $"You regain {potion.potency} HP!"; }
-                else { battleText.text += $"{user.nome} regains {potion.potency} HP!"; }
+                if (target is Ego) { battleText.text += $"{target.nome} {potion.useMessage}"; }
+                else { battleText.text += $"{target.nome} {potion.useMessage2}"; }
             }
         }
+        //regular case
         else
         {
-            //must add good/bad effect/instant instances
-            AddEffect(target, user.currentTurnOrder, potion.useEffect);
-            battleText.text += potion.useMessage;
+            if (user is Ego) { battleText.text += $"{user.nome} {potion.useMessage}"; }
+            else { battleText.text += $"{user.nome} {potion.useMessage2}"; }
         }
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
@@ -757,22 +767,43 @@ public class Combat : MonoBehaviour
         string color = "white";
         if (effect.color == Color.green) { color = "green"; }
         else if (effect.color == Color.red) { color = "red"; }
-
-        //write on screen
-        if (target == ego) { effectsText.text += $"<color={color}>{effect.title}</color>\n"; }
+        //play correct sound
+        if (effect.duration == -1)
+        {
+            if (effect.beneficial) { goodInstant.Play(); }
+            else { badInstant.Play(); }
+        }
         else
         {
-            BadGuy badTarget = (BadGuy)target;
-            badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
+            if (effect.beneficial) { goodEffect.Play(); }
+            else { badEffect.Play(); }
         }
 
-        //modify stats
-        target.allStats[effect.allStatsNumber].effectValue += effect.potency;
+        //if duration is not instantaneous
+        if (effect.duration != -1)
+        {
+            //write on screen
+            if (target == ego) { effectsText.text += $"<color={color}>{effect.title}</color>\n"; }
+            else
+            {
+                BadGuy badTarget = (BadGuy)target;
+                badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
+            }
+            //add effect
+            effect.turnOrderTick = turnOrderOfCaster;
+            target.activeEffects.Add(effect);
+        }
+        //modify stats (instantaneous HP affects value (not effectValue))
+        if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
+        else
+        {
+            target.allStats[effect.allStatsNumber].value += effect.potency;
+            StopCoroutine(HPRoll(target));
+            StartCoroutine(HPRoll(target));
+        }
+        //if second effect, otherwise it is set to -1
         if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
         
-        //add effect
-        effect.turnOrderTick = turnOrderOfCaster;
-        target.activeEffects.Add(effect);
     }
     void RemoveEffect(Character target, Effect effect)
     {
@@ -846,7 +877,7 @@ public class Combat : MonoBehaviour
             hit.Play();
             battleText.text += $" and hit for {rolledDamage} damage!";
             
-            badGuy.allStats[1].value = badGuy.allStats[0].value - rolledDamage;
+            badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
             StopCoroutine(HPRoll(badGuy));
             StartCoroutine(HPRoll(badGuy));
         }
@@ -855,7 +886,7 @@ public class Combat : MonoBehaviour
             criticalHit.Play();
             battleText.text += $" and critically hit for {rolledDamage} damage!";
 
-            badGuy.allStats[1].value = badGuy.allStats[0].value - rolledDamage;
+            badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
             StopCoroutine(HPRoll(badGuy));
             StartCoroutine(HPRoll(badGuy));
         }
@@ -1043,11 +1074,11 @@ public class Combat : MonoBehaviour
                     //ego.displayAction = "Flee";
 
                     //testing status, inventory, and badguy deaths
-                    AddEffect(ego, 1, allEffects[0]);
-                    AddEffect(ego, 1, allEffects[1]);
-                    AddEffect(ego, 1, allEffects[2]);
-                    AddEffect(ego, 1, allEffects[3]);
-                    AddEffect(ego, 1, allEffects[4]);
+                    AddEffect(ego, 1, Instantiate(allEffects[0]));
+                    AddEffect(ego, 1, Instantiate(allEffects[1]));
+                    AddEffect(ego, 1, Instantiate(allEffects[2]));
+                    AddEffect(ego, 1, Instantiate(allEffects[3]));
+                    AddEffect(ego, 1, Instantiate(allEffects[4]));
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[0]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[1]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
@@ -1510,6 +1541,8 @@ public class Combat : MonoBehaviour
                                 bool useUsed = false;
                                 while (true)
                                 {
+                                    invOptions.SetActive(true);
+                                    invOptionsBorder.SetActive(true);
                                     if (option < 1) { option = 2; }
                                     if (option > 2) { option = 1; }
                                     yield return new WaitForSeconds(.01f);
@@ -2340,7 +2373,7 @@ public class Combat : MonoBehaviour
         while (character.allStats[0].value < character.allStats[1].value)
         {
             character.allStats[0].value++;
-            yield return new WaitForSeconds(.2f);
+            yield return new WaitForSeconds(.1f);
         }
     }
     IEnumerator BattleMessage(int startingCharacter)

@@ -13,6 +13,8 @@ public class Effect : ScriptableObject
     public int potency2;
     public Color color;
     public int duration;
+    public bool beneficial;
+    public bool compounding;
     [TextArea(3,10)]
     public string description;
     [HideInInspector] public int turnOrderTick;
