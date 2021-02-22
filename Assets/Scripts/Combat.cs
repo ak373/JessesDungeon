@@ -51,7 +51,7 @@ public class Combat : MonoBehaviour
     List<Item> lootBox = new List<Item>();
     int lootPurse = 0;
     int currentArrowPosition, endingCharacter;
-    bool actionSelected, actionComplete, messageComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete;
+    bool actionSelected, actionComplete, messageComplete, activateBattleLogComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete;
     bool unstrap = false;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
@@ -345,7 +345,28 @@ public class Combat : MonoBehaviour
             //lower spell effect duration at turn order i
             for (int j = 0; j < ego.activeEffects.Count; j++)
             {
-                if (ego.activeEffects[j].turnOrderTick == i) { ego.activeEffects[j].duration--; }
+                if (ego.activeEffects[j].turnOrderTick == i) 
+                {
+                    ego.activeEffects[j].duration--;
+                    if (ego.activeEffects[j].compounding)
+                    {
+                        if (ego.activeEffects[j].beneficial) { goodInstant.Play(); }
+                        else { badInstant.Play(); }
+                        if (ego.activeEffects[j].allStatsNumber != 1) { ego.allStats[ego.activeEffects[j].allStatsNumber].effectValue += ego.activeEffects[j].potency; }
+                        else
+                        {
+                            ego.allStats[ego.activeEffects[j].allStatsNumber].value += ego.activeEffects[j].potency;
+                            StopCoroutine(HPRoll(ego));
+                            StartCoroutine(HPRoll(ego));
+                        }
+                        //if second effect, otherwise it is set to -1
+                        if (ego.activeEffects[j].allStatsNumber2 != -1) { ego.allStats[ego.activeEffects[j].allStatsNumber2].effectValue += ego.activeEffects[j].potency2; }
+                        activateBattleLogComplete = false;
+                        StartCoroutine(ActivateBattleLog($"{ego.nome} {ego.activeEffects[j].compoundMessage}", null, 0, 1f));
+                        yield return new WaitUntil(ActivateBattleLogComplete);
+                        activateBattleLogComplete = false;
+                    }
+                }
                 if (ego.activeEffects[j].duration == 0) { RemoveEffect(ego, ego.activeEffects[j]); }
             }
             for (int j = 0; j < activeBadGuys.Length; j++)
@@ -354,7 +375,26 @@ public class Combat : MonoBehaviour
                 {
                     for (int k = 0; k < activeBadGuys[j].activeEffects.Count; k++)
                     {
-                        if (activeBadGuys[j].activeEffects[k].turnOrderTick == i) { activeBadGuys[j].activeEffects[k].duration--; }
+                        if (activeBadGuys[j].activeEffects[k].turnOrderTick == i)
+                        {
+                            activeBadGuys[j].activeEffects[k].duration--;
+                            if (activeBadGuys[j].activeEffects[k].compounding)
+                            {
+                                if (activeBadGuys[j].activeEffects[k].allStatsNumber != 1) { activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber].effectValue += activeBadGuys[j].activeEffects[k].potency; }
+                                else
+                                {
+                                    activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber].value += activeBadGuys[j].activeEffects[k].potency;
+                                    StopCoroutine(HPRoll(activeBadGuys[j]));
+                                    StartCoroutine(HPRoll(activeBadGuys[j]));
+                                }
+                                //if second effect, otherwise it is set to -1
+                                if (activeBadGuys[j].activeEffects[k].allStatsNumber2 != -1) { activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber2].effectValue += activeBadGuys[j].activeEffects[k].potency2; }
+                                activateBattleLogComplete = false;
+                                StartCoroutine(ActivateBattleLog($"{activeBadGuys[j].nome} {activeBadGuys[j].activeEffects[k].compoundMessage2}", null, 0, 1f));
+                                yield return new WaitUntil(ActivateBattleLogComplete);
+                                activateBattleLogComplete = false;
+                            }
+                        }
                         if (activeBadGuys[j].activeEffects[k].duration == 0) { RemoveEffect(activeBadGuys[j], activeBadGuys[j].activeEffects[k]); }
                     }
                 }                
@@ -579,6 +619,7 @@ public class Combat : MonoBehaviour
                         }
                         else if (ego.chosenItem is Potion)
                         {
+                            potionComplete = false;
                             StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget));
                             yield return new WaitUntil(PotionComplete);
                             potionComplete = false;
@@ -724,7 +765,7 @@ public class Combat : MonoBehaviour
         AddEffect(target, user.currentTurnOrder, potion.useEffect);
         //battle text pt2
         //case: overheal
-        if (potion.allStatsNumber == 1)
+        if (potion.useEffect.allStatsNumber == 1)
         {
             if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
             if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
@@ -772,8 +813,8 @@ public class Combat : MonoBehaviour
         {
             if (effect.beneficial) { goodInstant.Play(); }
             else { badInstant.Play(); }
-        }
-        else
+        }        
+        else if (effect.title != "Guarded")//defend doesn't get a sound effect
         {
             if (effect.beneficial) { goodEffect.Play(); }
             else { badEffect.Play(); }
@@ -791,7 +832,7 @@ public class Combat : MonoBehaviour
             }
             //add effect
             effect.turnOrderTick = turnOrderOfCaster;
-            target.activeEffects.Add(effect);
+            target.activeEffects.Add(Instantiate(effect));
         }
         //modify stats (instantaneous HP affects value (not effectValue))
         if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
@@ -1084,12 +1125,16 @@ public class Combat : MonoBehaviour
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[3]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[4]);
-                    ego.potionBelt.Add(controller.registerObjects.allPotions[0]);
-                    ego.potionBelt.Add(controller.registerObjects.allPotions[1]);
+                    ego.potionBelt.Add(controller.registerObjects.allPotions[3]);
+                    ego.potionBelt.Add(controller.registerObjects.allPotions[4]);
                     ego.potionBelt.Add(controller.registerObjects.allPotions[2]);
                     for (int i = 0; i < activeBadGuys.Length; i++)
                     {
-                        if (activeBadGuys[i] != null) { activeBadGuys[i].allStats[0].value = 1; }
+                        if (activeBadGuys[i] != null)
+                        {
+                            activeBadGuys[i].allStats[1].value = 1;
+                            StartCoroutine(HPRoll(activeBadGuys[i]));
+                        }
                     }
                     currentArrowPosition = 0;
                     egoDoneArrow.SetActive(false);
@@ -1133,7 +1178,7 @@ public class Combat : MonoBehaviour
 
                             for (int i = 0; i < effectIndex; i++) { newText += effectsText.text[i]; }
 
-                            newText += "<b><size=15>[";
+                            newText += "<b><size=14>[";
 
                             for (int i = effectIndex; i < effectIndex + effectLength; i++) { newText += effectsText.text[i]; }
                             
@@ -1169,7 +1214,7 @@ public class Combat : MonoBehaviour
                                 cursorSelect.Play();
                                 selectedEffect = ego.activeEffects[selectedElement];
                                 string duration = "";
-                                if (selectedEffect.duration > 0) { duration = $"Rounds Remaining: {selectedEffect.duration}"; }
+                                if (selectedEffect.duration > 0) { duration = $"<size=10>Rounds Remaining: {selectedEffect.duration}</size>"; }
                                 controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", duration, "Press ESC to return");
                                 //copying font from achievements for simplicity
                                 controller.achievements.originalFont = controller.popUpMessage.font;
@@ -1375,7 +1420,6 @@ public class Combat : MonoBehaviour
             return "Attack";
         }
     }
-
 
     IEnumerator DisplayBattleInventory()
     {
@@ -2376,6 +2420,50 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.1f);
         }
     }
+    IEnumerator ActivateBattleLog(string text1, string text2, float midPause, float endPause)
+    {
+        //default midPause = .5f
+
+        battleLog.SetActive(true);
+        //two parter with midpause
+        if (text2 != null)
+        {
+            battleText.text = text1;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(midPause);
+            //second half with close
+            battleText.text += text2;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(endPause);
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(false);
+        }
+        //no midpause
+        else
+        {
+            battleText.text = text1;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(endPause);
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(false);
+        }
+        activateBattleLogComplete = true;
+    }
     IEnumerator BattleMessage(int startingCharacter)
     {
         int totalVisibleCharacters = battleText.textInfo.characterCount;
@@ -2776,6 +2864,7 @@ public class Combat : MonoBehaviour
     bool ActionSelected() { return actionSelected; }
     bool ActionComplete() { return actionComplete; }
     bool MessageComplete() { return messageComplete; }
+    bool ActivateBattleLogComplete() { return activateBattleLogComplete; }
     bool InventoryComplete() { return inventoryComplete; }
     bool DeadCheckComplete() { return deadCheckComplete; }
     bool PotionComplete() { return potionComplete; }

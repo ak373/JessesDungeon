@@ -15,6 +15,8 @@ public class Effect : ScriptableObject
     public int duration;
     public bool beneficial;
     public bool compounding;
+    public string compoundMessage;
+    public string compoundMessage2;
     [TextArea(3,10)]
     public string description;
     [HideInInspector] public int turnOrderTick;

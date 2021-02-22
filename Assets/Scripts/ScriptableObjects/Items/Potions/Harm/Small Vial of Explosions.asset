@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cdb59e31edc8a439294f292f0dfa35, type: 3}
+  m_Name: Small Vial of Explosions
+  m_EditorClassIdentifier: 
+  noun: small
+  nome: small vial of explosions
+  price: 20
+  description: Throwing this vial will inflict 10 damage to its target.
+  unlocked: 0
+  beneficial: 0
+  useMessage: are hit by a small explosion and take 10 damage!
+  useMessage2: is hit by a small explosion and takes 10 damage!
+  useEffect: {fileID: 11400000, guid: 3efadc25e8b928d4fae582eae5c53603, type: 2}

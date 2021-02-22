@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cdb59e31edc8a439294f292f0dfa35, type: 3}
+  m_Name: Greater Healing Elixir
+  m_EditorClassIdentifier: 
+  noun: greater
+  nome: greater healing elixir
+  price: 375
+  description: Drinking this potion will recover 25 HP each round for 3 rounds.
+  unlocked: 0
+  beneficial: 1
+  useMessage: feel a soothing sensation and regain 25 HP!
+  useMessage2: sighs in soothing relief and regains 25 HP!
+  useEffect: {fileID: 11400000, guid: 95ef39aa72631624aa54b9b0bf7dfd66, type: 2}

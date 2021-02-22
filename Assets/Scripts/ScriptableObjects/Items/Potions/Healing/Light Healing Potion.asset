@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cdb59e31edc8a439294f292f0dfa35, type: 3}
+  m_Name: Light Healing Potion
+  m_EditorClassIdentifier: 
+  noun: light
+  nome: light healing potion
+  price: 20
+  description: This potion will recover 20 HP.
+  unlocked: 0
+  beneficial: 1
+  useMessage: regain 20 HP!
+  useMessage2: regains 20 HP!
+  useEffect: {fileID: 11400000, guid: 9d4c808a5846b754b95bd46336a73db1, type: 2}
