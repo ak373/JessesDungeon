@@ -51,7 +51,7 @@ public class Combat : MonoBehaviour
     List<Item> lootBox = new List<Item>();
     int lootPurse = 0;
     int currentArrowPosition, endingCharacter;
-    bool actionSelected, actionComplete, messageComplete, activateBattleLogComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete;
+    bool actionSelected, actionComplete, messageComplete, activateBattleLogComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete, effectComplete;
     bool unstrap = false;
     Effect priorityEffect;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
@@ -763,15 +763,15 @@ public class Combat : MonoBehaviour
         //determine proper wording
         battleLog.SetActive(true);
         //odd case: user gives other beneficial
-        if (potion.beneficial && user != target) { battleText.text = $"{user.nome} take{s} out a {potion.nome} and give{s} it to {target.nome}. "; }
+        if (potion.beneficial && user != target) { battleText.text = $"{user.nome} take{s} out a {myTI.ToTitleCase(potion.nome)} and give{s} it to {target.nome}. "; }
         //odd case: user uses detrimental on self
         else if (!potion.beneficial && user == target)
         {
-            if (user is Ego) { battleText.text = $"You take out a {potion.nome} and break it over your head. "; }
-            else { battleText.text = $"{user.nome} takes out a {potion.nome} and breaks it over his head. "; }
+            if (user is Ego) { battleText.text = $"You take out a {myTI.ToTitleCase(potion.nome)} and break it over your head. "; }
+            else { battleText.text = $"{user.nome} takes out a {myTI.ToTitleCase(potion.nome)} and breaks it over his head. "; }
         }
         //regular case
-        else { battleText.text = $"{user.nome} take{s} out a {potion.nome} and {verb}{s} it. "; }
+        else { battleText.text = $"{user.nome} take{s} out a {myTI.ToTitleCase(potion.nome)} and {verb}{s} it. "; }
         
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
@@ -779,10 +779,13 @@ public class Combat : MonoBehaviour
         yield return new WaitUntil(MessageComplete);
         yield return new WaitForSeconds(.5f);
         //potion effect
+        effectComplete = false;
         AddEffect(target, user.currentTurnOrder, potion.useEffect);
+        yield return new WaitUntil(EffectComplete);
+        effectComplete = false;
         //battle text pt2
         //case: overheal
-        if (potion.useEffect.allStatsNumber == 1)
+        if (potion.useEffect.allStatsNumber == 1 && priorityEffect == null)
         {
             if (user.allStats[1].value >= (user.allStats[2].value + user.allStats[2].effectValue)) { user.allStats[1].value = user.allStats[2].value + user.allStats[2].effectValue; }
             if (user.allStats[1].value == (user.allStats[2].value + user.allStats[2].effectValue))
@@ -801,7 +804,7 @@ public class Combat : MonoBehaviour
         else if (priorityEffect != null)
         {
             priorityEffect = null;
-            battleText.text += $"The influence of {potion.nome} seems suppressed by a more powerful effect.";
+            battleText.text += $"\n\nThe influence of the {myTI.ToTitleCase(potion.nome)} is suppressed by a more powerful effect.";
         }
         //case: regular
         else
@@ -828,10 +831,13 @@ public class Combat : MonoBehaviour
     }
     void AddEffect(Character target, int turnOrderOfCaster, Effect effect)
     {
+        //
+        //DO NOT MODIFY NEW EFFECT UNTIL AFTER INSTANTIATED AND ADDED TO ACTIVEEFFECTS!!
+        //
         string color = "white";
         if (effect.color == Color.green) { color = "green"; }
         else if (effect.color == Color.red) { color = "red"; }
-        //check if priority override
+        //check for priority override
         List<Effect> priorityEffectsCurrent = new List<Effect>();
         priorityEffect = null;
         if (effect.priorityLine != "None")
@@ -841,7 +847,17 @@ public class Combat : MonoBehaviour
                 if (effect.priorityLine == target.activeEffects[i].priorityLine)
                 {
                     if (Mathf.Abs(target.activeEffects[i].potency) > Mathf.Abs(effect.potency)) { priorityEffectsCurrent.Add(target.activeEffects[i]); }
-                    else { target.activeEffects.Remove(target.activeEffects[i]); }
+                    else
+                    {
+                        //check to see if new, more powerful effect will outlast the weaker one
+                        if (target.activeEffects[i].duration <= effect.duration) { RemoveEffect(target, target.activeEffects[i]); }
+                        else
+                        {
+                            DeactivateDelayedEffect(target, target.activeEffects[i]);
+                            target.activeEffects[i].delayedDuration = effect.duration;
+                        }
+                        
+                    }
                 }
             }
             if (priorityEffectsCurrent.Count == 1) { priorityEffect = priorityEffectsCurrent[0]; }
@@ -882,33 +898,43 @@ public class Combat : MonoBehaviour
             }
             //add effect
             effect.turnOrderTick = turnOrderOfCaster;
+            //New effect instantiated and can be modified hereafter in activeEffects
             target.activeEffects.Add(Instantiate(effect));
             //create delayed duration if overridden
-            if (priorityEffect != null) { target.activeEffects[target.activeEffects.Count - 1].delayedDuration = target.activeEffects[target.activeEffects.Count - 1].duration - priorityEffect.duration; }
+            if (priorityEffect != null) { target.activeEffects[target.activeEffects.Count - 1].delayedDuration = priorityEffect.duration; }
         }
-        //return if delayed
-        if (priorityEffect != null) { return; }
-        //modify stats (instantaneous HP affects value (not effectValue))
-        if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
-        else
+        if(priorityEffect != null)
         {
-            target.allStats[effect.allStatsNumber].value += effect.potency;
-            ActivateHPRoll(target);
+            Debug.Log(priorityEffect.duration);
+            Debug.Log(target.activeEffects[target.activeEffects.Count - 1].delayedDuration);
+        }        
+        //modify stats now only if no priority override
+        if (priorityEffect == null)
+        {
+            //modify stats (instantaneous HP affects value (not effectValue))
+            if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
+            else
+            {
+                target.allStats[effect.allStatsNumber].value += effect.potency;
+                ActivateHPRoll(target);
+            }
+            //if second effect, otherwise it is set to -1
+            if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
         }
-        //if second effect, otherwise it is set to -1
-        if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }        
+        effectComplete = true;
     }
     void ActivateDelayedEffect(Character target, Effect effect)
     {
-        //modify stats (instantaneous HP affects value (not effectValue))
+        //modify stats (elixirs get compounded with no initial effect here)
         if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
-        else
-        {
-            target.allStats[effect.allStatsNumber].value += effect.potency;
-            ActivateHPRoll(target);
-        }
         //if second effect, otherwise it is set to -1
         if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
+    }
+    void DeactivateDelayedEffect(Character target, Effect effect)
+    {
+        //modify stats (no need to worry about instantaneous effects like activating)
+        target.allStats[effect.allStatsNumber].effectValue -= effect.potency;
+        if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue -= effect.potency2; }
     }
     void RemoveEffect(Character target, Effect effect)
     {
@@ -1223,10 +1249,10 @@ public class Combat : MonoBehaviour
                             if (selectedElement > ego.activeEffects.Count -1) { selectedElement = 0; }
 
                             int effectLength = ego.activeEffects[selectedElement].title.Length;
-                            //check if repeated effect for correct selection
+                            //check if repeated effect below current selection in activeEffects
                             for (int i = 0; i < selectedElement; i++)
                             {
-                                if (ego.activeEffects[selectedElement] == ego.activeEffects[i]) { doublesCounter++; }
+                                if (ego.activeEffects[selectedElement].title == ego.activeEffects[i].title) { doublesCounter++; }
                             }
                             //remove excess occurrences in text to get correct occurrence
                             for (int i = 0; i < doublesCounter; i++)
@@ -1252,7 +1278,7 @@ public class Combat : MonoBehaviour
                             
                             effectsText.text = newText;
 
-
+                            
                             yield return new WaitUntil(controller.UpDownEnterEscPressed);
                             if (Input.GetKeyDown(KeyCode.UpArrow))
                             {
@@ -1278,12 +1304,18 @@ public class Combat : MonoBehaviour
                                 cursorSelect.Play();
                                 selectedEffect = ego.activeEffects[selectedElement];
                                 string duration = "";
-                                if (selectedEffect.duration > 0) { duration = $"<size=10>Rounds Remaining: {selectedEffect.duration}</size>"; }
-                                controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", "", "", duration, "Press ESC to return");
+                                string suppression = "";
+                                string s = "s";
+                                if (selectedEffect.duration == 1) { s = ""; }
+                                if (selectedEffect.duration > 0) { duration = $"<size=10>Remaining: {selectedEffect.duration} round{s}</size>"; }
+                                if (selectedEffect.delayedDuration == 1) { s = ""; }
+                                if (selectedEffect.delayedDuration > 0) { suppression = $"<size=10>Effect Suppressed: {selectedEffect.delayedDuration} round{s}</size>"; }
+                                controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", suppression, "", duration, "Press ESC to return");
                                 //copying font from achievements for simplicity
                                 controller.achievements.originalFont = controller.popUpMessage.font;
                                 controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                 yield return new WaitUntil(controller.EscPressed);
+                                cursorCancel.Play();
                                 controller.ClosePopUpWindow();
                             }
                         }
@@ -2986,6 +3018,7 @@ public class Combat : MonoBehaviour
     bool InventoryComplete() { return inventoryComplete; }
     bool DeadCheckComplete() { return deadCheckComplete; }
     bool PotionComplete() { return potionComplete; }
+    bool EffectComplete() { return effectComplete; }
 
 
 
