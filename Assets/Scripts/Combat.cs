@@ -18,7 +18,7 @@ public class Combat : MonoBehaviour
     public GameObject borderEgo, border1, border2a, border2b, border3b, border3c, borderFlank1, borderFlank2;
     public TMP_Text combatWeaponDisplay, combatArmorDisplay, combatShieldDisplay;
     public GameObject slotEgo, slot1, slot2a, slot2b, slot3b, slot3c, slotFlank1, slotFlank2;
-    public GameObject effects1, effects2a, effects2b, effects3b, effects3c, effectsFlank1, effectsFlank2;
+    public TMP_Text effects1, effects2a, effects2b, effects3b, effects3c, effectsFlank1, effectsFlank2;
     public TMP_Text name1, name2a, name2b, name3b, name3c, nameFlank1, nameFlank2;
     public TMP_Text special1, special2a, special2b, special3b, special3c, specialFlank1, specialFlank2;
     public TMP_Text attack1, attack2a, attack2b, attack3b, attack3c, attackFlank1, attackFlank2;
@@ -37,7 +37,7 @@ public class Combat : MonoBehaviour
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
     public AudioSource winBattle, winCoda, hit, criticalHit, miss, potionDrink, potionThrow;
-    public AudioSource goodEffect, badEffect, goodInstant, badInstant;
+    public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
     public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
     public TMP_Text potion0, potion1, potion2;
@@ -53,9 +53,11 @@ public class Combat : MonoBehaviour
     int currentArrowPosition, endingCharacter;
     bool actionSelected, actionComplete, messageComplete, activateBattleLogComplete, inventoryComplete, deadCheckComplete, multipleCorpses, potionComplete;
     bool unstrap = false;
+    Effect priorityEffect;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
     AudioSource currentTheme;
+    IEnumerator egoHP, badGuy0HP, badGuy1HP, badGuy2HP, badGuy3HP, badGuy4HP;
 
     GameController controller;
     // Start is called before the first frame update
@@ -125,6 +127,13 @@ public class Combat : MonoBehaviour
             }
         }
         for (int j = numberOfBadGuys; j < 4; j++) { activeBadGuys[j] = null; }
+        //bs for bs coroutine stuff
+        egoHP = HPRoll(ego);
+        if (activeBadGuys[0] != null) { badGuy0HP = HPRoll(activeBadGuys[0]); }
+        if (activeBadGuys[1] != null) { badGuy1HP = HPRoll(activeBadGuys[1]); }
+        if (activeBadGuys[2] != null) { badGuy2HP = HPRoll(activeBadGuys[2]); }
+        if (activeBadGuys[3] != null) { badGuy3HP = HPRoll(activeBadGuys[3]); }
+        if (activeBadGuys[4] != null) { badGuy4HP = HPRoll(activeBadGuys[4]); }
 
         //determine proper badguy UI layout
         if (numberOfBadGuys != 2)
@@ -348,7 +357,7 @@ public class Combat : MonoBehaviour
                 if (ego.activeEffects[j].turnOrderTick == i) 
                 {
                     ego.activeEffects[j].duration--;
-                    if (ego.activeEffects[j].compounding)
+                    if (ego.activeEffects[j].compounding && ego.activeEffects[j].delayedDuration == 0)
                     {
                         if (ego.activeEffects[j].beneficial) { goodInstant.Play(); }
                         else { badInstant.Play(); }
@@ -356,8 +365,7 @@ public class Combat : MonoBehaviour
                         else
                         {
                             ego.allStats[ego.activeEffects[j].allStatsNumber].value += ego.activeEffects[j].potency;
-                            StopCoroutine(HPRoll(ego));
-                            StartCoroutine(HPRoll(ego));
+                            ActivateHPRoll(ego);
                         }
                         //if second effect, otherwise it is set to -1
                         if (ego.activeEffects[j].allStatsNumber2 != -1) { ego.allStats[ego.activeEffects[j].allStatsNumber2].effectValue += ego.activeEffects[j].potency2; }
@@ -368,6 +376,11 @@ public class Combat : MonoBehaviour
                     }
                 }
                 if (ego.activeEffects[j].duration == 0) { RemoveEffect(ego, ego.activeEffects[j]); }
+                if (ego.activeEffects[j].delayedDuration > 0)
+                {
+                    ego.activeEffects[j].delayedDuration--;
+                    if (ego.activeEffects[j].delayedDuration == 0) { ActivateDelayedEffect(ego, ego.activeEffects[j]); }
+                }
             }
             for (int j = 0; j < activeBadGuys.Length; j++)
             {
@@ -378,14 +391,15 @@ public class Combat : MonoBehaviour
                         if (activeBadGuys[j].activeEffects[k].turnOrderTick == i)
                         {
                             activeBadGuys[j].activeEffects[k].duration--;
-                            if (activeBadGuys[j].activeEffects[k].compounding)
+                            if (activeBadGuys[j].activeEffects[k].compounding && activeBadGuys[j].activeEffects[k].delayedDuration == 0)
                             {
+                                if (activeBadGuys[j].activeEffects[k].beneficial) { goodInstant.Play(); }
+                                else { badInstant.Play(); }
                                 if (activeBadGuys[j].activeEffects[k].allStatsNumber != 1) { activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber].effectValue += activeBadGuys[j].activeEffects[k].potency; }
                                 else
                                 {
                                     activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber].value += activeBadGuys[j].activeEffects[k].potency;
-                                    StopCoroutine(HPRoll(activeBadGuys[j]));
-                                    StartCoroutine(HPRoll(activeBadGuys[j]));
+                                    ActivateHPRoll(activeBadGuys[j]);
                                 }
                                 //if second effect, otherwise it is set to -1
                                 if (activeBadGuys[j].activeEffects[k].allStatsNumber2 != -1) { activeBadGuys[j].allStats[activeBadGuys[j].activeEffects[k].allStatsNumber2].effectValue += activeBadGuys[j].activeEffects[k].potency2; }
@@ -396,6 +410,11 @@ public class Combat : MonoBehaviour
                             }
                         }
                         if (activeBadGuys[j].activeEffects[k].duration == 0) { RemoveEffect(activeBadGuys[j], activeBadGuys[j].activeEffects[k]); }
+                        if (activeBadGuys[j].activeEffects[k].delayedDuration > 0)
+                        {
+                            activeBadGuys[j].activeEffects[k].delayedDuration--;
+                            if (activeBadGuys[j].activeEffects[k].delayedDuration == 0) { ActivateDelayedEffect(activeBadGuys[j], activeBadGuys[j].activeEffects[k]); }
+                        }
                     }
                 }                
             }
@@ -689,8 +708,7 @@ public class Combat : MonoBehaviour
             battleText.text += $"nd hits for {rolledDamage} damage!";
 
             ego.allStats[1].value = ego.allStats[1].value - rolledDamage;
-            StopCoroutine(HPRoll(ego));
-            StartCoroutine(HPRoll(ego));            
+            ActivateHPRoll(ego);
         }
         else if (d20 == 20)
         {
@@ -700,8 +718,7 @@ public class Combat : MonoBehaviour
             battleText.text += $"nd critically hits for {rolledDamage} damage!";
 
             ego.allStats[1].value = ego.allStats[1].value - rolledDamage;
-            StopCoroutine(HPRoll(ego));
-            StartCoroutine(HPRoll(ego));
+            ActivateHPRoll(ego);
         }
         else if (attackRoll == (egoArmorClass -1))
         {
@@ -780,7 +797,13 @@ public class Combat : MonoBehaviour
                 else { battleText.text += $"{target.nome} {potion.useMessage2}"; }
             }
         }
-        //regular case
+        //case: effect delayed
+        else if (priorityEffect != null)
+        {
+            priorityEffect = null;
+            battleText.text += $"The influence of {potion.nome} seems suppressed by a more powerful effect.";
+        }
+        //case: regular
         else
         {
             if (user is Ego) { battleText.text += $"{user.nome} {potion.useMessage}"; }
@@ -808,18 +831,41 @@ public class Combat : MonoBehaviour
         string color = "white";
         if (effect.color == Color.green) { color = "green"; }
         else if (effect.color == Color.red) { color = "red"; }
+        //check if priority override
+        List<Effect> priorityEffectsCurrent = new List<Effect>();
+        priorityEffect = null;
+        if (effect.priorityLine != "None")
+        {
+            for (int i = 0; i < target.activeEffects.Count; i++)
+            {
+                if (effect.priorityLine == target.activeEffects[i].priorityLine)
+                {
+                    if (Mathf.Abs(target.activeEffects[i].potency) > Mathf.Abs(effect.potency)) { priorityEffectsCurrent.Add(target.activeEffects[i]); }
+                    else { target.activeEffects.Remove(target.activeEffects[i]); }
+                }
+            }
+            if (priorityEffectsCurrent.Count == 1) { priorityEffect = priorityEffectsCurrent[0]; }
+            else if (priorityEffectsCurrent.Count > 1)
+            {
+                priorityEffect = priorityEffectsCurrent[0];
+                for (int i = 0; i < priorityEffectsCurrent.Count - 1; i++)
+                {
+                    if (priorityEffectsCurrent[i + 1].potency > priorityEffectsCurrent[i].potency) { priorityEffect = priorityEffectsCurrent[i + 1]; }
+                }
+            }            
+        }
         //play correct sound
         if (effect.duration == -1)
         {
             if (effect.beneficial) { goodInstant.Play(); }
             else { badInstant.Play(); }
-        }        
+        }
+        else if (priorityEffect != null) { blockEffect.Play(); }
         else if (effect.title != "Guarded")//defend doesn't get a sound effect
         {
             if (effect.beneficial) { goodEffect.Play(); }
             else { badEffect.Play(); }
         }
-
         //if duration is not instantaneous
         if (effect.duration != -1)
         {
@@ -828,23 +874,41 @@ public class Combat : MonoBehaviour
             else
             {
                 BadGuy badTarget = (BadGuy)target;
-                badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
+                GameObject badTargetEffects = badTarget.combatSlot.transform.Find("Effects").gameObject;
+                TMP_Text badTargetEffectsText = badTargetEffects.transform.GetComponent<TMP_Text>();
+                badTargetEffectsText.text += $"<color={color}>{effect.abbreviation}</color> ";
+                //idk what I was thinking would happen with this
+                //badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
             }
             //add effect
             effect.turnOrderTick = turnOrderOfCaster;
             target.activeEffects.Add(Instantiate(effect));
+            //create delayed duration if overridden
+            if (priorityEffect != null) { target.activeEffects[target.activeEffects.Count - 1].delayedDuration = target.activeEffects[target.activeEffects.Count - 1].duration - priorityEffect.duration; }
         }
+        //return if delayed
+        if (priorityEffect != null) { return; }
         //modify stats (instantaneous HP affects value (not effectValue))
         if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
         else
         {
             target.allStats[effect.allStatsNumber].value += effect.potency;
-            StopCoroutine(HPRoll(target));
-            StartCoroutine(HPRoll(target));
+            ActivateHPRoll(target);
+        }
+        //if second effect, otherwise it is set to -1
+        if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }        
+    }
+    void ActivateDelayedEffect(Character target, Effect effect)
+    {
+        //modify stats (instantaneous HP affects value (not effectValue))
+        if (effect.allStatsNumber != 1) { target.allStats[effect.allStatsNumber].effectValue += effect.potency; }
+        else
+        {
+            target.allStats[effect.allStatsNumber].value += effect.potency;
+            ActivateHPRoll(target);
         }
         //if second effect, otherwise it is set to -1
         if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
-        
     }
     void RemoveEffect(Character target, Effect effect)
     {
@@ -861,8 +925,10 @@ public class Combat : MonoBehaviour
         else
         {
             BadGuy badTarget = (BadGuy)target;
-            string replaceText = badTarget.combatEffects.text.Remove(badTarget.combatEffects.text.IndexOf($"<color={color}>{effect.abbreviation}</color> "), $"<color={color}>{effect.abbreviation}</color> ".Length);
-            badTarget.combatEffects.text = replaceText;
+            GameObject badTargetEffects = badTarget.combatSlot.transform.Find("Effects").gameObject;
+            TMP_Text badTargetEffectsText = badTargetEffects.transform.GetComponent<TMP_Text>();
+            string replaceText = badTargetEffectsText.text.Remove(badTargetEffectsText.text.IndexOf($"<color={color}>{effect.abbreviation}</color> "), $"<color={color}>{effect.abbreviation}</color> ".Length);
+            badTargetEffectsText.text = replaceText;
         }
 
         //modify stats
@@ -919,8 +985,7 @@ public class Combat : MonoBehaviour
             battleText.text += $" and hit for {rolledDamage} damage!";
             
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
-            StopCoroutine(HPRoll(badGuy));
-            StartCoroutine(HPRoll(badGuy));
+            ActivateHPRoll(badGuy);
         }
         else if (d20 == 20)
         {
@@ -928,8 +993,7 @@ public class Combat : MonoBehaviour
             battleText.text += $" and critically hit for {rolledDamage} damage!";
 
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
-            StopCoroutine(HPRoll(badGuy));
-            StartCoroutine(HPRoll(badGuy));
+            ActivateHPRoll(badGuy);
         }
         else if (attackRoll == (badGuyArmorClass - 1))
         {
@@ -1133,7 +1197,7 @@ public class Combat : MonoBehaviour
                         if (activeBadGuys[i] != null)
                         {
                             activeBadGuys[i].allStats[1].value = 1;
-                            StartCoroutine(HPRoll(activeBadGuys[i]));
+                            ActivateHPRoll(activeBadGuys[i]);
                         }
                     }
                     currentArrowPosition = 0;
@@ -2407,6 +2471,60 @@ public class Combat : MonoBehaviour
         if (withItemDmgReduction >= 0) { combatInvDmgReduction.text = $"<color={dmgReductionColor}>-{withItemDmgReduction}</color>"; }
         else { combatInvDmgReduction.text = $"<color={dmgReductionColor}>+{Mathf.Abs(withItemDmgReduction)}</color>"; }
     }
+    void ActivateHPRoll(Character character)
+    {
+        if (character == ego)
+        {
+            StopCoroutine(egoHP);
+            egoHP = HPRoll(ego);
+            StartCoroutine(egoHP);
+        }
+        if (activeBadGuys[0] != null)
+        {
+            if (character == activeBadGuys[0])
+            {
+                StopCoroutine(badGuy0HP);
+                if (activeBadGuys[0] != null) { badGuy0HP = HPRoll(activeBadGuys[0]); }
+                StartCoroutine(badGuy0HP);
+            }
+        }
+        if (activeBadGuys[1] != null)
+        {
+            if (character == activeBadGuys[1])
+            {
+                StopCoroutine(badGuy1HP);
+                if (activeBadGuys[1] != null) { badGuy1HP = HPRoll(activeBadGuys[1]); }
+                StartCoroutine(badGuy1HP);
+            }
+        }
+        if (activeBadGuys[2] != null)
+        {
+            if (character == activeBadGuys[2])
+            {
+                StopCoroutine(badGuy2HP);
+                if (activeBadGuys[2] != null) { badGuy2HP = HPRoll(activeBadGuys[2]); }
+                StartCoroutine(badGuy2HP);
+            }
+        }
+        if (activeBadGuys[3] != null)
+        {
+            if (character == activeBadGuys[3])
+            {
+                StopCoroutine(badGuy3HP);
+                if (activeBadGuys[3] != null) { badGuy3HP = HPRoll(activeBadGuys[3]); }
+                StartCoroutine(badGuy3HP);
+            }
+        }
+        if (activeBadGuys[4] != null)
+        {
+            if (character == activeBadGuys[4])
+            {
+                StopCoroutine(badGuy4HP);
+                if (activeBadGuys[4] != null) { badGuy4HP = HPRoll(activeBadGuys[4]); }
+                StartCoroutine(badGuy4HP);
+            }
+        }
+    }
     IEnumerator HPRoll(Character character)
     {
         while (character.allStats[0].value > character.allStats[1].value)
@@ -2908,14 +3026,16 @@ public class Combat : MonoBehaviour
             else { turnOrderActions[i].text = ""; }
         }
 
-        //target HP non-negative
+        //target HP between 0 and max
         for (int i = 0; i < activeBadGuys.Length; i++)
         {
             if (activeBadGuys[i] != null)
             {
                 if (activeBadGuys[i].allStats[1].value < 0) { activeBadGuys[i].allStats[1].value = 0; }
+                if (activeBadGuys[i].allStats[1].value > (activeBadGuys[i].allStats[2].value + activeBadGuys[i].allStats[2].effectValue)) { activeBadGuys[i].allStats[1].value = (activeBadGuys[i].allStats[2].value + activeBadGuys[i].allStats[2].effectValue); }
             }
         }
         if (ego.allStats[1].value < 0) { ego.allStats[1].value = 0; }
+        if (ego.allStats[1].value > (ego.allStats[2].value + ego.allStats[2].effectValue)) { ego.allStats[1].value = (ego.allStats[2].value + ego.allStats[2].effectValue); }
     }
 }

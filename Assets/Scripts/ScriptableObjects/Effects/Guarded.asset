@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Guarded
   abbreviation: AC DR
+  priorityLine: None
   allStatsNumber: 3
   allStatsNumber2: 5
   potency: 5
   potency2: 2
   color: {r: 0, g: 1, b: 0, a: 1}
-  duration: 1
+  duration: -2
   beneficial: 1
   compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: Your Armor Class gets a +5 bonus and your Damage Reduction increases
     by 2 until your next action.
   turnOrderTick: 1

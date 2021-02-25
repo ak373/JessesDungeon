@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Bravery
   abbreviation: DR
+  priorityLine: DRup
   allStatsNumber: 5
   allStatsNumber2: -1
   potency: 3
@@ -22,5 +23,7 @@ MonoBehaviour:
   duration: 5
   beneficial: 1
   compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: Your Damage Reduction gets a +3 bonus for 5 rounds.
   turnOrderTick: 999

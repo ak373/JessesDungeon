@@ -13,7 +13,8 @@ public class BadGuy : Character
     public string battleCry;
     [HideInInspector] public GameObject combatSlot;
     [HideInInspector] public GameObject combatBorder;
-    [HideInInspector] public TMP_Text combatEffects;
+    //idk what I was thinking when I made this
+    //[HideInInspector] public TMP_Text combatEffects;
     public string specialAbility;
     public BadGuyCombatActions[] normalAIRay;
 }

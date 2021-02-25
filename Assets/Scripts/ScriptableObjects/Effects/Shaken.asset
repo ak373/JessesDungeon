@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Shaken
   abbreviation: TH
+  priorityLine: THdown
   allStatsNumber: 9
   allStatsNumber2: -1
   potency: -2
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}
   duration: 5
+  beneficial: 0
+  compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: Your To Hit suffers a -2 penalty for 5 rounds.
   turnOrderTick: 999

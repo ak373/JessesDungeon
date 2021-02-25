@@ -7,12 +7,14 @@ public class Effect : ScriptableObject
 {
     public string title;
     public string abbreviation;
+    public string priorityLine;
     public int allStatsNumber;
     public int allStatsNumber2;
     public int potency;
     public int potency2;
     public Color color;
     public int duration;
+    [HideInInspector] public int delayedDuration;
     public bool beneficial;
     public bool compounding;
     public string compoundMessage;

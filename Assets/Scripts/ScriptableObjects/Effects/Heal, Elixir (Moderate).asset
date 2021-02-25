@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06f83bd5d8bbaae4e856b744c05bfd58, type: 3}
   m_Name: Heal, Elixir (Moderate)
   m_EditorClassIdentifier: 
-  title: Elixir (Moderate)
+  title: Elixir (M)
   abbreviation: HP
+  priorityLine: HPup
   allStatsNumber: 1
   allStatsNumber2: -1
   potency: 15

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Harm, Instant (Greater)
   abbreviation: HP
+  priorityLine: None
   allStatsNumber: 1
   allStatsNumber2: -1
   potency: -30
@@ -22,5 +23,7 @@ MonoBehaviour:
   duration: -1
   beneficial: 0
   compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: You are harmed!
   turnOrderTick: 1

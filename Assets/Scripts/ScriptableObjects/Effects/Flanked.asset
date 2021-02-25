@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Flanked
   abbreviation: AC
+  priorityLine: None
   allStatsNumber: 3
   allStatsNumber2: -1
   potency: -2
@@ -22,5 +23,7 @@ MonoBehaviour:
   duration: -2
   beneficial: 0
   compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: You suffer a -2 penalty to your Armor Class for each flanking opponent.
   turnOrderTick: 1

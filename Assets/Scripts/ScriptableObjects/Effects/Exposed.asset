@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Exposed
   abbreviation: AC
+  priorityLine: ACdown
   allStatsNumber: 3
   allStatsNumber2: -1
   potency: -1
@@ -22,5 +23,7 @@ MonoBehaviour:
   duration: 5
   beneficial: 0
   compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: Your Armor Class suffers a -1 penalty for 5 rounds.
   turnOrderTick: 1
