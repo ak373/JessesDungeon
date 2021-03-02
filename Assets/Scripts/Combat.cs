@@ -36,7 +36,7 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, hit, criticalHit, miss, strangeOccurence, derpSound;
+    public AudioSource winBattle, winCoda, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
     public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
@@ -921,8 +921,252 @@ public class Combat : MonoBehaviour
         }
         else if (badGuy.chosenAbility.title == "Call")
         {
-
+            battleLog.SetActive(true);
+            battleText.text = $"{badGuy.nome} calls for help!";
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
+            //second half with close
+            //roll help call
+            int helpRoll = Random.Range(1, 101);
+            int badGuyCount = 0;
+            float maxRoll = 50f;
+            for (int i = 0; i < activeBadGuys.Length; i++)
+            {
+                if (activeBadGuys[i] != null) { badGuyCount++; }
+            }
+            if (badGuyCount == 5) { maxRoll = 0; }
+            else { maxRoll = maxRoll / badGuyCount; }
+            //roll effect
+            if (helpRoll <= maxRoll)
+            {
+                BadGuy newBadGuy = null;
+                multipleCorpses = true;
+                //create new badguy
+                for (int i = 0; i < activeBadGuys.Length; i++)
+                {
+                    if (activeBadGuys[i] == null)
+                    {
+                        activeBadGuys[i] = Instantiate(badGuy);
+                        newBadGuy = activeBadGuys[i];
+                        for (int j = 0; j < activeBadGuys[i].allStats.Length; j++)
+                        {
+                            newBadGuy.allStats[j] = Instantiate(activeBadGuys[i].allStats[j]);
+                        }
+                        if (i == 0) { badGuy0HP = HPRoll(activeBadGuys[0]); }
+                        else if (i == 1) { badGuy1HP = HPRoll(activeBadGuys[1]); }
+                        else if (i == 2) { badGuy2HP = HPRoll(activeBadGuys[2]); }
+                        else if (i == 3) { badGuy3HP = HPRoll(activeBadGuys[3]); }
+                        else if (i == 4) { badGuy4HP = HPRoll(activeBadGuys[4]); }
+                        break;
+                    }
+                }
+                //
+                //work around slots 2a/2b
+                bool skipAssignment = false;
+                //if just 1 badguy in 2a/2b, assign new badguy to the other one
+                if ((slot2a.activeInHierarchy || slot2b.activeInHierarchy) && badGuyCount == 1)
+                {
+                    skipAssignment = true;
+                    if (slot2a.activeInHierarchy)
+                    {
+                        newBadGuy.combatSlot = slot2b;
+                        newBadGuy.combatBorder = border2b;
+                        curHP2b.text = newBadGuy.allStats[0].value.ToString();
+                        maxHP2b.text = newBadGuy.allStats[2].value.ToString();
+                        name2b.text = newBadGuy.nome;
+                        special2b.text = newBadGuy.specialAbility;
+                    }
+                    else
+                    {
+                        newBadGuy.combatSlot = slot2a;
+                        newBadGuy.combatBorder = border2a;
+                        curHP2a.text = newBadGuy.allStats[0].value.ToString();
+                        maxHP2a.text = newBadGuy.allStats[2].value.ToString();
+                        name2a.text = newBadGuy.nome;
+                        special2a.text = newBadGuy.specialAbility;
+                    }                    
+                }
+                //if more than 1 badguy left, shift 2a/2b into 1-2-3 formation, and let the rest of the code run its course
+                else if (slot2a.activeInHierarchy || slot2b.activeInHierarchy)
+                {
+                    BadGuy badGuySlot2a = null;
+                    BadGuy badGuySlot2b = null;
+                    for (int i = 0; i < activeBadGuys.Length; i++)
+                    {
+                        if (activeBadGuys[i].combatBorder == slot2a) { badGuySlot2a = activeBadGuys[i]; }
+                        if (activeBadGuys[i].combatBorder == slot2b) { badGuySlot2b = activeBadGuys[i]; }
+                    }
+                    if (badGuySlot2a != null)
+                    {
+                        if (!slot1.activeInHierarchy)
+                        {
+                            badGuySlot2a.combatSlot = slot1;
+                            badGuySlot2a.combatBorder = border1;
+                            curHP1.text = badGuySlot2a.allStats[0].value.ToString();
+                            maxHP1.text = badGuySlot2a.allStats[2].value.ToString();
+                            name1.text = badGuySlot2a.nome;
+                            special1.text = badGuySlot2a.specialAbility;
+                        }
+                        else if (!slot3b.activeInHierarchy)
+                        {
+                            badGuySlot2a.combatSlot = slot3b;
+                            badGuySlot2a.combatBorder = border3b;
+                            curHP3b.text = badGuySlot2a.allStats[0].value.ToString();
+                            maxHP3b.text = badGuySlot2a.allStats[2].value.ToString();
+                            name3b.text = badGuySlot2a.nome;
+                            special3b.text = badGuySlot2a.specialAbility;
+                        }
+                        else if (!slot3c.activeInHierarchy)
+                        {
+                            badGuySlot2a.combatSlot = slot3c;
+                            badGuySlot2a.combatBorder = border3c;
+                            curHP3c.text = badGuySlot2a.allStats[0].value.ToString();
+                            maxHP3c.text = badGuySlot2a.allStats[2].value.ToString();
+                            name3c.text = badGuySlot2a.nome;
+                            special3c.text = badGuySlot2a.specialAbility;
+                        }
+                        if (!slotFlank1.activeInHierarchy)
+                        {
+                            badGuySlot2a.combatSlot = slotFlank1;
+                            badGuySlot2a.combatBorder = borderFlank1;
+                            curHPFlank1.text = badGuySlot2a.allStats[0].value.ToString();
+                            maxHPFlank1.text = badGuySlot2a.allStats[2].value.ToString();
+                            nameFlank1.text = badGuySlot2a.nome;
+                            specialFlank1.text = badGuySlot2a.specialAbility;
+                        }
+                        if (!slotFlank2.activeInHierarchy)
+                        {
+                            badGuySlot2a.combatSlot = slotFlank2;
+                            badGuySlot2a.combatBorder = borderFlank2;
+                            curHPFlank2.text = badGuySlot2a.allStats[0].value.ToString();
+                            maxHPFlank2.text = badGuySlot2a.allStats[2].value.ToString();
+                            nameFlank2.text = badGuySlot2a.nome;
+                            specialFlank2.text = badGuySlot2a.specialAbility;
+                        }
+                        badGuySlot2a.combatSlot.SetActive(true);
+                    }
+                    if (badGuySlot2b != null)
+                    {
+                        if (!slot1.activeInHierarchy)
+                        {
+                            badGuySlot2b.combatSlot = slot1;
+                            badGuySlot2b.combatBorder = border1;
+                            curHP1.text = badGuySlot2b.allStats[0].value.ToString();
+                            maxHP1.text = badGuySlot2b.allStats[2].value.ToString();
+                            name1.text = badGuySlot2b.nome;
+                            special1.text = badGuySlot2b.specialAbility;
+                        }
+                        else if (!slot3b.activeInHierarchy)
+                        {
+                            badGuySlot2b.combatSlot = slot3b;
+                            badGuySlot2b.combatBorder = border3b;
+                            curHP3b.text = badGuySlot2b.allStats[0].value.ToString();
+                            maxHP3b.text = badGuySlot2b.allStats[2].value.ToString();
+                            name3b.text = badGuySlot2b.nome;
+                            special3b.text = badGuySlot2b.specialAbility;
+                        }
+                        else if (!slot3c.activeInHierarchy)
+                        {
+                            badGuySlot2b.combatSlot = slot3c;
+                            badGuySlot2b.combatBorder = border3c;
+                            curHP3c.text = badGuySlot2b.allStats[0].value.ToString();
+                            maxHP3c.text = badGuySlot2b.allStats[2].value.ToString();
+                            name3c.text = badGuySlot2b.nome;
+                            special3c.text = badGuySlot2b.specialAbility;
+                        }
+                        if (!slotFlank1.activeInHierarchy)
+                        {
+                            badGuySlot2b.combatSlot = slotFlank1;
+                            badGuySlot2b.combatBorder = borderFlank1;
+                            curHPFlank1.text = badGuySlot2b.allStats[0].value.ToString();
+                            maxHPFlank1.text = badGuySlot2b.allStats[2].value.ToString();
+                            nameFlank1.text = badGuySlot2b.nome;
+                            specialFlank1.text = badGuySlot2b.specialAbility;
+                        }
+                        if (!slotFlank2.activeInHierarchy)
+                        {
+                            badGuySlot2b.combatSlot = slotFlank2;
+                            badGuySlot2b.combatBorder = borderFlank2;
+                            curHPFlank2.text = badGuySlot2b.allStats[0].value.ToString();
+                            maxHPFlank2.text = badGuySlot2b.allStats[2].value.ToString();
+                            nameFlank2.text = badGuySlot2b.nome;
+                            specialFlank2.text = badGuySlot2b.specialAbility;
+                        }
+                        badGuySlot2b.combatSlot.SetActive(true);
+                    }
+                }
+                //
+                //assign first open slot to new badguy
+                if (skipAssignment) { skipAssignment = false; }
+                else if (!slot1.activeInHierarchy)
+                {
+                    newBadGuy.combatSlot = slot1;
+                    newBadGuy.combatBorder = border1;
+                    curHP1.text = newBadGuy.allStats[0].value.ToString();
+                    maxHP1.text = newBadGuy.allStats[2].value.ToString();
+                    name1.text = newBadGuy.nome;
+                    special1.text = newBadGuy.specialAbility;
+                }
+                else if (!slot3b.activeInHierarchy)
+                {
+                    newBadGuy.combatSlot = slot3b;
+                    newBadGuy.combatBorder = border3b;
+                    curHP3b.text = newBadGuy.allStats[0].value.ToString();
+                    maxHP3b.text = newBadGuy.allStats[2].value.ToString();
+                    name3b.text = newBadGuy.nome;
+                    special3b.text = newBadGuy.specialAbility;
+                }
+                else if (!slot3c.activeInHierarchy)
+                {
+                    newBadGuy.combatSlot = slot3c;
+                    newBadGuy.combatBorder = border3c;
+                    curHP3c.text = newBadGuy.allStats[0].value.ToString();
+                    maxHP3c.text = newBadGuy.allStats[2].value.ToString();
+                    name3c.text = newBadGuy.nome;
+                    special3c.text = newBadGuy.specialAbility;
+                }
+                else if (!slotFlank1.activeInHierarchy)
+                {
+                    newBadGuy.combatSlot = slotFlank1;
+                    newBadGuy.combatBorder = borderFlank1;
+                    curHPFlank1.text = newBadGuy.allStats[0].value.ToString();
+                    maxHPFlank1.text = newBadGuy.allStats[2].value.ToString();
+                    nameFlank1.text = newBadGuy.nome;
+                    specialFlank1.text = newBadGuy.specialAbility;
+                }
+                else if (!slotFlank2.activeInHierarchy)
+                {
+                    newBadGuy.combatSlot = slotFlank2;
+                    newBadGuy.combatBorder = borderFlank2;
+                    curHPFlank2.text = newBadGuy.allStats[0].value.ToString();
+                    maxHPFlank2.text = newBadGuy.allStats[2].value.ToString();
+                    nameFlank2.text = newBadGuy.nome;
+                    specialFlank2.text = newBadGuy.specialAbility;
+                }
+                newBadGuy.combatSlot.SetActive(true);
+                joinedTheBattle.Play();
+                battleText.text += $" {newBadGuy.nome} joined the battle.";
+            }
+            else
+            {
+                derpSound.Play();
+                battleText.text += " But nobody came.";
+            }
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(1.25f);
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(false);
         }
+        //default case
         else
         {
             activateBattleLogComplete = false;
