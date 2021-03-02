@@ -36,7 +36,7 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, hit, criticalHit, miss, potionDrink, potionThrow;
+    public AudioSource winBattle, winCoda, hit, criticalHit, miss, strangeOccurence, derpSound;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
     public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
@@ -357,7 +357,7 @@ public class Combat : MonoBehaviour
                 if (ego.activeEffects[j].turnOrderTick == i) 
                 {
                     ego.activeEffects[j].duration--;
-                    if (ego.activeEffects[j].compounding && ego.activeEffects[j].delayedDuration == 0)
+                    if (ego.activeEffects[j].compounding && ego.activeEffects[j].priorityEffect == null)
                     {
                         if (ego.activeEffects[j].beneficial) { goodInstant.Play(); }
                         else { badInstant.Play(); }
@@ -375,12 +375,8 @@ public class Combat : MonoBehaviour
                         activateBattleLogComplete = false;
                     }
                 }
+                //Must be last! Because it removes it
                 if (ego.activeEffects[j].duration == 0) { RemoveEffect(ego, ego.activeEffects[j]); }
-                if (ego.activeEffects[j].delayedDuration > 0)
-                {
-                    ego.activeEffects[j].delayedDuration--;
-                    if (ego.activeEffects[j].delayedDuration == 0) { ActivateDelayedEffect(ego, ego.activeEffects[j]); }
-                }
             }
             for (int j = 0; j < activeBadGuys.Length; j++)
             {
@@ -391,7 +387,7 @@ public class Combat : MonoBehaviour
                         if (activeBadGuys[j].activeEffects[k].turnOrderTick == i)
                         {
                             activeBadGuys[j].activeEffects[k].duration--;
-                            if (activeBadGuys[j].activeEffects[k].compounding && activeBadGuys[j].activeEffects[k].delayedDuration == 0)
+                            if (activeBadGuys[j].activeEffects[k].compounding && activeBadGuys[j].activeEffects[k].priorityEffect == null)
                             {
                                 if (activeBadGuys[j].activeEffects[k].beneficial) { goodInstant.Play(); }
                                 else { badInstant.Play(); }
@@ -409,12 +405,8 @@ public class Combat : MonoBehaviour
                                 activateBattleLogComplete = false;
                             }
                         }
+                        //Must be last! Because it removes it
                         if (activeBadGuys[j].activeEffects[k].duration == 0) { RemoveEffect(activeBadGuys[j], activeBadGuys[j].activeEffects[k]); }
-                        if (activeBadGuys[j].activeEffects[k].delayedDuration > 0)
-                        {
-                            activeBadGuys[j].activeEffects[k].delayedDuration--;
-                            if (activeBadGuys[j].activeEffects[k].delayedDuration == 0) { ActivateDelayedEffect(activeBadGuys[j], activeBadGuys[j].activeEffects[k]); }
-                        }
                     }
                 }                
             }
@@ -431,7 +423,7 @@ public class Combat : MonoBehaviour
                 {
                     if (turnOrder[i].activeEffects[j].title == "Guarded") { RemoveEffect(turnOrder[i], turnOrder[i].activeEffects[j]); }
                 }
-                //short break
+                //short break (in-game time)
                 yield return new WaitForSeconds(.5f);
                 if (turnOrder[i] == ego)
                 {
@@ -653,7 +645,7 @@ public class Combat : MonoBehaviour
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
                     else if (turnOrder[i].displayAction == "Inventory") { StartCoroutine(UsePotion(currentTurn, currentTurn.potionBelt[0], currentTurn.chosenTarget)); }
-                    else { StartCoroutine(SpecialAbility()); }
+                    else { StartCoroutine(SpecialAbility(currentTurn)); }
                 }
                 yield return new WaitUntil(ActionComplete);
                 actionComplete = false;
@@ -824,9 +816,121 @@ public class Combat : MonoBehaviour
         battleLogGreyScreen.SetActive(false);
         potionComplete = true;
     }
-    IEnumerator SpecialAbility()
+    IEnumerator SpecialAbility(BadGuy badGuy)
     {
-        yield return new WaitForSeconds(1f);
+        Debug.Log(badGuy.chosenAbility.title);
+        string messageOne = badGuy.chosenAbility.messages[0];
+        string messageTwo = null;
+        Character target = null;
+        //Effect effect = null;
+
+        //assign target
+        if (badGuy.chosenAbility.beneficial) { target = badGuy; }
+        else { target = ego; }
+        //assign effect
+        //effect = badGuy.chosenAbility.effect;
+        //most abilities will have a second message
+        if (badGuy.chosenAbility.messages.Count > 1) { messageTwo = badGuy.chosenAbility.messages[1]; }
+
+        //commence ability
+        //special cases
+        if (badGuy.chosenAbility.title == "Fall Down")
+        {
+            battleLog.SetActive(true);
+            battleText.text = badGuy.normalAIRay[5].messages[0];
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
+            //next
+            derpSound.Play();
+            battleText.text += "\n\n" + badGuy.normalAIRay[5].messages[1];
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(battleText.textInfo.characterCount));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(1f);
+            //next
+            derpSound.Play();
+            battleText.text += " " + badGuy.normalAIRay[5].messages[2];
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(battleText.textInfo.characterCount));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(1f);
+            //next
+            strangeOccurence.Play();
+            battleText.text += "\n" + badGuy.normalAIRay[5].messages[3];
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(false);
+        }
+        else if (badGuy.chosenAbility.title == "Flank")
+        {
+            battleLog.SetActive(true);
+            battleText.text = messageOne;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
+            //second half with close
+            AddEffect(target, badGuy.currentTurnOrder, badGuy.chosenAbility.effect);
+            badEffect.Play();
+            //combatslot shift
+            badGuy.combatSlot.SetActive(false);
+            if (!slotFlank1.activeInHierarchy)
+            {
+                badGuy.combatSlot = slotFlank1;
+                badGuy.combatBorder = borderFlank1;
+                curHPFlank1.text = badGuy.allStats[0].value.ToString();
+                maxHPFlank1.text = badGuy.allStats[2].value.ToString();
+                nameFlank1.text = badGuy.nome;
+                specialFlank1.text = badGuy.specialAbility;
+            }            
+            else
+            {
+                badGuy.combatSlot = slotFlank2;
+                badGuy.combatBorder = borderFlank2;
+                curHPFlank2.text = badGuy.allStats[0].value.ToString();
+                maxHPFlank2.text = badGuy.allStats[2].value.ToString();
+                nameFlank2.text = badGuy.nome;
+                specialFlank2.text = badGuy.specialAbility;
+            }
+            badGuy.combatSlot.SetActive(true);
+            //
+            battleText.text += " " + messageTwo;
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(1.25f);
+            battleLogGreyScreen.SetActive(true);
+            yield return new WaitForSeconds(.5f);
+            battleLog.SetActive(false);
+            yield return new WaitForSeconds(.5f);
+            battleLogGreyScreen.SetActive(false);
+        }
+        else if (badGuy.chosenAbility.title == "Call")
+        {
+
+        }
+        else
+        {
+            activateBattleLogComplete = false;
+            StartCoroutine(ActivateBattleLog(messageOne, messageTwo, .5f, 1.25f, null, badGuy.chosenAbility.effect, target, badGuy));
+            yield return new WaitUntil(ActivateBattleLogComplete);
+            activateBattleLogComplete = false;
+        }
+        
         actionComplete = true;
     }
     void AddEffect(Character target, int turnOrderOfCaster, Effect effect)
@@ -854,7 +958,7 @@ public class Combat : MonoBehaviour
                         else
                         {
                             DeactivateDelayedEffect(target, target.activeEffects[i]);
-                            target.activeEffects[i].delayedDuration = effect.duration;
+                            target.activeEffects[i].priorityEffect = effect;
                         }
                         
                     }
@@ -866,7 +970,7 @@ public class Combat : MonoBehaviour
                 priorityEffect = priorityEffectsCurrent[0];
                 for (int i = 0; i < priorityEffectsCurrent.Count - 1; i++)
                 {
-                    if (priorityEffectsCurrent[i + 1].potency > priorityEffectsCurrent[i].potency) { priorityEffect = priorityEffectsCurrent[i + 1]; }
+                    if (priorityEffectsCurrent[i + 1].duration > priorityEffectsCurrent[i].duration) { priorityEffect = priorityEffectsCurrent[i + 1]; }
                 }
             }            
         }
@@ -893,21 +997,14 @@ public class Combat : MonoBehaviour
                 GameObject badTargetEffects = badTarget.combatSlot.transform.Find("Effects").gameObject;
                 TMP_Text badTargetEffectsText = badTargetEffects.transform.GetComponent<TMP_Text>();
                 badTargetEffectsText.text += $"<color={color}>{effect.abbreviation}</color> ";
-                //idk what I was thinking would happen with this
-                //badTarget.combatEffects.text += $"<color={effect.color}>{effect.abbreviation}</color> ";
             }
             //add effect
             effect.turnOrderTick = turnOrderOfCaster;
             //New effect instantiated and can be modified hereafter in activeEffects
             target.activeEffects.Add(Instantiate(effect));
             //create delayed duration if overridden
-            if (priorityEffect != null) { target.activeEffects[target.activeEffects.Count - 1].delayedDuration = priorityEffect.duration; }
-        }
-        if(priorityEffect != null)
-        {
-            Debug.Log(priorityEffect.duration);
-            Debug.Log(target.activeEffects[target.activeEffects.Count - 1].delayedDuration);
-        }        
+            if (priorityEffect != null) { target.activeEffects[target.activeEffects.Count - 1].priorityEffect = priorityEffect; }
+        }  
         //modify stats now only if no priority override
         if (priorityEffect == null)
         {
@@ -922,6 +1019,31 @@ public class Combat : MonoBehaviour
             if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue += effect.potency2; }
         }
         effectComplete = true;
+    }
+    Effect FindPriorityEffect(Effect effect, Character target)
+    {
+        List<Effect> priorityEffectsCurrent = new List<Effect>();
+        priorityEffect = null;
+        if (effect.priorityLine != "None")
+        {
+            for (int i = 0; i < target.activeEffects.Count; i++)
+            {
+                if (effect.priorityLine == target.activeEffects[i].priorityLine)
+                {
+                    if (Mathf.Abs(target.activeEffects[i].potency) > Mathf.Abs(effect.potency)) { priorityEffectsCurrent.Add(target.activeEffects[i]); }                    
+                }
+            }
+            if (priorityEffectsCurrent.Count == 1) { priorityEffect = priorityEffectsCurrent[0]; }
+            else if (priorityEffectsCurrent.Count > 1)
+            {
+                priorityEffect = priorityEffectsCurrent[0];
+                for (int i = 0; i < priorityEffectsCurrent.Count - 1; i++)
+                {
+                    if (priorityEffectsCurrent[i + 1].duration > priorityEffectsCurrent[i].duration) { priorityEffect = priorityEffectsCurrent[i + 1]; }
+                }
+            }
+        }
+        return priorityEffect;
     }
     void ActivateDelayedEffect(Character target, Effect effect)
     {
@@ -961,8 +1083,19 @@ public class Combat : MonoBehaviour
         target.allStats[effect.allStatsNumber].effectValue -= effect.potency;
         if (effect.allStatsNumber2 != -1) { target.allStats[effect.allStatsNumber2].effectValue -= effect.potency2; }
 
+
         //remove effect
         target.activeEffects.Remove(effect);
+
+        //check if effect was blocking another, and assign new if necessary
+        for (int i = 0; i < target.activeEffects.Count; i++)
+        {
+            if (target.activeEffects[i].priorityEffect == effect)
+            {
+                target.activeEffects[i].priorityEffect = FindPriorityEffect(target.activeEffects[i], target);
+                if (target.activeEffects[i].priorityEffect == null) { ActivateDelayedEffect(target, target.activeEffects[i]); }
+            }
+        }
     }
     IEnumerator ExecuteEgoAttack(BadGuy badGuy)
     {
@@ -1308,8 +1441,7 @@ public class Combat : MonoBehaviour
                                 string s = "s";
                                 if (selectedEffect.duration == 1) { s = ""; }
                                 if (selectedEffect.duration > 0) { duration = $"<size=10>Remaining: {selectedEffect.duration} round{s}</size>"; }
-                                if (selectedEffect.delayedDuration == 1) { s = ""; }
-                                if (selectedEffect.delayedDuration > 0) { suppression = $"<size=10>Effect Suppressed: {selectedEffect.delayedDuration} round{s}</size>"; }
+                                if (selectedEffect.priorityEffect != null) { suppression = "<i><size=10>Suppressed</size></i>"; }
                                 controller.OpenPopUpWindow(selectedEffect.title, "", selectedEffect.description, "", suppression, "", duration, "Press ESC to return");
                                 //copying font from achievements for simplicity
                                 controller.achievements.originalFont = controller.popUpMessage.font;
@@ -1364,7 +1496,6 @@ public class Combat : MonoBehaviour
         
         while (howManyMoves != 0)
         {
-            badGuyCursorMove.Play();
             howManyMoves--;
             currentArrowPosition++;
             if (currentArrowPosition > 1 && Random.Range(1, 21) == 1)
@@ -1374,6 +1505,7 @@ public class Combat : MonoBehaviour
                 yield return new WaitForSeconds(.5f);
                 stutter = true;
             }//stutter
+            badGuyCursorMove.Play();
             if (badGuy.combatSlot == slot1) { arrow.transform.position = slot1ArrowPositions[currentArrowPosition].transform.position; }
             else if (badGuy.combatSlot == slot2a) { arrow.transform.position = slot2aArrowPositions[currentArrowPosition].transform.position; }
             else if (badGuy.combatSlot == slot2b) { arrow.transform.position = slot2bArrowPositions[currentArrowPosition].transform.position; }
@@ -1485,6 +1617,8 @@ public class Combat : MonoBehaviour
         string RegularAction()
         {
             int d100 = Random.Range(1, 101);
+            badGuy.chosenAbility = null;
+
             //all AIRays must be arranged in ascending order
             for (int i = 0; i < badGuy.normalAIRay.Length; i++)
             {
@@ -1509,10 +1643,34 @@ public class Combat : MonoBehaviour
                         //HP above half (or only badguy left)
                         if ((currentHP > (.5 * combinedMaxHP)) || (liveCounter == 1)) { return "Attack"; }
                     }
+                    //don't repeat priority effects
+                    if (badGuy.normalAIRay[i].effect != null)
+                    {
+                        if (badGuy.normalAIRay[i].effect.priorityLine != "None")
+                        {
+                            if (badGuy.normalAIRay[i].beneficial)
+                            {
+                                for (int j = 0; j < badGuy.activeEffects.Count; j++)
+                                {
+                                    if (badGuy.normalAIRay[i].effect.title == badGuy.activeEffects[j].title) { return "Attack"; }
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < ego.activeEffects.Count; j++)
+                                {
+                                    if (badGuy.normalAIRay[i].effect.title == ego.activeEffects[j].title) { return "Attack"; }
+                                }
+                            }
+                        }
+                    }
 
+                    //assign special ability if appropriate and return action
+                    if (badGuy.normalAIRay[i] is BadGuyCombatActions) { badGuy.chosenAbility = badGuy.normalAIRay[i]; }
                     return badGuy.normalAIRay[i].title;
                 }
             }
+            //shouldn't ever be reached but here as a catch
             return "Attack";
         }
     }
@@ -2570,10 +2728,8 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.1f);
         }
     }
-    IEnumerator ActivateBattleLog(string text1, string text2, float midPause, float endPause)
+    IEnumerator ActivateBattleLog(string text1, string text2 = null, float midPause = .5f, float endPause = 1.25f, AudioSource sound = null, Effect effect = null, Character target = null, Character caster = null)
     {
-        //default midPause = .5f
-
         battleLog.SetActive(true);
         //two parter with midpause
         if (text2 != null)
@@ -2585,7 +2741,17 @@ public class Combat : MonoBehaviour
             yield return new WaitUntil(MessageComplete);
             yield return new WaitForSeconds(midPause);
             //second half with close
-            battleText.text += text2;
+            if (effect != null)
+            {
+                AddEffect(target, caster.currentTurnOrder, effect);
+                if (target.activeEffects[target.activeEffects.Count - 1].priorityEffect != null && sound != null)
+                {
+                    sound = blockEffect;
+                    text2 = $"\n\nThe influence of {caster.nome}'s {caster.chosenAbility.title} ability is suppressed by a more powerful effect.";
+                }
+            }
+            if (sound != null) { sound.Play(); }
+            battleText.text += " " + text2;
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
             StartCoroutine(BattleMessage(endingCharacter));
@@ -2597,7 +2763,7 @@ public class Combat : MonoBehaviour
             yield return new WaitForSeconds(.5f);
             battleLogGreyScreen.SetActive(false);
         }
-        //no midpause
+        //one parter
         else
         {
             battleText.text = text1;

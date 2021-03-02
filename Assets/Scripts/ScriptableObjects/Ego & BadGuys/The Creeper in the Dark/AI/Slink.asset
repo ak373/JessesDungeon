@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Slink
   likelihood: 85
-  message: 
   messages:
   - The Creeper in the Dark slinks deeper into the shadows.
+  - He has become slightly obscured!
   effect: {fileID: 11400000, guid: d395b5db751621444b1d7721ba86b90b, type: 2}
   target: self
+  beneficial: 1

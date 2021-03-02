@@ -14,7 +14,7 @@ public class Effect : ScriptableObject
     public int potency2;
     public Color color;
     public int duration;
-    [HideInInspector] public int delayedDuration;
+    [HideInInspector] public Effect priorityEffect = null;
     public bool beneficial;
     public bool compounding;
     public string compoundMessage;

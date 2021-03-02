@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Strategize
   likelihood: 85
-  message: ' '
   messages:
   - A Bold Yet Discretionary Strategist squints his eyes as he takes stock of the
     situation.
@@ -22,3 +21,4 @@ MonoBehaviour:
     posture!
   effect: {fileID: 11400000, guid: d395b5db751621444b1d7721ba86b90b, type: 2}
   target: self
+  beneficial: 1

@@ -15,6 +15,7 @@ public class Character : ScriptableObject
     [HideInInspector] public int currentTurnOrder;
     [HideInInspector] public string displayAction;
     [HideInInspector] public string chosenAction;
+    [HideInInspector] public BadGuyCombatActions chosenAbility;
     [HideInInspector] public Character chosenTarget;
     [HideInInspector] public Item chosenItem;
     [HideInInspector] public Item chosenItem2;

@@ -14,11 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Death
   abbreviation: 
+  priorityLine: 
   allStatsNumber: 1
-  allStatsNumber2: -1
-  potency: -32000
+  allStatsNumber2: 0
+  potency: 0
   potency2: 0
   color: {r: 0, g: 0, b: 0, a: 1}
   duration: -1
+  priorityEffect: {fileID: 0}
+  beneficial: 0
+  compounding: 0
+  compoundMessage: 
+  compoundMessage2: 
   description: You die.
   turnOrderTick: 1

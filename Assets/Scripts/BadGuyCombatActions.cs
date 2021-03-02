@@ -11,4 +11,5 @@ public class BadGuyCombatActions : ScriptableObject
     public List<string> messages = new List<string>();
     public Effect effect;
     public string target;
+    public bool beneficial;
 }

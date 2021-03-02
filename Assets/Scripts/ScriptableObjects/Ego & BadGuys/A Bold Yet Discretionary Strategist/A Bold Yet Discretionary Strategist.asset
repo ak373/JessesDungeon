@@ -29,24 +29,30 @@ MonoBehaviour:
   equippedArmor: {fileID: 11400000, guid: 0d148de6e161d01488c3bcd363420b34, type: 2}
   equippedWeapon: {fileID: 11400000, guid: 332836000f9f8634f91fa1c6d013770a, type: 2}
   equippedShield: {fileID: 0}
+  potionBelt:
+  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
   currentInit: 0
+  currentTurnOrder: 0
   displayAction: 
+  chosenAction: 
+  chosenAbility: {fileID: 0}
+  chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
   itemLoot:
   - {fileID: 11400000, guid: 0d148de6e161d01488c3bcd363420b34, type: 2}
   - {fileID: 11400000, guid: 332836000f9f8634f91fa1c6d013770a, type: 2}
-  potionBelt:
-  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
   crystalLootMin: 5
   crystalLootMax: 25
   battleCry: Some Bold Yet Discretionary Strategists make several gradual moves toward
     you until they are within range to strike!
   combatSlot: {fileID: 0}
+  combatBorder: {fileID: 0}
   specialAbility: Strategize
-  chosenAction: 
   normalAIRay:
   - {fileID: 11400000, guid: dff46b14ec2586c4eadb4c5fbd361d0a, type: 2}
   - {fileID: 11400000, guid: 0a024efc73250d94eb2dd94afa24fa2a, type: 2}
   - {fileID: 11400000, guid: 3689d46589eb00642bc02b0f96b11a4a, type: 2}
   - {fileID: 11400000, guid: a9104ac39f5ea054f80767f6effc40b1, type: 2}
-  - {fileID: 11400000, guid: 0a024efc73250d94eb2dd94afa24fa2a, type: 2}
+  - {fileID: 11400000, guid: df8fe01a0909777479b04c8885ce1fce, type: 2}
   - {fileID: 11400000, guid: c1c68b2b7841e2147a5be6d032eba8dd, type: 2}

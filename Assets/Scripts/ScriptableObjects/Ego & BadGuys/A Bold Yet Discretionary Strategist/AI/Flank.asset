@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Flank
   likelihood: 60
-  message: 
   messages:
-  - A Bold Yet Discretionary Strategist shifts into a more strategic position.
+  - A Bold Yet Discretionary Strategist steps into a more strategic position.
   - You are flanked!
   effect: {fileID: 11400000, guid: 546a3aeb078f7444f82dc2a91d592eb0, type: 2}
   target: ego
+  beneficial: 0

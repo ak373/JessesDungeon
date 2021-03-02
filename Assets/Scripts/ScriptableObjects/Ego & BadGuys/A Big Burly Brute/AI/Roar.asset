@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Roar
   likelihood: 95
-  message: 
   messages:
-  - A Big Burly Brute roars menacingly! You are intimidated by the sheer voracity
-    of its bruteness!
+  - A Big Burly Brute roars menacingly!
+  - You are intimidated by the sheer voracity of its bruteness!
   effect: {fileID: 11400000, guid: fe9634608da210944a6f584e5d67d6dc, type: 2}
   target: ego
+  beneficial: 0

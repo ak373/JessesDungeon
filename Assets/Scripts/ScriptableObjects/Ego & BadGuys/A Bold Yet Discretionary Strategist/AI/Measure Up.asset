@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Measure Up
   likelihood: 95
-  message: ' After a brief moment, he grins and exclaims, '
   messages:
   - A Bold Yet Discretionary Strategist looks you up and down.
-  - '"There''s the weak spot! Right between the eyes!"'
+  - He points and shouts "There's the weak spot! Right between the eyes!"
   effect: {fileID: 11400000, guid: 7619774ea39c3444992b9d5bdbd2008c, type: 2}
   target: ego
+  beneficial: 0
