@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e0a777cd7097e245a76dcc7a8f7d98c, type: 3}
+  m_Name: A Small, Sickly Child
+  m_EditorClassIdentifier: 
+  nome: A Small, Sickly Child
+  allStats:
+  - {fileID: 11400000, guid: 1cd69925f9a234244b5b982c7299a993, type: 2}
+  - {fileID: 11400000, guid: 42f49702ae35d064ab0b9e1ee8fad4bf, type: 2}
+  - {fileID: 11400000, guid: a8177d72213f2d34f881971e7816015a, type: 2}
+  - {fileID: 11400000, guid: bb4227d912659d645a3cfafd0e1d11e8, type: 2}
+  - {fileID: 11400000, guid: b706415fda1a5d34ea79fe4b3aac66f0, type: 2}
+  - {fileID: 11400000, guid: c354c9e17205e854bb21a5ba23ea1179, type: 2}
+  - {fileID: 11400000, guid: 1a562b69490ee73479cf59b0d6992d8b, type: 2}
+  - {fileID: 11400000, guid: b6575cb0f30dfd04eb83c35d608cefd7, type: 2}
+  - {fileID: 11400000, guid: 1ccb8bd3660942b408008c601247ac63, type: 2}
+  - {fileID: 11400000, guid: 2973f4354f7b6a146a4b32316c7394bd, type: 2}
+  - {fileID: 11400000, guid: f2ba5a510b0a7b948a20a9e8618278c5, type: 2}
+  activeEffects: []
+  equippedArmor: {fileID: 0}
+  equippedWeapon: {fileID: 0}
+  equippedShield: {fileID: 0}
+  potionBelt: []
+  currentInit: 0
+  currentTurnOrder: 0
+  displayAction: 
+  chosenAction: 
+  chosenAbility: {fileID: 0}
+  chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
+  itemLoot:
+  - {fileID: 11400000, guid: 2b4f978d6d0ccde47a933cbb8c30a44c, type: 2}
+  crystalLootMin: 0
+  crystalLootMax: 1
+  battleCry: A small, sickly child limps over and assumes a fighting stance!
+  combatSlot: {fileID: 0}
+  combatBorder: {fileID: 0}
+  specialAbility: Whine
+  normalAIRay:
+  - {fileID: 11400000, guid: e95c68d54c6fb934698d22d2fd02e9da, type: 2}
+  - {fileID: 11400000, guid: 730c538265dceb9449c401a69de8620b, type: 2}
+  - {fileID: 11400000, guid: 421974cc212e2e642b0e250bfa2305ea, type: 2}
+  - {fileID: 11400000, guid: 30133adf6d224584788507047b292b88, type: 2}

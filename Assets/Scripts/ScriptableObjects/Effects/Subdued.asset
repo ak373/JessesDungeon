@@ -17,13 +17,14 @@ MonoBehaviour:
   priorityLine: Indown
   allStatsNumber: 10
   allStatsNumber2: -1
-  potency: -20
+  potency: -10
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}
   duration: 5
+  priorityEffect: {fileID: 0}
   beneficial: 0
   compounding: 0
   compoundMessage: 
   compoundMessage2: 
-  description: Your Initiative suffers a -20 penalty for 5 rounds.
+  description: Your Initiative suffers a -10 penalty for 5 rounds.
   turnOrderTick: 999

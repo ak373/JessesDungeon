@@ -10,4 +10,5 @@ public class Ego : Character
     public int conversation;
     public string fleeLocation;
     public int bankedCrystals;
+    public List<BadGuy> defeatedBadGuys = new List<BadGuy>();
 }

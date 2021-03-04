@@ -15,7 +15,7 @@ MonoBehaviour:
   title: Lurk
   likelihood: 100
   messages:
-  - The Creeper in the Dark lurks in the shadows, and loses track of himself!
+  - The Creeper in the Dark lurks in the shadows and loses track of himself!
   effect: {fileID: 11400000, guid: 86e77afb25b2b5746b5561d022d43a33, type: 2}
   target: self
   beneficial: 1

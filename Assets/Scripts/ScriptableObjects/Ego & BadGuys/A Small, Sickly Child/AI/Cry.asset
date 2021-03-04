@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caa0cc76c570047498cc7e77fad118b7, type: 3}
+  m_Name: Cry
+  m_EditorClassIdentifier: 
+  title: Cry
+  likelihood: 70
+  messages:
+  - A Small, Sickly Child begins to cry and call for his mommy.
+  - The moral dilemma of striking a child leaves you conflicted!
+  effect: {fileID: 11400000, guid: 16907ead90d3d0d43ab7d5ece24a9a03, type: 2}
+  target: ego
+  beneficial: 0
