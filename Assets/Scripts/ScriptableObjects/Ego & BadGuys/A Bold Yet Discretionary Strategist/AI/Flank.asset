@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Flank
   m_EditorClassIdentifier: 
   title: Flank
-  likelihood: 60
+  likelihood: 50
   messages:
   - A Bold Yet Discretionary Strategist steps into a more strategic position.
   - You are flanked!

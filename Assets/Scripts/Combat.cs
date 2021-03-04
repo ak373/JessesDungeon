@@ -39,13 +39,12 @@ public class Combat : MonoBehaviour
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
     public AudioSource winBattle, winCoda, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
-    public AudioSource creeperMusic, mongerMusic, strategistMusic, bruteMusic;
+    public AudioSource sicklyMusic, creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
     public TMP_Text potion0, potion1, potion2;
     [HideInInspector] public float scrollRectValue;
 
     BadGuy[] activeBadGuys = { null, null, null, null, null };
-    BadGuy badGuy0, badGuy1, badGuy2, badGuy3, badGuy4;
     Character[] turnOrder = { null, null, null, null, null, null };
     List<int> usedInitValues = new List<int>();
     List<BadGuy> deadThisRound = new List<BadGuy>();
@@ -148,9 +147,8 @@ public class Combat : MonoBehaviour
         if (numberOfBadGuys != 2)
         {
             slot1.SetActive(true);
-            badGuy0 = activeBadGuys[0];
-            badGuy0.combatSlot = slot1;
-            badGuy0.combatBorder = border1;
+            activeBadGuys[0].combatSlot = slot1;
+            activeBadGuys[0].combatBorder = border1;
             curHP1.text = activeBadGuys[0].allStats[0].value.ToString();
             maxHP1.text = activeBadGuys[0].allStats[2].value.ToString();
             name1.text = activeBadGuys[0].nome;
@@ -159,17 +157,15 @@ public class Combat : MonoBehaviour
         else
         {
             slot2a.SetActive(true);
-            badGuy0 = activeBadGuys[0];
-            badGuy0.combatSlot = slot2a;
-            badGuy0.combatBorder = border2a;
+            activeBadGuys[0].combatSlot = slot2a;
+            activeBadGuys[0].combatBorder = border2a;
             curHP2a.text = activeBadGuys[0].allStats[0].value.ToString();
             maxHP2a.text = activeBadGuys[0].allStats[2].value.ToString();
             name2a.text = activeBadGuys[0].nome;
             special2a.text = activeBadGuys[0].specialAbility;
             slot2b.SetActive(true);
-            badGuy1 = activeBadGuys[1];
-            badGuy1.combatSlot = slot2b;
-            badGuy1.combatBorder = border2b;
+            activeBadGuys[1].combatSlot = slot2b;
+            activeBadGuys[1].combatBorder = border2b;
             curHP2b.text = activeBadGuys[1].allStats[0].value.ToString();
             maxHP2b.text = activeBadGuys[1].allStats[2].value.ToString();
             name2b.text = activeBadGuys[1].nome;
@@ -178,17 +174,15 @@ public class Combat : MonoBehaviour
         if (numberOfBadGuys > 2)
         {
             slot3b.SetActive(true);
-            badGuy1 = activeBadGuys[1];
-            badGuy1.combatSlot = slot3b;
-            badGuy1.combatBorder = border3b;
+            activeBadGuys[1].combatSlot = slot3b;
+            activeBadGuys[1].combatBorder = border3b;
             curHP3b.text = activeBadGuys[1].allStats[0].value.ToString();
             maxHP3b.text = activeBadGuys[1].allStats[2].value.ToString();
             name3b.text = activeBadGuys[1].nome;
             special3b.text = activeBadGuys[1].specialAbility;
             slot3c.SetActive(true);
-            badGuy2 = activeBadGuys[2];
-            badGuy2.combatSlot = slot3c;
-            badGuy2.combatBorder = border3c;
+            activeBadGuys[2].combatSlot = slot3c;
+            activeBadGuys[2].combatBorder = border3c;
             curHP3c.text = activeBadGuys[2].allStats[0].value.ToString();
             maxHP3c.text = activeBadGuys[2].allStats[2].value.ToString();
             name3c.text = activeBadGuys[2].nome;
@@ -197,24 +191,26 @@ public class Combat : MonoBehaviour
         if (numberOfBadGuys > 3)
         {
             slotFlank1.SetActive(true);
-            badGuy3 = activeBadGuys[3];
-            badGuy3.combatSlot = slotFlank1;
-            badGuy3.combatBorder = borderFlank1;
+            activeBadGuys[3].combatSlot = slotFlank1;
+            activeBadGuys[3].combatBorder = borderFlank1;
             curHPFlank1.text = activeBadGuys[3].allStats[0].value.ToString();
             maxHPFlank1.text = activeBadGuys[3].allStats[2].value.ToString();
             nameFlank1.text = activeBadGuys[3].nome;
             specialFlank1.text = activeBadGuys[3].specialAbility;
+            Effect flank = Instantiate(allEffects[3]);
+            AddEffect(ego, 1, flank);
         }
         if (numberOfBadGuys > 4)
         {
             slotFlank2.SetActive(true);
-            badGuy4 = activeBadGuys[4];
-            badGuy4.combatSlot = slotFlank2;
-            badGuy4.combatBorder = borderFlank2;
+            activeBadGuys[4].combatSlot = slotFlank2;
+            activeBadGuys[4].combatBorder = borderFlank2;
             curHPFlank2.text = activeBadGuys[4].allStats[0].value.ToString();
             maxHPFlank2.text = activeBadGuys[4].allStats[2].value.ToString();
             nameFlank2.text = activeBadGuys[4].nome;
             specialFlank2.text = activeBadGuys[4].specialAbility;
+            Effect flank = Instantiate(allEffects[3]);
+            AddEffect(ego, 1, flank);
         }
 
         CalculateTurnOrder();
@@ -224,7 +220,8 @@ public class Combat : MonoBehaviour
 
         void FindBadGuyTheme()
         {
-            if (badGuy.nome == "The Creeper in the Dark"){ currentTheme = creeperMusic; }
+            if (badGuy.nome == "The Creeper in the Dark") { currentTheme = creeperMusic; }
+            else if (badGuy.nome == "A Small, Sickly Child") { currentTheme = sicklyMusic; }
             else if (badGuy.nome == "An Aggressive Peace Monger") { currentTheme = mongerMusic; }
             else if (badGuy.nome == "A Bold Yet Discretionary Strategist") { currentTheme = strategistMusic; }
             else if (badGuy.nome == "A Big Burly Brute") { currentTheme = bruteMusic; }
@@ -260,6 +257,15 @@ public class Combat : MonoBehaviour
         for (int i = 0; i < turnOrderNames.Length; i++) { turnOrderNames[i].text = ""; }
         for (int i = 0; i < activeBadGuys.Length; i++) { if (activeBadGuys[i] != null) { activeBadGuys[i].displayAction = ""; } }
         ego.displayAction = "";
+
+        //Alternate Defend/Maneuver if applicable
+        bool flanked = false;
+        for (int i = 0; i < ego.activeEffects.Count; i++)
+        {
+            if (ego.activeEffects[i].title == "Flanked") { flanked = true; }
+        }
+        if (flanked) { egoCombatOptions[1].text = "Maneuver"; }
+        else { egoCombatOptions[1].text = "Defend"; }
 
         //populate order array & display names
         for (int i = 0; i < turnOrder.Length; i++)
@@ -300,30 +306,30 @@ public class Combat : MonoBehaviour
         {
             actionSelected = false;
             if (deadThisRound.Contains(turnOrder[i])) { actionSelected = true; }
-            else if (activeBadGuys[0] != null && turnOrder[i] == badGuy0)
+            else if (activeBadGuys[0] != null && turnOrder[i] == activeBadGuys[0])
             {
-                badGuy0.chosenAction = BadGuyLogic(badGuy0);
-                StartCoroutine(BadGuyActionSelect(badGuy0));
+                activeBadGuys[0].chosenAction = BadGuyLogic(activeBadGuys[0]);
+                StartCoroutine(BadGuyActionSelect(activeBadGuys[0]));
             }
-            else if (activeBadGuys[1] != null && turnOrder[i] == badGuy1)
+            else if (activeBadGuys[1] != null && turnOrder[i] == activeBadGuys[1])
             {
-                badGuy1.chosenAction = BadGuyLogic(badGuy1);
-                StartCoroutine(BadGuyActionSelect(badGuy1));
+                activeBadGuys[1].chosenAction = BadGuyLogic(activeBadGuys[1]);
+                StartCoroutine(BadGuyActionSelect(activeBadGuys[1]));
             }
-            else if (activeBadGuys[2] != null && turnOrder[i] == badGuy2)
+            else if (activeBadGuys[2] != null && turnOrder[i] == activeBadGuys[2])
             {
-                badGuy2.chosenAction = BadGuyLogic(badGuy2);
-                StartCoroutine(BadGuyActionSelect(badGuy2));
+                activeBadGuys[2].chosenAction = BadGuyLogic(activeBadGuys[2]);
+                StartCoroutine(BadGuyActionSelect(activeBadGuys[2]));
             }
-            else if (activeBadGuys[3] != null && turnOrder[i] == badGuy3)
+            else if (activeBadGuys[3] != null && turnOrder[i] == activeBadGuys[3])
             {
-                badGuy3.chosenAction = BadGuyLogic(badGuy3);
-                StartCoroutine(BadGuyActionSelect(badGuy3));
+                activeBadGuys[3].chosenAction = BadGuyLogic(activeBadGuys[3]);
+                StartCoroutine(BadGuyActionSelect(activeBadGuys[3]));
             }
-            else if (activeBadGuys[4] != null && turnOrder[i] == badGuy4)
+            else if (activeBadGuys[4] != null && turnOrder[i] == activeBadGuys[4])
             {
-                badGuy4.chosenAction = BadGuyLogic(badGuy4);
-                StartCoroutine(BadGuyActionSelect(badGuy4));
+                activeBadGuys[4].chosenAction = BadGuyLogic(activeBadGuys[4]);
+                StartCoroutine(BadGuyActionSelect(activeBadGuys[4]));
             }
             else if (turnOrder[i] == ego) { StartCoroutine(EgoActionSelect()); }
             else { actionSelected = true; }
@@ -457,6 +463,55 @@ public class Combat : MonoBehaviour
                         battleLog.SetActive(false);
                         yield return new WaitForSeconds(.5f);
                         battleLogGreyScreen.SetActive(false);
+                        actionComplete = true;
+                    }
+                    //Execute Maneuver
+                    else if (ego.chosenAction == "Maneuver")
+                    {
+                        //check how much space there is to maneuver (0, 1, or 2 slots up top)
+                        int availableSlots = 3;
+                        for (int j = 0; j < activeBadGuys.Length; j++)
+                        {
+                            if (activeBadGuys[j] != null) { availableSlots--; }
+                        }
+                        if (slotFlank1.activeInHierarchy) { availableSlots++; }
+                        if (slotFlank2.activeInHierarchy) { availableSlots++; }
+
+                        //check how many flanks there are
+                        int totalFlanks = 0;
+                        if (slotFlank1.activeInHierarchy) { totalFlanks++; }
+                        if (slotFlank2.activeInHierarchy) { totalFlanks++; }
+
+                        //consequences
+                        string text1 = "You attempt to maneuver,";
+                        string text2 = "";
+                        AudioSource sound = blockEffect;
+                        activateBattleLogComplete = false;
+                        StartCoroutine(ActivateBattleLog(text1));
+                        yield return new WaitUntil(ActivateBattleLogComplete);
+                        activateBattleLogComplete = false;
+                        if (availableSlots == 0)
+                        {
+                            blockEffect.Play();
+                            text2 = "but there's just too many of them!";
+                        }
+                        else if (availableSlots == 1)
+                        {
+                            RemoveFlank();
+                            goodEffect.Play();
+                            if (totalFlanks == 1) { text2 = "and deftly step out of your compromised position."; }
+                            else { text2 = "and manage to slip one of them."; }
+                        }
+                        else
+                        {
+                            RemoveFlank();
+                            goodEffect.Play();
+                            text2 = "and deftly step out of your compromised position.";
+                            if (totalFlanks == 2) { RemoveFlank(); }
+                        }
+                        StartCoroutine(ActivateBattleLog(text2));
+                        yield return new WaitUntil(ActivateBattleLogComplete);
+                        activateBattleLogComplete = false;
                         actionComplete = true;
                     }
                     //Execute Equip
@@ -668,6 +723,108 @@ public class Combat : MonoBehaviour
             }
         }
         StartCoroutine(EndTurn());
+
+        void RemoveFlank()
+        {
+            //check if 2a/2b need to be moved
+            if (slot2a.activeInHierarchy || slot2b.activeInHierarchy)
+            {
+                GameObject newSlot = FindAvailableCombatSlot();
+                BadGuy badGuyAB = null;
+                if (slot2a.activeInHierarchy)
+                {
+                    for (int i = 0; i < activeBadGuys.Length; i++)
+                    {
+                        if (activeBadGuys[i] != null)
+                        {
+                            if (activeBadGuys[i].combatBorder == slot2a) { badGuyAB = activeBadGuys[i]; }
+                        }
+                    }
+                }
+                else if (slot2b.activeInHierarchy)
+                {
+                    for (int i = 0; i < activeBadGuys.Length; i++)
+                    {
+                        if (activeBadGuys[i] != null)
+                        {
+                            if (activeBadGuys[i].combatBorder == slot2b) { badGuyAB = activeBadGuys[i]; }
+                        }
+                    }
+                }
+                ShiftCombatSlot(badGuyAB, newSlot);
+            }
+            //find and remove the effect
+            Effect removingFlank = null;
+            for (int j = 0; j < ego.activeEffects.Count; j++)
+            {
+                if (ego.activeEffects[j].title == "Flanked")
+                {
+                    removingFlank = ego.activeEffects[j];
+                    break;
+                }
+            }
+            RemoveEffect(ego, removingFlank);
+
+            //combatslot shift
+            BadGuy movingBadGuy = null;
+            for (int j = 0; j < activeBadGuys.Length; j++)
+            {
+                if (activeBadGuys[j] != null)
+                {
+                    if (activeBadGuys[j].combatSlot == slotFlank1)
+                    {
+                        movingBadGuy = activeBadGuys[j];
+                        break;
+                    }
+                    else if (activeBadGuys[j].combatSlot == slotFlank2)
+                    {
+                        movingBadGuy = activeBadGuys[j];
+                        break;
+                    }
+                }                
+            }
+            GameObject badGuyEffects = movingBadGuy.combatSlot.transform.Find("Effects").gameObject;
+            TMP_Text badGuyEffectsText = badGuyEffects.transform.GetComponent<TMP_Text>();
+            movingBadGuy.combatSlot.SetActive(false);
+            if (!slot1.activeInHierarchy)
+            {
+                movingBadGuy.combatSlot = slot1;
+                GameObject newBadGuyEffects = slot1.transform.Find("Effects").gameObject;
+                TMP_Text newBadGuyEffectsText = newBadGuyEffects.transform.GetComponent<TMP_Text>();
+                newBadGuyEffectsText.text = badGuyEffectsText.text;
+                movingBadGuy.combatBorder = border1;
+                curHP1.text = movingBadGuy.allStats[0].value.ToString();
+                maxHP1.text = movingBadGuy.allStats[2].value.ToString();
+                name1.text = movingBadGuy.nome;
+                special1.text = movingBadGuy.specialAbility;
+            }
+            else if (!slot3b.activeInHierarchy)
+            {
+                movingBadGuy.combatSlot = slot3b;
+                GameObject newBadGuyEffects = slot3b.transform.Find("Effects").gameObject;
+                TMP_Text newBadGuyEffectsText = newBadGuyEffects.transform.GetComponent<TMP_Text>();
+                newBadGuyEffectsText.text = badGuyEffectsText.text;
+                movingBadGuy.combatBorder = border3b;
+                curHP3b.text = movingBadGuy.allStats[0].value.ToString();
+                maxHP3b.text = movingBadGuy.allStats[2].value.ToString();
+                name3b.text = movingBadGuy.nome;
+                special3b.text = movingBadGuy.specialAbility;
+            }
+            else if (!slot3c.activeInHierarchy)
+            {
+                movingBadGuy.combatSlot = slot3c;
+                GameObject newBadGuyEffects = slot3c.transform.Find("Effects").gameObject;
+                TMP_Text newBadGuyEffectsText = newBadGuyEffects.transform.GetComponent<TMP_Text>();
+                newBadGuyEffectsText.text = badGuyEffectsText.text;
+                movingBadGuy.combatBorder = border3c;
+                curHP3c.text = movingBadGuy.allStats[0].value.ToString();
+                maxHP3c.text = movingBadGuy.allStats[2].value.ToString();
+                name3c.text = movingBadGuy.nome;
+                special3c.text = movingBadGuy.specialAbility;
+            }
+            badGuyEffectsText.text = "";
+            movingBadGuy.combatSlot.SetActive(true);
+        }
     }
     IEnumerator ExecuteBadGuyAttack(BadGuy badGuy)
     {
@@ -837,7 +994,6 @@ public class Combat : MonoBehaviour
     }
     IEnumerator SpecialAbility(BadGuy badGuy)
     {
-        Debug.Log(badGuy.chosenAbility.title);
         string messageOne = badGuy.chosenAbility.messages[0];
         string messageTwo = null;
         Character target = null;
@@ -981,8 +1137,7 @@ public class Combat : MonoBehaviour
                 else { newBadGuy = Instantiate(allBadGuys[0]); }
                 for (int i = 0; i < newBadGuy.allStats.Length; i++)
                 {
-                    if (newBadGuy.nome == "A Small, Sickly Child") { newBadGuy.allStats[i] = Instantiate(newBadGuy.allStats[i]); }
-                    else { newBadGuy.allStats[i] = Instantiate(newBadGuy.allStats[i]); }
+                    newBadGuy.allStats[i] = Instantiate(newBadGuy.allStats[i]);
                 }
                 //assign him a slot
                 for (int i = 0; i < activeBadGuys.Length; i++)
@@ -1183,6 +1338,8 @@ public class Combat : MonoBehaviour
                     maxHPFlank1.text = newBadGuy.allStats[2].value.ToString();
                     nameFlank1.text = newBadGuy.nome;
                     specialFlank1.text = newBadGuy.specialAbility;
+                    Effect flank = Instantiate(allEffects[3]);
+                    AddEffect(ego, 1, flank);
                 }
                 else if (!slotFlank2.activeInHierarchy)
                 {
@@ -1192,6 +1349,8 @@ public class Combat : MonoBehaviour
                     maxHPFlank2.text = newBadGuy.allStats[2].value.ToString();
                     nameFlank2.text = newBadGuy.nome;
                     specialFlank2.text = newBadGuy.specialAbility;
+                    Effect flank = Instantiate(allEffects[3]);
+                    AddEffect(ego, 1, flank);
                 }
                 newBadGuy.combatSlot.SetActive(true);
                 joinedTheBattle.Play();
@@ -1388,6 +1547,102 @@ public class Combat : MonoBehaviour
                 if (target.activeEffects[i].priorityEffect == null) { ActivateDelayedEffect(target, target.activeEffects[i]); }
             }
         }
+    }
+    GameObject FindAvailableCombatSlot()
+    {
+        //will return earliest available slot 1, 3b, 3c, Flank1, Flank2 (no 2a/2b)
+        if (!slot1.activeInHierarchy) { return slot1; }
+        else if (!slot3b.activeInHierarchy) { return slot3b; }
+        else if (!slot3c.activeInHierarchy) { return slot3c; }
+        else if (!slotFlank1.activeInHierarchy) { return slotFlank1; }
+        else if (!slotFlank2.activeInHierarchy) { return slotFlank2; }
+        return null;
+    }
+    void ShiftCombatSlot(BadGuy movingBadGuy, GameObject newSlot)
+    {
+        //associate border and stats with new slot
+        GameObject newBorder = null;
+        TMP_Text newCurHP = null;
+        TMP_Text newMaxHP = null;
+        TMP_Text newName = null;
+        TMP_Text newSpecial = null;
+        if (newSlot == slot1)
+        {
+            newBorder = border1;
+            newCurHP = curHP1;
+            newMaxHP = maxHP1;
+            newName = name1;
+            newSpecial = special1;
+        }
+        else if (newSlot == slot2a)
+        {
+            newBorder = border2a;
+            newCurHP = curHP2a;
+            newMaxHP = maxHP2a;
+            newName = name2a;
+            newSpecial = special2a;
+        }
+        else if (newSlot == slot2b)
+        {
+            newBorder = border2b;
+            newCurHP = curHP2b;
+            newMaxHP = maxHP2b;
+            newName = name2b;
+            newSpecial = special2b;
+        }
+        else if (newSlot == slot3b)
+        {
+            newBorder = border3b;
+            newCurHP = curHP3b;
+            newMaxHP = maxHP3b;
+            newName = name3b;
+            newSpecial = special3b;
+        }
+        else if (newSlot == slot3c)
+        {
+            newBorder = border3c;
+            newCurHP = curHP3c;
+            newMaxHP = maxHP3c;
+            newName = name3c;
+            newSpecial = special3c;
+        }
+        else if (newSlot == slotFlank1)
+        {
+            newBorder = borderFlank1;
+            newCurHP = curHPFlank1;
+            newMaxHP = maxHPFlank1;
+            newName = nameFlank1;
+            newSpecial = specialFlank1;
+        }
+        else if (newSlot == slotFlank2)
+        {
+            newBorder = borderFlank2;
+            newCurHP = curHPFlank2;
+            newMaxHP = maxHPFlank2;
+            newName = nameFlank2;
+            newSpecial = specialFlank2;
+        }
+
+        //copy effects text
+        GameObject badGuyEffects = movingBadGuy.combatSlot.transform.Find("Effects").gameObject;
+        TMP_Text badGuyEffectsText = badGuyEffects.transform.GetComponent<TMP_Text>();
+        //shut off old slot
+        movingBadGuy.combatSlot.SetActive(false);
+        //assign new slot
+        movingBadGuy.combatSlot = newSlot;
+        //transcribe effects text and erase old
+        GameObject movedBadGuyEffects = movingBadGuy.combatSlot.transform.Find("Effects").gameObject;
+        TMP_Text movedBadGuyEffectsText = movedBadGuyEffects.transform.GetComponent<TMP_Text>();
+        movedBadGuyEffectsText.text = badGuyEffectsText.text;
+        badGuyEffectsText.text = "";
+        //assign new border
+        movingBadGuy.combatBorder = newBorder;
+        newCurHP.text = movingBadGuy.allStats[0].value.ToString();
+        newMaxHP.text = movingBadGuy.allStats[2].value.ToString();
+        newName.text = movingBadGuy.nome;
+        newSpecial.text = movingBadGuy.specialAbility;
+        //turn on new slot
+        movingBadGuy.combatSlot.SetActive(true);
     }
     IEnumerator ExecuteEgoAttack(BadGuy badGuy)
     {
@@ -1589,8 +1844,16 @@ public class Combat : MonoBehaviour
                 //Defend
                 else if (currentArrowPosition == 1)
                 {
-                    ego.displayAction = "Defend";
-                    ego.chosenAction = "Defend";
+                    if (egoCombatOptions[1].text == "Maneuver")
+                    {
+                        ego.displayAction = "Maneuver";
+                        ego.chosenAction = "Maneuver";
+                    }
+                    else
+                    {
+                        ego.displayAction = "Defend";
+                        ego.chosenAction = "Defend";
+                    }
                     actionSelected = true;
                 }
                 //Delay
@@ -1631,9 +1894,7 @@ public class Combat : MonoBehaviour
 
                     //testing status, inventory, and badguy deaths
                     AddEffect(ego, 1, Instantiate(allEffects[0]));
-                    AddEffect(ego, 1, Instantiate(allEffects[1]));
                     AddEffect(ego, 1, Instantiate(allEffects[2]));
-                    AddEffect(ego, 1, Instantiate(allEffects[3]));
                     AddEffect(ego, 1, Instantiate(allEffects[4]));
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[0]);
                     controller.interactableItems.inventory.Add(controller.registerObjects.allItems[1]);

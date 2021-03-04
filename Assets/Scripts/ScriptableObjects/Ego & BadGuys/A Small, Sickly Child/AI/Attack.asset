@@ -15,7 +15,7 @@ MonoBehaviour:
   title: Attack
   likelihood: 30
   messages:
-  - The Creeper in the Dark stabs at you,
+  - A Small, Sickly Child swings his crutch at you,
   effect: {fileID: 0}
   target: ego
   beneficial: 0
