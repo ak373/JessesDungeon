@@ -37,7 +37,7 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
+    public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
     public AudioSource sicklyMusic, creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
@@ -307,6 +307,10 @@ public class Combat : MonoBehaviour
     {
         for (int i = 0; i < turnOrder.Length; i++)
         {
+            StartCoroutine(CheckTheDead());
+            yield return new WaitUntil(DeadCheckComplete);
+            yield return new WaitForSeconds(.01f);
+            deadCheckComplete = false;
             actionSelected = false;
             if (deadThisRound.Contains(turnOrder[i])) { actionSelected = true; }
             else if (activeBadGuys[0] != null && turnOrder[i] == activeBadGuys[0])
@@ -740,7 +744,12 @@ public class Combat : MonoBehaviour
                 actionComplete = false;
             }
         }
+        StartCoroutine(CheckTheDead());
+        yield return new WaitUntil(DeadCheckComplete);
+        yield return new WaitForSeconds(.01f);
+        deadCheckComplete = false;
         StartCoroutine(EndTurn());
+
 
         void RemoveFlank()
         {
@@ -1443,13 +1452,14 @@ public class Combat : MonoBehaviour
             }            
         }
         //play correct sound
-        if (effect.duration == -1)
+        if (effect.title == "Guarded" || effect.title == "Lurk") { }//no sound
+        else if (effect.duration == -1)
         {
             if (effect.beneficial) { goodInstant.Play(); }
             else { badInstant.Play(); }
         }
         else if (priorityEffect != null) { blockEffect.Play(); }
-        else if (effect.title != "Guarded" && effect.title != "Lurk")//defend & Lurk don't get a sound effect
+        else
         {
             if (effect.beneficial) { goodEffect.Play(); }
             else { badEffect.Play(); }
@@ -3356,7 +3366,7 @@ public class Combat : MonoBehaviour
         }
         activateBattleLogComplete = true;
     }
-    IEnumerator BattleMessage(int startingCharacter)
+    IEnumerator BattleMessage(int startingCharacter, float characterPause = 0.025f)
     {
         int totalVisibleCharacters = battleText.textInfo.characterCount;
         int counter = startingCharacter;
@@ -3375,7 +3385,7 @@ public class Combat : MonoBehaviour
             if (visibleCount >= totalVisibleCharacters) { break; }
             counter += 1;
 
-            yield return new WaitForSeconds(0.025f);
+            yield return new WaitForSeconds(characterPause);
         }
         endingCharacter = counter;
         messageComplete = true;
@@ -3696,9 +3706,47 @@ public class Combat : MonoBehaviour
                     yield return new WaitForSeconds(.5f);
                     battleLogGreyScreen.SetActive(false);
                 }
-            }            
+            }
         }
         deadCheckComplete = true;
+        if (ego.allStats[0].value == 0)
+        {
+            deadCheckComplete = false;
+            StartCoroutine(EgoDead());
+        }
+    }
+    IEnumerator EgoDead()
+    {
+        yield return new WaitForSeconds(.25f);
+        currentTheme.Stop();
+        loseBattle.Play();
+        fightOverFade.SetActive(true);
+        battleLog.SetActive(true);
+        battleText.text = $"You've fallen in battle.";
+        yield return new WaitForSeconds(.01f);
+        messageComplete = false;
+        StartCoroutine(BattleMessage(0, 0.05f));
+        yield return new WaitUntil(MessageComplete);
+        yield return new WaitForSeconds(1f);
+        fightOverFadedScreen.SetActive(true);
+        fightOverFade.SetActive(false);
+        yield return new WaitForSeconds(1.25f);
+        continueArrow.SetActive(true);
+        yield return new WaitUntil(controller.EnterPressed);
+        continueArrow.SetActive(false);
+        yield return new WaitForSeconds(.1f);
+        battleLogGreyScreen.SetActive(true);
+        yield return new WaitForSeconds(.5f);
+        battleLog.SetActive(false);
+        yield return new WaitForSeconds(.3f);
+        fightOverWhiteScreen.SetActive(true);
+        yield return new WaitForSeconds(.2f);
+        battleLogGreyScreen.SetActive(false);
+        yield return new WaitForSeconds(.5f);
+        loseBattle.Stop();
+        //fightOverWhiteScreen.SetActive(false);
+        //return to game
+        StopAllCoroutines();
     }
     IEnumerator ClearTheDead(BadGuy deadGuy)
     {
@@ -3824,6 +3872,8 @@ public class Combat : MonoBehaviour
             }            
         }
         curHPEgo.text = ego.allStats[0].value.ToString();
+        //ego die
+        //if (ego.allStats[0].value == 0 && !actionSelected) { StartCoroutine(EgoDead()); }
 
         //turn order actions
         for (int i = 0; i < turnOrderActions.Length; i++)
