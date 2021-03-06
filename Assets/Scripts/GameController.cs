@@ -134,6 +134,7 @@ public class GameController : MonoBehaviour
         ego.allStats[10].value = 0;
         for (int i = 0; i < ego.allStats.Length; i++) { ego.allStats[i].effectValue = 0; }        
         ego.activeEffects.Clear();
+        ego.defeatedBadGuys.Clear();
         ego.blueCrystals = 0;
         ego.bankedCrystals = 0;
         ego.fightClubRank = 0;

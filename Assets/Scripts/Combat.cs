@@ -75,6 +75,9 @@ public class Combat : MonoBehaviour
 
         //testing purposes
         InitiateCombat(testBadGuy, testNumber);
+        ego.defeatedBadGuys.Add(allBadGuys[1]);
+        ego.defeatedBadGuys.Add(allBadGuys[2]);
+        ego.defeatedBadGuys.Add(allBadGuys[3]);
     }
 
     // Stat elements in character arrays
@@ -486,32 +489,43 @@ public class Combat : MonoBehaviour
                         string text1 = "You attempt to maneuver,";
                         string text2 = "";
                         AudioSource sound = blockEffect;
-                        activateBattleLogComplete = false;
-                        StartCoroutine(ActivateBattleLog(text1));
-                        yield return new WaitUntil(ActivateBattleLogComplete);
-                        activateBattleLogComplete = false;
-                        if (availableSlots == 0)
-                        {
-                            blockEffect.Play();
-                            text2 = "but there's just too many of them!";
-                        }
+
+                        battleLog.SetActive(true);
+                        battleText.text = text1;
+                        yield return new WaitForSeconds(.01f);
+                        messageComplete = false;
+                        StartCoroutine(BattleMessage(0));
+                        yield return new WaitUntil(MessageComplete);
+                        yield return new WaitForSeconds(.5f);
+                        //outcome based on availableSlots
+                        if (availableSlots == 0) { text2 = "but there's just too many of them!"; }
                         else if (availableSlots == 1)
                         {
                             RemoveFlank();
-                            goodEffect.Play();
+                            sound = goodEffect;
                             if (totalFlanks == 1) { text2 = "and deftly step out of your compromised position."; }
                             else { text2 = "and manage to slip one of them."; }
                         }
                         else
                         {
                             RemoveFlank();
-                            goodEffect.Play();
+                            sound = goodEffect;
                             text2 = "and deftly step out of your compromised position.";
                             if (totalFlanks == 2) { RemoveFlank(); }
                         }
-                        StartCoroutine(ActivateBattleLog(text2));
-                        yield return new WaitUntil(ActivateBattleLogComplete);
-                        activateBattleLogComplete = false;
+                        //second half of text
+                        sound.Play();
+                        battleText.text += " " + text2;
+                        yield return new WaitForSeconds(.01f);
+                        messageComplete = false;
+                        StartCoroutine(BattleMessage(endingCharacter));
+                        yield return new WaitUntil(MessageComplete);
+                        yield return new WaitForSeconds(1.25f);
+                        battleLogGreyScreen.SetActive(true);
+                        yield return new WaitForSeconds(.5f);
+                        battleLog.SetActive(false);
+                        yield return new WaitForSeconds(.5f);
+                        battleLogGreyScreen.SetActive(false);
                         actionComplete = true;
                     }
                     //Execute Equip
@@ -716,7 +730,11 @@ public class Combat : MonoBehaviour
                         potionComplete = false;
                         actionComplete = true;
                     }
-                    else { StartCoroutine(SpecialAbility(currentTurn)); }
+                    else
+                    {
+                        //if (turnOrder[i].displayAction == "Defend") { AddEffect(turnOrder[i], i, turnOrder[i].chosenAbility.effect); }
+                        StartCoroutine(SpecialAbility(currentTurn));
+                    }
                 }
                 yield return new WaitUntil(ActionComplete);
                 actionComplete = false;
@@ -737,7 +755,7 @@ public class Combat : MonoBehaviour
                     {
                         if (activeBadGuys[i] != null)
                         {
-                            if (activeBadGuys[i].combatBorder == slot2a) { badGuyAB = activeBadGuys[i]; }
+                            if (activeBadGuys[i].combatSlot == slot2a) { badGuyAB = activeBadGuys[i]; }
                         }
                     }
                 }
@@ -747,7 +765,7 @@ public class Combat : MonoBehaviour
                     {
                         if (activeBadGuys[i] != null)
                         {
-                            if (activeBadGuys[i].combatBorder == slot2b) { badGuyAB = activeBadGuys[i]; }
+                            if (activeBadGuys[i].combatSlot == slot2b) { badGuyAB = activeBadGuys[i]; }
                         }
                     }
                 }
@@ -1431,7 +1449,7 @@ public class Combat : MonoBehaviour
             else { badInstant.Play(); }
         }
         else if (priorityEffect != null) { blockEffect.Play(); }
-        else if (effect.title != "Guarded")//defend doesn't get a sound effect
+        else if (effect.title != "Guarded" && effect.title != "Lurk")//defend & Lurk don't get a sound effect
         {
             if (effect.beneficial) { goodEffect.Play(); }
             else { badEffect.Play(); }
@@ -3323,6 +3341,7 @@ public class Combat : MonoBehaviour
         //one parter
         else
         {
+            if (effect != null) { AddEffect(target, caster.currentTurnOrder, effect); }
             battleText.text = text1;
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
@@ -3524,12 +3543,18 @@ public class Combat : MonoBehaviour
                     battleText.text += $"\n\nThe ";
                     //determine syntax
                     List<Item> condensedLootList = new List<Item>();
-                    List<int> condensedLootListNumbers = new List<int>();                    
+                    List<int> condensedLootListNumbers = new List<int>();
+                    bool skipList = false;
                     for (int i = 0; i < lootBox.Count; i++)
                     {
-                        if (condensedLootList.Contains(lootBox[i])) { continue; }
+                        for (int j = 0; j < condensedLootList.Count; j++)
+                        {
+                            if (lootBox[i].nome == condensedLootList[j].nome) { skipList = true; }
+                        }
+                        if (skipList) { continue; }
                         else
                         {
+                            skipList = false;
                             int counter = 0;
                             for (int j = i; j < lootBox.Count; j++)
                             {
@@ -3539,12 +3564,6 @@ public class Combat : MonoBehaviour
                             condensedLootListNumbers.Add(counter);
                         }
                     }
-                    //for (int i = 0; i < condensedLootList.Count; i++)
-                    //{
-                    //    Debug.Log(condensedLootList[i]);
-                    //}
-                    
-                    
                     //now apply syntax
                     if (condensedLootList.Count == 1)
                     {
@@ -3649,6 +3668,20 @@ public class Combat : MonoBehaviour
             {
                 if (activeBadGuys[i].allStats[0].value == 0 && !deadThisRound.Contains(activeBadGuys[i]))
                 {
+                    //remove flank effect if applicable
+                    if (activeBadGuys[i].combatSlot == slotFlank1 || activeBadGuys[i].combatSlot == slotFlank2)
+                    {
+                        Effect removingFlank = null;
+                        for (int j = 0; j < ego.activeEffects.Count; j++)
+                        {
+                            if (ego.activeEffects[j].title == "Flanked")
+                            {
+                                removingFlank = ego.activeEffects[j];
+                                break;
+                            }
+                        }
+                        RemoveEffect(ego, removingFlank);
+                    }                    
                     StartCoroutine(ClearTheDead(activeBadGuys[i]));
                     battleLog.SetActive(true);
                     battleText.text = $"{activeBadGuys[i].nome} has been defeated!";

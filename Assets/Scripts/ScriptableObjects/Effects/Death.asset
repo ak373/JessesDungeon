@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Death
   abbreviation: 
-  priorityLine: 
+  priorityLine: None
   allStatsNumber: 1
   allStatsNumber2: -1
   potency: -32000

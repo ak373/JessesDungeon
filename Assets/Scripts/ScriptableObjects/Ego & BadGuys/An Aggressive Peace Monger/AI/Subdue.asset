@@ -17,7 +17,7 @@ MonoBehaviour:
   messages:
   - An Aggressive Peace Monger approaches you with his hands up and begins to list
     the reasons why war is wrong.
-  - There is no arguing with him. You feel your will to fight waning!
+  - You feel your will to fight waning!
   effect: {fileID: 11400000, guid: 3ba80fd32ec426046b4abe3321f9c256, type: 2}
   target: ego
   beneficial: 0
