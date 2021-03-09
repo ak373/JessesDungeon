@@ -218,7 +218,18 @@ public class GameController : MonoBehaviour
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
         Canvas.ForceUpdateCanvases();
     }
-
+    IEnumerator Narrator(string response)
+    {
+        inputBox.SetActive(false);
+        displayText.text += "\n\n\n-------------------------------------\n\n" + response + "\n\n\nPress ENTER to continue.";
+        ForceTextWindowDown();
+        yield return new WaitForSeconds(.25f);
+        yield return new WaitUntil(EnterPressed);
+        inputBox.SetActive(true);
+        textInput.inputField.ActivateInputField();
+        textInput.inputField.text = null;
+        DisplayRoomText();
+    }
     public void DisplayNarratorResponse(string response)
     {
         escToContinue = false;
@@ -484,23 +495,17 @@ public class GameController : MonoBehaviour
     public void OverwriteMainWindow(string toDisplay)
     {
         displayText.text = toDisplay;
-        Canvas.ForceUpdateCanvases();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
-        Canvas.ForceUpdateCanvases();
+        ForceTextWindowUp();
     }
     public void AddToMainWindow(string toDisplay)
     {
         displayText.text += toDisplay;
-        Canvas.ForceUpdateCanvases();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
-        Canvas.ForceUpdateCanvases();
+        ForceTextWindowDown();
     }
     public void AddToMainWindowWithLine(string toDisplay)
     {
         displayText.text += "\n\n\n-------------------------------------\n\n" + toDisplay;
-        Canvas.ForceUpdateCanvases();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
-        Canvas.ForceUpdateCanvases();
+        ForceTextWindowDown();
     }
     public void WriteItemToPopUpWindow(Item item)
     {
@@ -915,17 +920,6 @@ public class GameController : MonoBehaviour
     public bool LeftRightEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
     public bool UpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
 
-    //public void EnterToContinueDialogue()
-    //{
-    //    timeDelay = Time.time;
-    //    string sentence = sentences.Dequeue();
-    //    if (sentences.Count == 0) { DisplayNarratorResponse(sentence); }
-    //    else
-    //    {
-    //        enterToContinueDialogue = true;
-    //        AddToMainWindowWithLine(sentence);
-    //    }
-    //}
     public void SnatchInput(string fromTextInput) { userInput = fromTextInput; }
 
 

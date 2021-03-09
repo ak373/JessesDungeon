@@ -74,10 +74,10 @@ public class Combat : MonoBehaviour
         deadCheckComplete = false;
 
         //testing purposes
-        InitiateCombat(testBadGuy, testNumber);
-        ego.defeatedBadGuys.Add(allBadGuys[1]);
-        ego.defeatedBadGuys.Add(allBadGuys[2]);
-        ego.defeatedBadGuys.Add(allBadGuys[3]);
+        //InitiateCombat(testBadGuy, testNumber);
+        //ego.defeatedBadGuys.Add(allBadGuys[1]);
+        //ego.defeatedBadGuys.Add(allBadGuys[2]);
+        //ego.defeatedBadGuys.Add(allBadGuys[3]);
     }
 
     // Stat elements in character arrays
