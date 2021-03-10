@@ -13,18 +13,18 @@ using TMPro;
 
 public class GameController : MonoBehaviour
 {
-    [HideInInspector] public bool enterToContinue;
-    [HideInInspector] public bool fakeEnterToContinue;
-    [HideInInspector] public bool escToContinue;
-    [HideInInspector] public bool toResumeEscToContinue;
-    [HideInInspector] public bool exitPopUp;
-    [HideInInspector] public float timeDelay;
-    [HideInInspector] public bool dropIt;
-    [HideInInspector] public bool dropItNot;
-    [HideInInspector] public Item droppingItem;
-    [HideInInspector] public bool pauseIt;
-    [HideInInspector] public bool pauseItForUndroppable;
-    [HideInInspector] public bool pauseItForDrop;
+    //[HideInInspector] public bool enterToContinue;
+    //[HideInInspector] public bool fakeEnterToContinue;
+    //[HideInInspector] public bool escToContinue;
+    //[HideInInspector] public bool toResumeEscToContinue;
+    //[HideInInspector] public bool exitPopUp;
+    //[HideInInspector] public float timeDelay;
+    //[HideInInspector] public bool dropIt;
+    //[HideInInspector] public bool dropItNot;
+    //[HideInInspector] public Item droppingItem;
+    //[HideInInspector] public bool pauseIt;
+    //[HideInInspector] public bool pauseItForUndroppable;
+    //[HideInInspector] public bool pauseItForDrop;
     [HideInInspector] public bool hasBubbleLead;
     [HideInInspector] public bool secondQuestActive;
     [HideInInspector] public float scrollRectValue;
@@ -53,6 +53,7 @@ public class GameController : MonoBehaviour
     public TMP_Text invDisplayCritResist;
     public TMP_Text invDisplayDmgReduction;
     public GameObject inputBox, displayBox;
+    public InputField inputField;
     public GameObject popUpBox;
     public Scrollbar scrollBar;
     public Button scrollUpArrow, scrollDownArrow, scrollNonArrow;
@@ -110,10 +111,10 @@ public class GameController : MonoBehaviour
         achievements = GetComponent<Achievements>();
         teleType = GetComponent<TeleType>();
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0.5f;
-        enterToContinue = false;
-        escToContinue = false;
-        toResumeEscToContinue = false;
-        exitPopUp = false;
+        //enterToContinue = false;
+        //escToContinue = false;
+        //toResumeEscToContinue = false;
+        //exitPopUp = false;
         debugMode = false;
         secondQuestActive = false;
         currentActiveInput = "main";
@@ -148,7 +149,7 @@ public class GameController : MonoBehaviour
         ego.chosenTarget = null;
         ego.potionBelt.Clear();
     //enterToContinueDialogue = false;
-    timeDelay = 1;
+    //timeDelay = 1;
         sentences = new Queue<string>();
         pauses = new Queue<int>();
         //ego = Instantiate(ego);
@@ -218,7 +219,7 @@ public class GameController : MonoBehaviour
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
         Canvas.ForceUpdateCanvases();
     }
-    IEnumerator Narrator(string response)
+    public IEnumerator Narrator(string response)
     {
         inputBox.SetActive(false);
         displayText.text += "\n\n\n-------------------------------------\n\n" + response + "\n\n\nPress ENTER to continue.";
@@ -230,14 +231,14 @@ public class GameController : MonoBehaviour
         textInput.inputField.text = null;
         DisplayRoomText();
     }
-    public void DisplayNarratorResponse(string response)
-    {
-        escToContinue = false;
-        enterToContinue = true;
-        inputBox.SetActive(false);
-        displayText.text += "\n\n\n-------------------------------------\n\n" + response + "\n\n\nPress ENTER to continue.";
-        ForceTextWindowDown();
-    }
+    //public void DisplayNarratorResponse(string response)
+    //{
+    //    escToContinue = false;
+    //    enterToContinue = true;
+    //    inputBox.SetActive(false);
+    //    displayText.text += "\n\n\n-------------------------------------\n\n" + response + "\n\n\nPress ENTER to continue.";
+    //    ForceTextWindowDown();
+    //}
     public void InitiateMultiLineResponse(string[] responseLines, float[] responsePauses)
     {
         inputBox.SetActive(false);
@@ -294,12 +295,12 @@ public class GameController : MonoBehaviour
         {
             if (sentences.Count == 0)
             {
-                if (currentActiveInput == "main") { DisplayRoomText(); }
-                else if (currentActiveInput == "inventory")
-                {
-                    escToContinue = true;
-                    interactableItems.DisplayInventory();
-                }
+                DisplayRoomText();
+                //else if (currentActiveInput == "inventory")
+                //{
+                //    escToContinue = true;
+                //    interactableItems.DisplayInventory();
+                //}
                 inputBox.SetActive(true);
                 textInput.inputField.ActivateInputField();
                 textInput.inputField.text = null;
@@ -334,12 +335,12 @@ public class GameController : MonoBehaviour
                 textInput.inputField.ActivateInputField();
                 textInput.inputField.text = null;
 
-                if (currentActiveInput == "main") { DisplayRoomText(); }
-                else if (currentActiveInput == "inventory")
-                {
-                    escToContinue = true;
-                    interactableItems.DisplayInventory();
-                }
+                DisplayRoomText();
+                //else if (currentActiveInput == "inventory")
+                //{
+                //    escToContinue = true;
+                //    interactableItems.DisplayInventory();
+                //}
                 break;
             }
             int pause = pauses.Dequeue();
@@ -486,12 +487,12 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void LockInputForEnter()
-    {
-        escToContinue = false;
-        enterToContinue = true;
-        inputBox.SetActive(false);
-    }
+    //public void LockInputForEnter()
+    //{
+    //    escToContinue = false;
+    //    enterToContinue = true;
+    //    inputBox.SetActive(false);
+    //}
     public void OverwriteMainWindow(string toDisplay)
     {
         displayText.text = toDisplay;
@@ -536,7 +537,7 @@ public class GameController : MonoBehaviour
             popUpItemStatTwo.text = "Crit Resist: x" + shield.critResist.ToString();
         }
     }
-    public void OpenPopUpWindow(string title, string description, string message, string opt1, string yes, string opt2, string no, string closer)
+    public void OpenPopUpWindow(string title = null, string description = null, string message = null, string opt1 = null, string yes = null, string opt2 = null, string no = null, string closer = null)
     {
         popUpBox.SetActive(true);
         popUpTitle.text = title;
@@ -561,30 +562,30 @@ public class GameController : MonoBehaviour
         popUpEsc.text = "";
     }
 
-    public void InspectItem(string itemName)
-    {
-        Item itemToInspect = null;
-        for (int i = 0; i < interactableItems.inventory.Count; i++)
-        {
-            if (itemName == interactableItems.inventory[i].nome)
-            {
-                itemToInspect = interactableItems.inventory[i];
-                break;
-            }
-        }
-        if (itemToInspect == null && ego.equippedWeapon != null && ego.equippedWeapon.nome == itemName) { itemToInspect = ego.equippedWeapon; }
-        if (itemToInspect == null && ego.equippedArmor != null && ego.equippedArmor.nome == itemName) { itemToInspect = ego.equippedArmor; }
-        if (itemToInspect == null && ego.equippedShield != null && ego.equippedShield.nome == itemName) { itemToInspect = ego.equippedShield; }
-        if (itemToInspect == null) { DisplayNarratorResponse("On closer inspection, you see it's not there."); }
-        else
-        {
-            WriteItemToPopUpWindow(itemToInspect);
-            toResumeEscToContinue = true;
-            exitPopUp = true;
-            inputBox.SetActive(false);
-            popUpBox.SetActive(true);
-        }
-    }
+    //public void InspectItem(string itemName)
+    //{
+    //    Item itemToInspect = null;
+    //    for (int i = 0; i < interactableItems.inventory.Count; i++)
+    //    {
+    //        if (itemName == interactableItems.inventory[i].nome)
+    //        {
+    //            itemToInspect = interactableItems.inventory[i];
+    //            break;
+    //        }
+    //    }
+    //    if (itemToInspect == null && ego.equippedWeapon != null && ego.equippedWeapon.nome == itemName) { itemToInspect = ego.equippedWeapon; }
+    //    if (itemToInspect == null && ego.equippedArmor != null && ego.equippedArmor.nome == itemName) { itemToInspect = ego.equippedArmor; }
+    //    if (itemToInspect == null && ego.equippedShield != null && ego.equippedShield.nome == itemName) { itemToInspect = ego.equippedShield; }
+    //    if (itemToInspect == null) { DisplayNarratorResponse("On closer inspection, you see it's not there."); }
+    //    else
+    //    {
+    //        WriteItemToPopUpWindow(itemToInspect);
+    //        toResumeEscToContinue = true;
+    //        exitPopUp = true;
+    //        inputBox.SetActive(false);
+    //        popUpBox.SetActive(true);
+    //    }
+    //}
     public void GetEquipped(Weapon newWeapon)
     {
         if (ego.equippedWeapon != null) { interactableItems.inventory.Add(ego.equippedWeapon); }
@@ -663,43 +664,43 @@ public class GameController : MonoBehaviour
         }
         return null;
     }
-    public void InitiateDropItem(Item itemToDrop) { StartCoroutine(DropItem(itemToDrop)); }
-    IEnumerator DropItem(Item itemToDrop)
-    {
-        currentActiveInput = "yesno";
-        OpenPopUpWindow("Drop " + itemToDrop.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
-        while (true)
-        {
-            userInput = null;
-            while (stupidEnterGlitch)
-            {
-                yield return new WaitForSeconds(.25f);
-                break;
-            }
-            yield return new WaitUntil(InputGiven);
-            if (userInput == "yes" || userInput == "no")
-            {
-                currentActiveInput = "inventory";
-                popUpText.text = null;
-                popUpBox.SetActive(false);
-                if (userInput == "yes")
-                {               
-                    if (!interactableItems.inventory.Contains(itemToDrop))
-                    {
-                        if (ego.equippedArmor == itemToDrop) { ego.equippedArmor = null; }
-                        else if (ego.equippedWeapon == itemToDrop) { ego.equippedWeapon = null; }
-                        else if (ego.equippedShield == itemToDrop) { ego.equippedShield = null; }
-                    }
-                    else { interactableItems.inventory.Remove(itemToDrop); }
-                    DisplayNarratorResponse("You drop the " + itemToDrop.nome + ".");
-                }
-                else if (userInput == "no") { DisplayNarratorResponse("Discretion is the better part of valor. Packrat."); }
-                userInput = "";
-                break;
-            }
-            else { AddToMainWindow("\n\nWe don't need a filibuster."); }
-        }
-    }
+    //public void InitiateDropItem(Item itemToDrop) { StartCoroutine(DropItem(itemToDrop)); }
+    //IEnumerator DropItem(Item itemToDrop)
+    //{
+    //    currentActiveInput = "yesno";
+    //    OpenPopUpWindow("Drop " + itemToDrop.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
+    //    while (true)
+    //    {
+    //        userInput = null;
+    //        while (stupidEnterGlitch)
+    //        {
+    //            yield return new WaitForSeconds(.25f);
+    //            break;
+    //        }
+    //        yield return new WaitUntil(InputGiven);
+    //        if (userInput == "yes" || userInput == "no")
+    //        {
+    //            currentActiveInput = "inventory";
+    //            popUpText.text = null;
+    //            popUpBox.SetActive(false);
+    //            if (userInput == "yes")
+    //            {               
+    //                if (!interactableItems.inventory.Contains(itemToDrop))
+    //                {
+    //                    if (ego.equippedArmor == itemToDrop) { ego.equippedArmor = null; }
+    //                    else if (ego.equippedWeapon == itemToDrop) { ego.equippedWeapon = null; }
+    //                    else if (ego.equippedShield == itemToDrop) { ego.equippedShield = null; }
+    //                }
+    //                else { interactableItems.inventory.Remove(itemToDrop); }
+    //                DisplayNarratorResponse("You drop the " + itemToDrop.nome + ".");
+    //            }
+    //            else if (userInput == "no") { DisplayNarratorResponse("Discretion is the better part of valor. Packrat."); }
+    //            userInput = "";
+    //            break;
+    //        }
+    //        else { AddToMainWindow("\n\nWe don't need a filibuster."); }
+    //    }
+    //}
 
     void PrepareInteractablesInRoom(Room currentRoom)
     {
@@ -853,8 +854,9 @@ public class GameController : MonoBehaviour
             }
             else if (sentences.Count == 0)
             {
-                enterToContinue = true;
+                //enterToContinue = true;
                 OverwriteMainWindow(sentence);
+                yield return new WaitUntil(EnterPressed);
                 break;
             }
             else
@@ -881,9 +883,10 @@ public class GameController : MonoBehaviour
             }
             if (sentences.Count == 0)
             {
-                enterToContinue = true;
+                //enterToContinue = true;
                 if (dialogue.townRepeat) { AddToMainWindowWithLine("The remainder of this conversation takes a dark turn.\n\n\nPress ENTER to continue."); }
-                else { OverwriteMainWindow("The remainder of this conversation takes a dark turn.\n\n\n\n\n\n\nPress ENTER to continue."); }               
+                else { OverwriteMainWindow("The remainder of this conversation takes a dark turn.\n\n\n\n\n\n\nPress ENTER to continue."); }
+                yield return new WaitUntil(EnterPressed);
                 break;
             }
             int pause = pauses.Dequeue();
@@ -1007,56 +1010,56 @@ public class GameController : MonoBehaviour
         else if (ego.allStats[0].value > (.75 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = Color.white; }
         if (ego.allStats[0].value > (.1 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { fireTheColor = false; }
 
-        if (enterToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
-        {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                enterToContinue = false;
-                inputBox.SetActive(true);
-                textInput.inputField.ActivateInputField();
-                textInput.inputField.text = null;
+        //if (enterToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Return))
+        //    {
+        //        enterToContinue = false;
+        //        inputBox.SetActive(true);
+        //        textInput.inputField.ActivateInputField();
+        //        textInput.inputField.text = null;
 
-                if (currentActiveInput == "main") { DisplayRoomText(); }
-                else if (currentActiveInput == "inventory")
-                {
-                    escToContinue = true;
-                    interactableItems.DisplayInventory();
-                }
-            }
-        }
-        else if (!enterToContinue && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
-
-        if (escToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                map.mapWindow.SetActive(false);
-                interactableItems.inventoryStats.SetActive(false);
-                inputBox.SetActive(true);
-                DisplayRoomText();
-                currentActiveInput = "main";
-                escToContinue = false;
-                textInput.inputField.ActivateInputField();
-                textInput.inputField.text = null;
-            }
-        }
-        if (exitPopUp && (Time.time - textInput.keyPressDelay >= 0.25))
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                popUpText.text = null;
-                popUpBox.SetActive(false);
-                if (toResumeEscToContinue)
-                {
-                    escToContinue = true;
-                    toResumeEscToContinue = false;
-                }
-                exitPopUp = false;
-                inputBox.SetActive(true);
-                textInput.inputField.ActivateInputField();
-                textInput.inputField.text = null;
-            }
-        }
+        //        if (currentActiveInput == "main") { DisplayRoomText(); }
+        //        //else if (currentActiveInput == "inventory")
+        //        //{
+        //        //    escToContinue = true;
+        //        //    interactableItems.DisplayInventory();
+        //        //}
+        //    }
+        //}
+        //else if (!enterToContinue && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
+        if (!inputField.isFocused && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
+        //if (escToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Escape))
+        //    {
+        //        map.mapWindow.SetActive(false);
+        //        interactableItems.inventoryStats.SetActive(false);
+        //        inputBox.SetActive(true);
+        //        DisplayRoomText();
+        //        currentActiveInput = "main";
+        //        escToContinue = false;
+        //        textInput.inputField.ActivateInputField();
+        //        textInput.inputField.text = null;
+        //    }
+        //}
+        //if (exitPopUp && (Time.time - textInput.keyPressDelay >= 0.25))
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Escape))
+        //    {
+        //        popUpText.text = null;
+        //        popUpBox.SetActive(false);
+        //        if (toResumeEscToContinue)
+        //        {
+        //            escToContinue = true;
+        //            toResumeEscToContinue = false;
+        //        }
+        //        exitPopUp = false;
+        //        inputBox.SetActive(true);
+        //        textInput.inputField.ActivateInputField();
+        //        textInput.inputField.text = null;
+        //    }
+        //}
         //if (enterToContinueDialogue && (Time.time - timeDelay >= .25) && Input.GetKeyDown(KeyCode.Return))
         //{
         //    enterToContinueDialogue = false;
