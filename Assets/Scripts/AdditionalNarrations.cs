@@ -44,7 +44,8 @@ public class AdditionalNarrations : MonoBehaviour
             unlockListenTo = false;
             listenToUnlocked = true;
             controller.ChangeRoomDescription(controller.roomNavigation.currentRoom, 2);
-            controller.DisplayNarratorResponse("Fine.");
+            //controller.DisplayNarratorResponse("Fine.");
+            StartCoroutine(controller.Narrator("Fine."));
         }
         else if (listenToUnlocked && userInput == "listen to voices" && controller.roomNavigation.currentRoom.roomName == "G7")
         {

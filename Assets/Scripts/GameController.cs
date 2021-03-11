@@ -219,6 +219,7 @@ public class GameController : MonoBehaviour
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
         Canvas.ForceUpdateCanvases();
     }
+    public void InitiateNarrator(string response) { StartCoroutine(Narrator(response)); }
     public IEnumerator Narrator(string response)
     {
         inputBox.SetActive(false);

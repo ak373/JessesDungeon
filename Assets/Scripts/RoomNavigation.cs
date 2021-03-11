@@ -30,11 +30,13 @@ public class RoomNavigation : MonoBehaviour
             currentRoom = exitDictionary[direction];
             controller.additionalNarrations.SnatchRoom(currentRoom);
             exitDictionary.Clear();
-            controller.DisplayNarratorResponse("You head to the " + direction + ".");
+            //controller.DisplayNarratorResponse("You head to the " + direction + ".");
+            StartCoroutine(controller.Narrator("You head to the " + direction + "."));
         }
         else
         {
-            controller.DisplayNarratorResponse("Try as you might, but you can't.");
+            //controller.DisplayNarratorResponse("Try as you might, but you can't.");
+            StartCoroutine(controller.Narrator("Try as you might, but you can't."));
         }
     }
 

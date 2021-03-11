@@ -20,7 +20,8 @@ public class DebugMode : MonoBehaviour
         {
             controller.textInput.textIsGood = true;
             controller.debugMode = true;
-            controller.DisplayNarratorResponse("I sure won't be answering my door tonight.");
+            //controller.DisplayNarratorResponse("I sure won't be answering my door tonight.");
+            StartCoroutine(controller.Narrator("I sure won't be answering my door tonight."));
         }
         else if (empireBusiness)
         {
@@ -30,14 +31,17 @@ public class DebugMode : MonoBehaviour
             if (success && crystals >= 0)
             {
                 controller.ego.blueCrystals = crystals;
-                controller.DisplayNarratorResponse("You got it, boss.");
+                //controller.DisplayNarratorResponse("You got it, boss.");
+                StartCoroutine(controller.Narrator("You got it, boss."));
             }
-            else { controller.DisplayNarratorResponse("Hey, oh, heee-y. We sent that figure out to the number guys, and they're telling us it doesn't quite work out."); }
+            //else { controller.DisplayNarratorResponse("Hey, oh, heee-y. We sent that figure out to the number guys, and they're telling us it doesn't quite work out."); }
+            else { StartCoroutine(controller.Narrator("Hey, oh, heee-y. We sent that figure out to the number guys, and they're telling us it doesn't quite work out.")); }
         }
         else if (userInput == "i did it for me" && controller.debugMode)
         {
             controller.textInput.textIsGood = true;
-            controller.DisplayNarratorResponse("I'm in the empire business     Set total blue crystals\nSay my name                    God mode\nTread lightly                  Reveal map\nI'm a knight!                  Endgame equipment set\nRazzle Dazzle Root Beer        Choose equipment\nSuck blue frogs                Choose quest items\nAlt k                          Alter state flags and hero stats\nTeleport to ##                 Teleport to room");
+            //controller.DisplayNarratorResponse("I'm in the empire business     Set total blue crystals\nSay my name                    God mode\nTread lightly                  Reveal map\nI'm a knight!                  Endgame equipment set\nRazzle Dazzle Root Beer        Choose equipment\nSuck blue frogs                Choose quest items\nAlt k                          Alter state flags and hero stats\nTeleport to ##                 Teleport to room");
+            StartCoroutine(controller.Narrator("I'm in the empire business     Set total blue crystals\nSay my name                    God mode\nTread lightly                  Reveal map\nI'm a knight!                  Endgame equipment set\nRazzle Dazzle Root Beer        Choose equipment\nSuck blue frogs                Choose quest items\nAlt k                          Alter state flags and hero stats\nTeleport to ##                 Teleport to room"));
         }
         else if (userInput == "i'm in the empire business" && controller.debugMode)
         {
@@ -52,13 +56,15 @@ public class DebugMode : MonoBehaviour
             controller.ego.allStats[0].value = 125000;
             controller.ego.allStats[3].value = 125000;
             controller.ego.allStats[7].value = 125000;
-            controller.DisplayNarratorResponse("Beetlejuice Beetlejuice BEETLEJUICE!");
+            //controller.DisplayNarratorResponse("Beetlejuice Beetlejuice BEETLEJUICE!");
+            StartCoroutine(controller.Narrator("Beetlejuice Beetlejuice BEETLEJUICE!"));
         }
         else if (userInput == "tread lightly" && controller.debugMode)
         {
             controller.textInput.textIsGood = true;
             for (int i = 0; i < controller.registerRooms.allRooms.Length; i++) { controller.registerRooms.allRooms[i].visited = true; }
-            controller.DisplayNarratorResponse("Black sheep wall!");
+            //controller.DisplayNarratorResponse("Black sheep wall!");
+            StartCoroutine(controller.Narrator("Black sheep wall!"));
         }
     }
 

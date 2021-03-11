@@ -7,7 +7,8 @@ public class OpenMap : InputAction
 {
     public override void RespondToInput(GameController controller, string[] separatedInputWords)
     {
-        if (controller.currentActiveInput == "main" && separatedInputWords.Length == 1) { controller.map.GetMap(); }
-        else { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        if (/*controller.currentActiveInput == "main" && */separatedInputWords.Length == 1) { controller.map.InitiateMap(); }
+        //else { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        else { controller.InitiateNarrator("That didn't do anything useful."); }
     }
 }

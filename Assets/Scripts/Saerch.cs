@@ -20,7 +20,9 @@ public class Saerch : InputAction
                 else { controller.InitiateInputActionResponse(controller.TestVerbDictionaryWithNoun(searchDictionary, separatedInputWords[0], separatedInputWords[1])); }
             }
         }
-        else if (controller.currentActiveInput == "main" && separatedInputWords.Length == 1) { controller.DisplayNarratorResponse("Clowns to the left of me, jokers to the right -- here I am stuck in the middle with you!"); }
-        else { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        //else if (controller.currentActiveInput == "main" && separatedInputWords.Length == 1) { controller.DisplayNarratorResponse("Clowns to the left of me, jokers to the right -- here I am stuck in the middle with you!"); }
+        //else { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        else if (/*controller.currentActiveInput == "main" && */separatedInputWords.Length == 1) { controller.InitiateNarrator("Clowns to the left of me, jokers to the right -- here I am stuck in the middle with you!"); }
+        else { controller.InitiateNarrator("That didn't do anything useful."); }
     }
 }

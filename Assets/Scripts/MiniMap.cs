@@ -17,7 +17,8 @@ public class MiniMap : MonoBehaviour
     {
         controller = GetComponent<GameController>();
     }
-    public void GetMap()
+    public void InitiateMap() { StartCoroutine(GetMap()); }
+    public IEnumerator GetMap()
     {
         controller.inputBox.SetActive(false);
         legend.text = "X: You are here!\n";
@@ -65,7 +66,12 @@ public class MiniMap : MonoBehaviour
             legend.text += "\nF: Fortress";
         }
         mapWindow.SetActive(true);
-        controller.escToContinue = true;
+        //controller.escToContinue = true;
+        yield return new WaitUntil(controller.EscPressed);
+        mapWindow.SetActive(false);
+        controller.inputBox.SetActive(true);
+        controller.textInput.inputField.ActivateInputField();
+        controller.textInput.inputField.text = null;
     }
 
 

@@ -35,7 +35,7 @@ public class TextInput : MonoBehaviour
         additionalNarrations.SnatchInput(userInput);
         controller.debugClass.SnatchInput(userInput);
         controller.npcTalk.SnatchInput(userInput);
-        controller.achievements.SnatchInput(userInput);
+        //controller.achievements.SnatchInput(userInput);
        
         char[] delimiterCharacters = { ' ' };
         string[] separatedInputWords = userInput.Split(delimiterCharacters);
@@ -70,7 +70,8 @@ public class TextInput : MonoBehaviour
         //}
         
         //error input
-        if (!textIsGood && controller.currentActiveInput != "yesno") { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        //if (!textIsGood && controller.currentActiveInput != "yesno") { controller.DisplayNarratorResponse("That didn't do anything useful."); }
+        if (!textIsGood/* && controller.currentActiveInput != "yesno"*/) { StartCoroutine(controller.Narrator("That didn't do anything useful.")); }
         InputComplete();
     }
 
