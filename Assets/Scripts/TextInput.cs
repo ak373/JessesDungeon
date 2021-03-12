@@ -34,7 +34,7 @@ public class TextInput : MonoBehaviour
         controller.SnatchInput(userInput);
         additionalNarrations.SnatchInput(userInput);
         controller.debugClass.SnatchInput(userInput);
-        controller.npcTalk.SnatchInput(userInput);
+        //controller.npcTalk.SnatchInput(userInput);
         //controller.achievements.SnatchInput(userInput);
        
         char[] delimiterCharacters = { ' ' };
