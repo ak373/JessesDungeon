@@ -8,7 +8,7 @@ public class DialogueOption : ScriptableObject
     public string reply;
     public List<string> response = new List<string>();
     public List<DialogueOption> additionalReplies = new List<DialogueOption>();
-    public bool isInternalTree;
+    public List<DialogueOption> parentReplyList;
     public bool availableToSay;
     public bool hasBeenSaid;
 }
