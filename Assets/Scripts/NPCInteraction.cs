@@ -44,18 +44,107 @@ public class NPCInteraction : MonoBehaviour
         if (dialogueTree[7] != null) { reply8.text = dialogueTree[7].reply; }
         if (dialogueTree[8] != null) { reply9.text = dialogueTree[8].reply; }
     }
-    IEnumerator InitiateDialogue(NPC npc)
+    IEnumerator InitiateDialogue(NPC speaker)
     {
-        WriteNPCName(npc.nome);
+        WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
         dialogueBox.SetActive(true);
         dialogueBoxBackground.SetActive(true);
         yield return new WaitForSeconds(.5f);
-        NPCSpeech(npc.openingGreeting);
-        WriteDialogueOptions("Ask about...", "Give item", npc.trade);
-        //and create option selection
+        NPCSpeech(speaker.openingGreeting);
+        StartCoroutine(OptionSelect(speaker));
     }
-    IEnumerator ActivateAskAbout(List<DialogueOption> replyList)
+    IEnumerator OptionSelect(NPC speaker)
+    {
+        WriteDialogueOptions(speaker.options[0], speaker.options[1], speaker.options[2], speaker.options[3]);
+
+        int selectedElement = 0;
+        int memoryElement = -1;
+        string plainOption1 = option1.text;
+        string plainOption2 = option2.text;
+        string plainOption3 = option3.text;
+        string plainOption4 = option4.text;
+        
+        while (true)
+        {
+            if (memoryElement != -1) { selectedElement = memoryElement; }
+            if (selectedElement < 0) { selectedElement = 3; }
+            if (selectedElement > 3) { selectedElement = 0; }
+
+            option1.text = plainOption1;
+            option2.text = plainOption2;
+            option3.text = plainOption3;
+            option4.text = plainOption4;
+
+            if (selectedElement == 0) { option1.text = $"<color=yellow>{option1.text}</color>"; }
+            else if (selectedElement == 1) { option2.text = $"<color=yellow>{option2.text}</color>"; }
+            else if (selectedElement == 2) { option3.text = $"<color=yellow>{option3.text}</color>"; }
+            else if (selectedElement == 3) { option4.text = $"<color=yellow>{option4.text}</color>"; }
+
+            yield return new WaitUntil(controller.UpDownEnterEscPressed);
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                controller.interactableItems.cursorMove.Play();
+                selectedElement--;
+                if (option4.text == null && selectedElement == 3) { selectedElement = 2; }
+                if (option3.text == null && selectedElement == 2) { selectedElement = 1; }
+                if (option2.text == null && selectedElement == 1) { selectedElement = 0; }
+                if (option1.text == null && selectedElement == 0) { selectedElement = 3; }
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                controller.interactableItems.cursorMove.Play();
+                selectedElement++;
+                if (option1.text == null && selectedElement == 0) { selectedElement = 1; }
+                if (option2.text == null && selectedElement == 1) { selectedElement = 2; }
+                if (option3.text == null && selectedElement == 2) { selectedElement = 3; }
+                if (option4.text == null && selectedElement == 3) { selectedElement = 0; }
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                controller.interactableItems.cursorCancel.Play();
+                option1.text = plainOption1;
+                option2.text = plainOption2;
+                option3.text = plainOption3;
+                option4.text = plainOption4;
+                controller.UnlockUserInput();
+                break;
+            }
+            else if (Input.GetKeyDown(KeyCode.Return))
+            {
+                if (selectedElement == 0)
+                {
+                    memoryElement = selectedElement;
+                    controller.interactableItems.cursorSelect.Play();
+                    StartCoroutine(ActivateAskAbout(speaker.askAbout, speaker));
+                }
+                else if (selectedElement == 1)
+                {
+                    memoryElement = selectedElement;
+                    controller.interactableItems.cursorSelect.Play();
+                    /*give item*/
+                }
+                else if (selectedElement == 2)
+                {
+                    memoryElement = selectedElement;
+                    controller.interactableItems.cursorSelect.Play();
+                    /*npc trade*/
+                }
+                else if (selectedElement == 3)
+                {
+                    controller.interactableItems.cursorCancel.Play();
+                    option1.text = plainOption1;
+                    option2.text = plainOption2;
+                    option3.text = plainOption3;
+                    option4.text = plainOption4;
+                    controller.UnlockUserInput();
+                }
+                break;
+            }
+        }
+    }
+    IEnumerator GiveItem(NPC receiver)
+    IEnumerator ActivateAskAbout(List<DialogueOption> replyList, NPC speaker)
     {
         WriteDialogueReplies(replyList);
         int selectedElement = 0;
@@ -132,9 +221,9 @@ public class NPCInteraction : MonoBehaviour
                     replyBoxFade.SetActive(false);
                     replyBox.SetActive(false);
                     replyBoxBackground.SetActive(false);
-                    //reactivate option select
+                    StartCoroutine(OptionSelect(speaker));
                 }
-                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplyList)); }
+                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplyList, speaker)); }
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
@@ -144,12 +233,12 @@ public class NPCInteraction : MonoBehaviour
                 StartCoroutine(NPCSpeech(replyList[selectedElement].response));
                 if (replyList[selectedElement].additionalReplies.Count == 0)
                 {
-                    StartCoroutine(ActivateAskAbout(replyList));
+                    StartCoroutine(ActivateAskAbout(replyList, speaker));
                 }
                 else
                 {
                     memoryElement = -1;
-                    StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies));
+                    StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies, speaker));
                 }
                 break;
             }
@@ -199,10 +288,10 @@ public class NPCInteraction : MonoBehaviour
         endingCharacter = counter;
         messageComplete = true;
     }
-    void SwitchAskAboutTree(List<DialogueOption> tree)
+    void SwitchAskAboutTree(List<DialogueOption> tree, NPC speaker)
     {
         StopCoroutine(askAbout);
-        askAbout = ActivateAskAbout(tree);
+        askAbout = ActivateAskAbout(tree, speaker);
         StartCoroutine(askAbout);
     }
     void AddNPCText(string text)

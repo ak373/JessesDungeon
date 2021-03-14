@@ -232,6 +232,13 @@ public class GameController : MonoBehaviour
         textInput.inputField.text = null;
         DisplayRoomText();
     }
+    public void UnlockUserInput()
+    {
+        inputBox.SetActive(true);
+        textInput.inputField.ActivateInputField();
+        textInput.inputField.text = null;
+        DisplayRoomText();
+    }
     //public void DisplayNarratorResponse(string response)
     //{
     //    escToContinue = false;
