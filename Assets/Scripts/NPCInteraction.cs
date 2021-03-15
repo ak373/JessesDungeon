@@ -1,23 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Globalization;
 using TMPro;
 
 public class NPCInteraction : MonoBehaviour
 {
-    public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, continueArrow;
+    public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
+    public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, option1, option2, option3, option4;
 
+    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, currentTwoHanded, newTwoHanded;
+    public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
+
     int endingCharacter;
-    bool messageComplete;
+    bool messageComplete, npcSpeechComplete, inventoryClosed;
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences;
+    Ego ego;
+    Item selectedItem;
+    List<string> nullItem = new List<string>();
 
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<GameController>();
+        nullItem.Add("Oh, I'm wrong");
     }
 
     void WriteNPCName(string name, int boxNumber = 1)
@@ -46,6 +55,7 @@ public class NPCInteraction : MonoBehaviour
     }
     IEnumerator InitiateDialogue(NPC speaker)
     {
+        optionBoxGreyFilter.SetActive(true);
         WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
         dialogueBox.SetActive(true);
@@ -56,6 +66,7 @@ public class NPCInteraction : MonoBehaviour
     }
     IEnumerator OptionSelect(NPC speaker)
     {
+        optionBoxGreyFilter.SetActive(false);
         WriteDialogueOptions(speaker.options[0], speaker.options[1], speaker.options[2], speaker.options[3]);
 
         int selectedElement = 0;
@@ -102,6 +113,7 @@ public class NPCInteraction : MonoBehaviour
             }
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
+                optionBoxGreyFilter.SetActive(true);
                 controller.interactableItems.cursorCancel.Play();
                 option1.text = plainOption1;
                 option2.text = plainOption2;
@@ -112,6 +124,7 @@ public class NPCInteraction : MonoBehaviour
             }
             else if (Input.GetKeyDown(KeyCode.Return))
             {
+                optionBoxGreyFilter.SetActive(true);
                 if (selectedElement == 0)
                 {
                     memoryElement = selectedElement;
@@ -122,13 +135,13 @@ public class NPCInteraction : MonoBehaviour
                 {
                     memoryElement = selectedElement;
                     controller.interactableItems.cursorSelect.Play();
-                    /*give item*/
+                    StartCoroutine(GiveItem(speaker));
                 }
                 else if (selectedElement == 2)
                 {
                     memoryElement = selectedElement;
                     controller.interactableItems.cursorSelect.Play();
-                    /*npc trade*/
+                    NPCTradeDistributor(speaker);
                 }
                 else if (selectedElement == 3)
                 {
@@ -144,6 +157,487 @@ public class NPCInteraction : MonoBehaviour
         }
     }
     IEnumerator GiveItem(NPC receiver)
+    {
+        npcSpeechComplete = false;
+        StartCoroutine(NPCSpeech(receiver.giveItemResponse));
+        yield return new WaitUntil(NPCSpeechComplete);
+        npcSpeechComplete = false;
+        inventoryClosed = false;
+        StartCoroutine(DisplayInventory());
+        yield return new WaitUntil(InventoryClosed);
+        inventoryClosed = false;
+        if (selectedItem != null)
+        {
+            //good point. what happens??
+        }
+        else
+        {
+            npcSpeechComplete = false;
+            StartCoroutine(NPCSpeech(nullItem));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            StartCoroutine(OptionSelect(receiver));
+        }
+    }
+    void NPCTradeDistributor(NPC npc)
+    {
+        //if npc.trade == thing {activate correct coroutine
+    }
+    string WriteShoppingList(List<Item> itemList)
+    {
+        string writtenList = "";
+        string price = "";
+        for (int i = 0; i < itemList.Count; i++)
+        {
+            if (itemList[i].price < 10) { price = $"{itemList[i].price}   "; }
+            else if (itemList[i].price < 100) { price = $"{itemList[i].price}  "; }
+            else if (itemList[i].price < 1000) { price = $"{itemList[i].price} "; }
+            else if (itemList[i].price < 10000) { price = $"{itemList[i].price}"; }
+            writtenList += $"{price} - {itemList[i].nome}\n";
+        }
+        return writtenList;
+    }
+    public void ShopStats(Item itemSelected)
+    {
+        currentTwoHanded.SetActive(false);
+        newTwoHanded.SetActive(false);
+        currentType.text = "";
+        newType.text = "";
+        string sign = "+";
+
+        //update new item and equipped stat display
+        newItemTitle.text = itemSelected.nome;
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            if (ego.equippedWeapon != null) { equippedItemTitle.text = ego.equippedWeapon.nome; }
+            else { equippedItemTitle.text = "Unarmed"; }
+            equippedStat1Title.text = "Damage:";
+            equippedStat2Title.text = "Critical:";
+            equippedStat3Title.text = "To Hit:";
+            newStat1Title.text = "Damage:";
+            newStat2Title.text = "Critical:";
+            newStat3Title.text = "To Hit:";
+            if (ego.equippedWeapon != null)
+            {
+                equippedStat1.text = $"1d{ego.equippedWeapon.damageDie} +{ego.equippedWeapon.damage}";
+                equippedStat2.text = $"x{ego.equippedWeapon.critMultiplier}";
+                if (ego.equippedWeapon.toHitMod < 0) { sign = "-"; }
+                equippedStat3.text = $"{sign}{ego.equippedWeapon.toHitMod}";
+                currentType.text = ego.equippedWeapon.type;
+                if (ego.equippedWeapon.twoHanded) { currentTwoHanded.SetActive(true); }
+            }
+            else
+            {
+                equippedStat1.text = "1d4 +0";
+                equippedStat2.text = "x1.5";
+                equippedStat3.text = "+0";
+            }
+            newStat1.text = $"1d{weaponSelected.damageDie} +{weaponSelected.damage}";
+            newStat2.text = $"x{weaponSelected.critMultiplier}";
+            if (weaponSelected.toHitMod < 0) { sign = "-"; }
+            newStat3.text = $"{sign}{weaponSelected.toHitMod}";
+            newType.text = weaponSelected.type;
+            if (weaponSelected.twoHanded) { newTwoHanded.SetActive(true); }
+        }
+        else if (itemSelected is Armor)
+        {
+            Armor armorSelected = (Armor)itemSelected;
+            if (ego.equippedArmor != null) { equippedItemTitle.text = ego.equippedArmor.nome; }
+            else { equippedItemTitle.text = "None"; }
+            equippedStat1Title.text = "Dmg Reduction:";
+            equippedStat2Title.text = "Crit Resist:";
+            equippedStat3Title.text = "";
+            newStat1Title.text = "Dmg Reduction:";
+            newStat2Title.text = "Crit Resist:";
+            newStat3Title.text = "";
+            if (ego.equippedArmor != null)
+            {
+                if (ego.equippedArmor.damageReduction >= 0) { sign = "-"; }
+                equippedStat1.text = $"{sign}{ego.equippedArmor.damageReduction}";
+                equippedStat2.text = $"x{ego.equippedArmor.critResist}";
+                equippedStat3.text = $"";
+            }
+            else
+            {
+                equippedStat1.text = "-0";
+                equippedStat2.text = "x1.00";
+                equippedStat3.text = "";
+            }
+            if (armorSelected.damageReduction >= 0) { sign = "-"; }
+            newStat1.text = $"{sign}{armorSelected.damageReduction}";
+            newStat2.text = $"x{armorSelected.critResist}";
+            newStat3.text = $"";
+        }
+        else if (itemSelected is Shield)
+        {
+            Shield shieldSelected = (Shield)itemSelected;
+            if (ego.equippedArmor != null) { equippedItemTitle.text = ego.equippedArmor.nome; }
+            else { equippedItemTitle.text = "None"; }
+            equippedStat1Title.text = "Armor Class:";
+            equippedStat2Title.text = "Crit Resist:";
+            equippedStat3Title.text = "";
+            newStat1Title.text = "Armor Class:";
+            newStat2Title.text = "Crit Resist:";
+            newStat3Title.text = "";
+            if (ego.equippedShield != null)
+            {
+                equippedStat1.text = $"0";
+                equippedStat2.text = $"x1.00";
+                equippedStat3.text = $"";
+            }
+            else
+            {
+                equippedStat1.text = "-";
+                equippedStat2.text = "-";
+                equippedStat3.text = "";
+            }
+            newStat1.text = $"{shieldSelected.armorClass}";
+            newStat2.text = $"x{shieldSelected.critResist}";
+            newStat3.text = $"";
+        }
+
+        //update total adjusted stat display
+        //damage die & damage
+        int egoDamageDie = (int)(ego.allStats[6].value + ego.allStats[6].effectValue);
+        int withItemDamageDie = egoDamageDie;
+        int egoDamage = (int)(ego.allStats[7].value + ego.allStats[7].effectValue);
+        int withItemDamage = egoDamage;
+        int egoCurrentWeaponDamage = 0;
+        if (ego.equippedWeapon != null) { egoCurrentWeaponDamage = controller.ego.equippedWeapon.damage; }
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemDamage = egoDamage - egoCurrentWeaponDamage + weaponSelected.damage;
+            withItemDamageDie = (int)ego.allStats[6].effectValue + weaponSelected.damageDie;
+        }
+        string dieColor = "white";
+        string damageColor = "white";
+        string damageSign = "+";
+        if (egoDamageDie < withItemDamageDie) { dieColor = "green"; }
+        if (egoDamageDie > withItemDamageDie) { dieColor = "red"; }
+        if (egoDamage < withItemDamage) { damageColor = "green"; }
+        if (egoDamage > withItemDamage) { damageColor = "red"; }
+        if (withItemDamage < 0) { damageSign = ""; }
+        adjustedDamage.text = $"<color={dieColor}>1d{withItemDamageDie}</color> <color={damageColor}>{damageSign}{withItemDamage}</color>";
+
+        //critMultiplier
+        float egoCritMultiplier = ego.allStats[8].value + ego.allStats[8].effectValue;
+        float withItemCritMultiplier = egoCritMultiplier;
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemCritMultiplier = ego.allStats[8].effectValue + weaponSelected.critMultiplier;
+        }
+        string critMultiplierColor = "white";
+        if (egoCritMultiplier < withItemCritMultiplier) { critMultiplierColor = "green"; }
+        if (egoCritMultiplier > withItemCritMultiplier) { critMultiplierColor = "red"; }
+
+        adjustedCritical.text = $"<color={critMultiplierColor}>x{withItemCritMultiplier}</color>";
+
+        //toHitMod
+        int egoToHitMod = (int)(ego.allStats[9].value + ego.allStats[9].effectValue);
+        int withItemToHitMod = egoToHitMod;
+        int egoCurrentWeaponToHitMod = 0;
+        if (ego.equippedWeapon != null) { egoCurrentWeaponToHitMod = controller.ego.equippedWeapon.toHitMod; }
+        if (itemSelected is Weapon)
+        {
+            Weapon weaponSelected = (Weapon)itemSelected;
+            withItemToHitMod = egoToHitMod - egoCurrentWeaponToHitMod + weaponSelected.toHitMod;
+        }
+        string toHitModColor = "white";
+        if (egoToHitMod < withItemToHitMod) { toHitModColor = "green"; }
+        if (egoToHitMod > withItemToHitMod) { toHitModColor = "red"; }
+
+        if (withItemToHitMod < 0) { adjustedToHit.text = $"<color={toHitModColor}>{withItemToHitMod}</color>"; }
+        else { adjustedToHit.text = $"<color={toHitModColor}>+{withItemToHitMod}</color>"; }
+
+
+
+        //armorClass
+        int egoArmorClass = (int)(ego.allStats[3].value + ego.allStats[3].effectValue);
+        int withItemArmorClass = (int)egoArmorClass;
+        int egoCurrentShieldArmorClass = 0;
+        if (ego.equippedShield != null) { egoCurrentShieldArmorClass = controller.ego.equippedShield.armorClass; }
+        if (itemSelected is Shield)
+        {
+            Shield shieldSelected = (Shield)itemSelected;
+            withItemArmorClass = egoArmorClass - egoCurrentShieldArmorClass + shieldSelected.armorClass;
+        }
+        string armorClassColor = "white";
+        if (egoArmorClass < withItemArmorClass) { armorClassColor = "green"; }
+        if (egoArmorClass > withItemArmorClass) { armorClassColor = "red"; }
+
+        adjustedArmorClass.text = $"<color={armorClassColor}>{withItemArmorClass}</color>";
+
+        //critResist
+        float egoCritResist = ego.allStats[4].value - ego.allStats[4].effectValue;
+        float withItemCritResist = egoCritResist;
+        float egoCurrentArmorCritResist = 1;
+        float egoCurrentShieldCritResist = 1;
+        if (ego.equippedArmor != null) { egoCurrentArmorCritResist = controller.ego.equippedArmor.critResist; }
+        if (ego.equippedShield != null) { egoCurrentShieldCritResist = controller.ego.equippedShield.critResist; }
+        if (itemSelected is Armor)
+        {
+            Armor armorSelected = (Armor)itemSelected;
+            withItemCritResist = armorSelected.critResist - (1 - egoCurrentShieldCritResist) - ego.allStats[4].effectValue;
+        }
+        else if (itemSelected is Shield)
+        {
+            Shield shieldSelected = (Shield)itemSelected;
+            withItemCritResist = shieldSelected.critResist - (1 - egoCurrentArmorCritResist) - ego.allStats[4].effectValue;
+        }
+        string critResistColor = "white";
+        if (egoCritResist > withItemCritResist) { critResistColor = "green"; }
+        if (egoCritResist < withItemCritResist) { critResistColor = "red"; }
+
+        adjustedCritResist.text = $"<color={critResistColor}>x{withItemCritResist}</color>";
+
+        //dmgReduction
+        int egoDmgReduction = (int)(ego.allStats[5].value + ego.allStats[5].effectValue);
+        int withItemDmgReduction = (int)egoDmgReduction;
+        int egoCurrentArmorDmgReduction = 0;
+        if (ego.equippedArmor != null) { egoCurrentArmorDmgReduction = controller.ego.equippedArmor.damageReduction; }
+        if (itemSelected is Armor)
+        {
+            Armor armorSelected = (Armor)itemSelected;
+            withItemDmgReduction = egoDmgReduction - egoCurrentArmorDmgReduction + armorSelected.damageReduction;
+        }
+        string dmgReductionColor = "white";
+        if (egoDmgReduction < withItemDmgReduction) { dmgReductionColor = "green"; }
+        if (egoDmgReduction > withItemDmgReduction) { dmgReductionColor = "red"; }
+
+        if (withItemDmgReduction >= 0) { adjustedDamageReduction.text = $"<color={dmgReductionColor}>-{withItemDmgReduction}</color>"; }
+        else { adjustedDamageReduction.text = $"<color={dmgReductionColor}>+{Mathf.Abs(withItemDmgReduction)}</color>"; }
+    }
+    IEnumerator DisplayInventory()
+    {
+        string toPassIn;
+        List<Item> alreadyListed = new List<Item>();
+        selectedItem = null;
+
+        controller.interactableItems.invDisplay.SetActive(true);
+        controller.interactableItems.invDisplayBorder.SetActive(true);
+        DisplayPotionBelt();
+        alreadyListed.Clear();
+        toPassIn = "";
+        if (controller.interactableItems.inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
+        else
+        {
+            for (int i = 0; i < controller.interactableItems.inventory.Count; i++)
+            {
+                if (alreadyListed.Contains(controller.interactableItems.inventory[i])) { continue; }
+                else
+                {
+                    int counter = 0;
+                    for (int j = i; j < controller.interactableItems.inventory.Count; j++)
+                    {
+                        if (controller.interactableItems.inventory[i] == controller.interactableItems.inventory[j]) { counter++; }
+                    }
+                    alreadyListed.Add(controller.interactableItems.inventory[i]);
+                    string total = counter.ToString();
+                    toPassIn += total + " " + myTI.ToTitleCase(controller.interactableItems.inventory[i].nome) + "\n";
+                }
+            }
+        }
+        controller.interactableItems.invText.text = toPassIn;
+        void DisplayPotionBelt()
+        {
+            controller.interactableItems.potion0Text.text = "";
+            controller.interactableItems.potion1Text.text = "";
+            controller.interactableItems.potion2Text.text = "";
+            if (ego.potionBelt.Count > 0) { controller.interactableItems.potion0Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[0].nome); }
+            if (ego.potionBelt.Count > 1) { controller.interactableItems.potion1Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[1].nome); }
+            if (ego.potionBelt.Count > 2) { controller.interactableItems.potion2Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[2].nome); }
+        }
+
+
+        if (controller.interactableItems.inventory.Count > 0 || ego.equippedWeapon != null || ego.equippedArmor != null || ego.equippedShield != null || ego.potionBelt.Count > 0)
+        {
+            bool skipToEquipment = false;
+            bool blockEquipment = false;
+            if (controller.interactableItems.inventory.Count <= 0) { skipToEquipment = true; }
+            if (ego.equippedWeapon == null && ego.equippedArmor == null && ego.equippedShield == null && ego.potionBelt.Count == 0) { blockEquipment = true; }
+            string normalInvText = controller.interactableItems.invText.text;
+            selectedItem = alreadyListed[0];
+            int selectedElement = 0;
+            int memoryElement = 0;
+            bool doubleBreak = false;
+            while (true)
+            {
+                if (!skipToEquipment)
+                {
+                    controller.interactableItems.invText.text = normalInvText;
+                    if (selectedElement < 0) { selectedElement = alreadyListed.Count - 1; }
+                    if (selectedElement > alreadyListed.Count - 1) { selectedElement = 0; }
+                    int itemLength = alreadyListed[selectedElement].nome.Length;
+                    int invIndex = 0;
+                    invIndex = controller.interactableItems.invText.text.IndexOf(myTI.ToTitleCase(alreadyListed[selectedElement].nome));
+
+                    string newText = "";
+
+                    for (int i = 0; i < invIndex; i++) { newText += controller.interactableItems.invText.text[i]; }
+
+                    newText += "<color=yellow>";
+
+                    for (int i = invIndex; i < invIndex + itemLength; i++) { newText += controller.interactableItems.invText.text[i]; }
+
+                    newText += "</color>";
+
+                    for (int i = invIndex + itemLength; i < controller.interactableItems.invText.text.Length; i++) { newText += controller.interactableItems.invText.text[i]; }
+
+                    controller.interactableItems.invText.text = newText;
+
+                    controller.interactableItems.InvStats(alreadyListed[selectedElement]);
+
+                    yield return new WaitUntil(controller.RightUpDownEnterEscPressed);
+                }
+
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    selectedElement--;
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    selectedElement++;
+                }
+                //Right Side
+                else if (Input.GetKeyDown(KeyCode.RightArrow) && blockEquipment) { controller.interactableItems.cursorMove.Play(); }
+                else if (Input.GetKeyDown(KeyCode.RightArrow) || skipToEquipment)
+                {
+                    if (skipToEquipment) { skipToEquipment = false; }
+                    else { controller.interactableItems.cursorMove.Play(); }
+                    controller.interactableItems.invText.text = normalInvText;
+                    memoryElement = selectedElement;
+                    int equipmentElement = 0;
+                    string plainPotion0 = controller.interactableItems.potion0Text.text;
+                    string plainPotion1 = controller.interactableItems.potion1Text.text;
+                    string plainPotion2 = controller.interactableItems.potion2Text.text;
+                    string plainWeapon = controller.interactableItems.weaponText.text;
+                    string plainArmor = controller.interactableItems.armorText.text;
+                    string plainShield = controller.interactableItems.shieldText.text;
+
+                    while (true)
+                    {
+                        if (equipmentElement < 0) { equipmentElement = 5; }
+                        if (equipmentElement > 5) { equipmentElement = 0; }
+
+                        controller.interactableItems.potion0Text.text = plainPotion0;
+                        controller.interactableItems.potion1Text.text = plainPotion1;
+                        controller.interactableItems.potion2Text.text = plainPotion2;
+                        controller.interactableItems.weaponText.text = plainWeapon;
+                        controller.interactableItems.armorText.text = plainArmor;
+                        controller.interactableItems.shieldText.text = plainShield;
+
+                        if (equipmentElement == 0) { controller.interactableItems.weaponText.text = $"<color=yellow>{controller.interactableItems.weaponText.text}</color>"; }
+                        else if (equipmentElement == 1) { controller.interactableItems.armorText.text = $"<color=yellow>{controller.interactableItems.armorText.text}</color>"; }
+                        else if (equipmentElement == 2) { controller.interactableItems.shieldText.text = $"<color=yellow>{controller.interactableItems.shieldText.text}</color>"; }
+                        else if (equipmentElement == 3) { controller.interactableItems.potion0Text.text = $"<color=yellow>{controller.interactableItems.potion0Text.text}</color>"; }
+                        else if (equipmentElement == 4) { controller.interactableItems.potion1Text.text = $"<color=yellow>{controller.interactableItems.potion1Text.text}</color>"; }
+                        else if (equipmentElement == 5) { controller.interactableItems.potion2Text.text = $"<color=yellow>{controller.interactableItems.potion2Text.text}</color>"; }
+
+                        yield return new WaitUntil(controller.LeftUpDownEnterEscPressed);
+                        if (Input.GetKeyDown(KeyCode.UpArrow))
+                        {
+                            controller.interactableItems.cursorMove.Play();
+                            equipmentElement--;
+                            if (ego.potionBelt.Count <= 2 && equipmentElement == 5) { equipmentElement = 2; }
+                            if (ego.potionBelt.Count <= 1 && equipmentElement == 4) { equipmentElement = 2; }
+                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 2; }
+                            if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement--; }
+                            if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement--; }
+                            if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement--; }
+                        }
+                        else if (Input.GetKeyDown(KeyCode.DownArrow))
+                        {
+                            controller.interactableItems.cursorMove.Play();
+                            equipmentElement++;
+                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 0; }
+                            if (ego.potionBelt.Count == 1 && equipmentElement == 4) { equipmentElement = 0; }
+                            if (ego.potionBelt.Count == 2 && equipmentElement == 5) { equipmentElement = 0; }
+                            if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement++; }
+                            if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement++; }
+                            if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement++; }
+                        }
+                        else if (Input.GetKeyDown(KeyCode.LeftArrow))
+                        {
+                            controller.interactableItems.cursorMove.Play();
+                            if (controller.interactableItems.inventory.Count > 0)
+                            {
+                                controller.interactableItems.potion0Text.text = plainPotion0;
+                                controller.interactableItems.potion1Text.text = plainPotion1;
+                                controller.interactableItems.potion2Text.text = plainPotion2;
+                                controller.interactableItems.weaponText.text = plainWeapon;
+                                controller.interactableItems.armorText.text = plainArmor;
+                                controller.interactableItems.shieldText.text = plainShield;
+                                selectedElement = memoryElement;
+                                break;
+                            }
+                        }
+                        else if (Input.GetKeyDown(KeyCode.Escape))
+                        {
+                            controller.interactableItems.cursorCancel.Play();
+                            controller.interactableItems.potion0Text.text = plainPotion0;
+                            controller.interactableItems.potion1Text.text = plainPotion1;
+                            controller.interactableItems.potion2Text.text = plainPotion2;
+                            controller.interactableItems.weaponText.text = plainWeapon;
+                            controller.interactableItems.armorText.text = plainArmor;
+                            controller.interactableItems.shieldText.text = plainShield;
+                            controller.interactableItems.invDisplay.SetActive(false);
+                            controller.interactableItems.invDisplayBorder.SetActive(false);
+                            doubleBreak = true;
+                            break;
+                        }
+                        else if (Input.GetKeyDown(KeyCode.Return))
+                        {
+                            controller.interactableItems.cursorSelect.Play();
+                            controller.interactableItems.invDisplay.SetActive(false);
+                            controller.interactableItems.invDisplayBorder.SetActive(false);
+                            if (equipmentElement == 0) { selectedItem = ego.equippedWeapon; }
+                            else if (equipmentElement == 1) { selectedItem = ego.equippedArmor; }
+                            else if (equipmentElement == 2) { selectedItem = ego.equippedShield; }
+                            else { selectedItem = ego.potionBelt[equipmentElement]; }
+                        }
+                        if (doubleBreak)
+                        {
+                            doubleBreak = false;
+                            break;
+                        }
+                    }
+                }
+                //End Right Side
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    controller.interactableItems.cursorCancel.Play();
+                    controller.interactableItems.invDisplay.SetActive(false);
+                    controller.interactableItems.invDisplayBorder.SetActive(false);
+                    break;
+                }
+                else if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    controller.interactableItems.cursorSelect.Play();
+                    controller.interactableItems.invDisplay.SetActive(false);
+                    controller.interactableItems.invDisplayBorder.SetActive(false);
+                    selectedItem = alreadyListed[selectedElement];
+                }
+                if (doubleBreak)
+                {
+                    doubleBreak = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            yield return new WaitUntil(controller.EscPressed);
+            controller.interactableItems.cursorCancel.Play();
+            controller.interactableItems.invDisplay.SetActive(false);
+            controller.interactableItems.invDisplayBorder.SetActive(false);
+        }
+        inventoryClosed = true;
+    }
     IEnumerator ActivateAskAbout(List<DialogueOption> replyList, NPC speaker)
     {
         WriteDialogueReplies(replyList);
@@ -230,7 +724,10 @@ public class NPCInteraction : MonoBehaviour
             {
                 memoryElement = selectedElement;
                 controller.interactableItems.cursorSelect.Play();
+                npcSpeechComplete = false;
                 StartCoroutine(NPCSpeech(replyList[selectedElement].response));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
                 if (replyList[selectedElement].additionalReplies.Count == 0)
                 {
                     StartCoroutine(ActivateAskAbout(replyList, speaker));
@@ -262,7 +759,8 @@ public class NPCInteraction : MonoBehaviour
             yield return new WaitUntil(controller.EnterPressed);
             continueArrow.SetActive(false);
             yield return new WaitForSeconds(.1f);
-        }        
+        }
+        npcSpeechComplete = true;
     }
     IEnumerator TeletypeMessage(int startingCharacter, float characterPause = 0.025f)
     {
@@ -298,8 +796,9 @@ public class NPCInteraction : MonoBehaviour
     {
         NPCText.text += text;
     }
-
+    bool NPCSpeechComplete() { return npcSpeechComplete; }
     bool MessageComplete() { return messageComplete; }
+    bool InventoryClosed() { return inventoryClosed; }
 
 
 

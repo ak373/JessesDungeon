@@ -28,7 +28,7 @@ public class InteractableItems : MonoBehaviour
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
 
     GameObject potionBelt, equipment, equippedWeapon, weapon, equippedArmor, armor, equippedShield, shield, potion0, potion1, potion2, viewDeeds;
-    TMP_Text potion0Text, potion1Text, potion2Text, weaponText, armorText, shieldText, viewDeedsText;
+    public TMP_Text potion0Text, potion1Text, potion2Text, weaponText, armorText, shieldText, viewDeedsText;
 
     //
     public Dictionary<string, string[]> lookAtDictionary = new Dictionary<string, string[]>();
@@ -652,7 +652,7 @@ public class InteractableItems : MonoBehaviour
             yield return new WaitUntil(controller.EnterPressed);
         }
     }
-    void InvStats(Item itemSelected)
+    public void InvStats(Item itemSelected)
     {        
         //damage die & damage
         int egoDamageDie = (int)(ego.allStats[6].value + ego.allStats[6].effectValue);
