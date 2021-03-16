@@ -766,6 +766,11 @@ public class InteractableItems : MonoBehaviour
         if (withItemDmgReduction >= 0) { invDmgReductionText.text = $"<color={dmgReductionColor}>-{withItemDmgReduction}</color>"; }
         else { invDmgReductionText.text = $"<color={dmgReductionColor}>+{Mathf.Abs(withItemDmgReduction)}</color>"; }
     }
+
+
+
+
+
     //
     //
     //

@@ -14,6 +14,7 @@ public class NPCInteraction : MonoBehaviour
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
 
     public NPC[] allNPCs;
+    public AudioSource purchase, error;
 
     int endingCharacter;
     bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete;
@@ -22,13 +23,16 @@ public class NPCInteraction : MonoBehaviour
     Queue<string> sentences;
     Ego ego;
     Item selectedItem;
-    List<string> nullItem = new List<string>();
+    //second quest pronouns
+    [HideInInspector] public string bro = "bro";
+    [HideInInspector] public string man = "man";
+    [HideInInspector] public string dude = "dude";
+    [HideInInspector] public string guy = "guy";
 
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<GameController>();
-        nullItem.Add("Oh, I'm wrong");
     }
 
     void WriteNPCName(string name, int boxNumber = 1)
@@ -175,6 +179,8 @@ public class NPCInteraction : MonoBehaviour
         else
         {
             npcSpeechComplete = false;
+            List<string> nullItem = new List<string>();
+            nullItem.Add("Oh, I'm wrong.");
             StartCoroutine(NPCSpeech(nullItem));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
@@ -327,6 +333,31 @@ public class NPCInteraction : MonoBehaviour
                         if (weaponMemory != -1) { selectedElement = weaponMemory; }
                     }
                 }
+                else if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    if (weaponHighlight.activeInHierarchy)
+                    {
+                        weaponHighlight.SetActive(false);
+                        shieldHighlight.SetActive(true);
+                        weaponMemory = selectedElement;
+                        if (shieldMemory != -1) { selectedElement = shieldMemory; }
+                    }
+                    else if (armorHighlight.activeInHierarchy)
+                    {
+                        armorHighlight.SetActive(false);
+                        weaponHighlight.SetActive(true);
+                        armorMemory = selectedElement;
+                        if (weaponMemory != -1) { selectedElement = weaponMemory; }
+                    }
+                    else if (shieldHighlight.activeInHierarchy)
+                    {
+                        shieldHighlight.SetActive(false);
+                        armorHighlight.SetActive(true);
+                        shieldMemory = selectedElement;
+                        if (armorMemory != -1) { selectedElement = armorMemory; }
+                    }
+                }
                 else if (Input.GetKeyDown(KeyCode.Escape))
                 {
                     controller.interactableItems.cursorCancel.Play();
@@ -337,11 +368,124 @@ public class NPCInteraction : MonoBehaviour
                 }
                 else if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    //if enough
-                    controller.interactableItems.cursorSelect.Play();
-                    controller.interactableItems.invDisplay.SetActive(false);
-                    controller.interactableItems.invDisplayBorder.SetActive(false);
-                    selectedItem = alreadyListed[selectedElement];
+                    if (weaponHighlight.activeInHierarchy)
+                    {
+                        selectedItem = weaponList[selectedElement];
+                        columnMemory = 1;
+                    }
+                    else if (armorHighlight.activeInHierarchy)
+                    {
+                        selectedItem = armorList[selectedElement];
+                        columnMemory = 2;
+                    }
+                    else if (shieldHighlight.activeInHierarchy)
+                    {
+                        selectedItem = shieldList[selectedElement];
+                        columnMemory = 3;
+                    }
+
+                    if (ego.blueCrystals >= selectedItem.price)
+                    {
+                        controller.interactableItems.cursorSelect.Play();
+                        option1.text = "";
+                        option2.text = "";
+                        option3.text = "";
+                        option4.text = "";
+                        shop.SetActive(false);
+                        shopBackground.SetActive(false);
+                        List<string> buyCheck = new List<string>();
+                        buyCheck.Add($"The {myTI.ToTitleCase(selectedItem.nome)}? No taksies-backsies!");
+                        npcSpeechComplete = false;
+                        StartCoroutine(NPCSpeech(buyCheck));
+                        yield return new WaitUntil(NPCSpeechComplete);
+                        npcSpeechComplete = false;
+                        optionBoxGreyFilter.SetActive(false);
+                        option1.text = "Yep!";
+                        option2.text = "Hmm. Perhaps not.";
+                        bool yesSelected = false;
+                        while (true)
+                        {
+                            if (yesSelected)
+                            {
+                                option1.color = Color.yellow;
+                                option2.color = Color.white;
+                            }
+                            else
+                            {
+                                option1.color = Color.white;
+                                option2.color = Color.yellow;
+                            }
+                            yield return new WaitUntil(controller.UpDownEnterPressed);
+                            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
+                            {
+                                controller.interactableItems.cursorMove.Play();
+                                yesSelected = !yesSelected;
+                            }
+                            else if (Input.GetKeyDown(KeyCode.Return))
+                            {
+                                controller.interactableItems.cursorSelect.Play();
+                                optionBoxGreyFilter.SetActive(true);
+                                if (yesSelected)
+                                {
+                                    purchase.Play();
+                                    ego.blueCrystals -= selectedItem.price;
+                                    controller.interactableItems.inventory.Add(selectedItem);
+                                    List<string> buyConfirm = new List<string>();
+                                    buyConfirm.Add("Right on!");
+                                    buyConfirm.Add("Anything else catch your eye?");
+                                    npcSpeechComplete = false;
+                                    StartCoroutine(NPCSpeech(buyConfirm));
+                                }
+                                else if (!yesSelected)
+                                {
+                                    controller.interactableItems.cursorCancel.Play();
+                                    List<string> buyCancel = new List<string>();
+                                    buyCancel.Add("Aw, man!");
+                                    buyCancel.Add("Anything else catch your eye?");
+                                    npcSpeechComplete = false;
+                                    StartCoroutine(NPCSpeech(buyCancel));
+                                }
+                                yield return new WaitUntil(NPCSpeechComplete);
+                                npcSpeechComplete = false;
+                                yield return new WaitForSeconds(.5f);
+                                shop.SetActive(true);
+                                shopBackground.SetActive(true);
+                                option1.text = "Ask about";
+                                option2.text = "Give item";
+                                option3.text = "Shop";
+                                option4.text = "Enough already";
+                                StartCoroutine(Buy());
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    else
+                    {
+                        error.Play();
+                        option1.text = "";
+                        option2.text = "";
+                        option3.text = "";
+                        option4.text = "";
+                        shop.SetActive(false);
+                        shopBackground.SetActive(false);
+                        List<string> buyError = new List<string>();
+                        buyError.Add($"Shoot I don't think you have enough cash! Maybe next time, all right, {bro}?");
+                        buyError.Add("Anything else catch your eye?");
+                        npcSpeechComplete = false;
+                        StartCoroutine(NPCSpeech(buyError));
+                        yield return new WaitUntil(NPCSpeechComplete);
+                        npcSpeechComplete = false;
+                        yield return new WaitForSeconds(.5f);
+                        shop.SetActive(true);
+                        shopBackground.SetActive(true);
+                        option1.text = "Ask about";
+                        option2.text = "Give item";
+                        option3.text = "Shop";
+                        option4.text = "Enough already";
+                        StartCoroutine(Buy());
+                        break;
+                    }                    
                 }
             }
         }        
