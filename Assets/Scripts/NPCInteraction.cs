@@ -10,11 +10,13 @@ public class NPCInteraction : MonoBehaviour
     public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, option1, option2, option3, option4;
 
-    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, currentTwoHanded, newTwoHanded;
+    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
 
+    public NPC[] allNPCs;
+
     int endingCharacter;
-    bool messageComplete, npcSpeechComplete, inventoryClosed;
+    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete;
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences;
@@ -182,6 +184,167 @@ public class NPCInteraction : MonoBehaviour
     void NPCTradeDistributor(NPC npc)
     {
         //if npc.trade == thing {activate correct coroutine
+    }
+    IEnumerator PeteShop(NPC pete)
+    {
+        npcSpeechComplete = false;
+        StartCoroutine(NPCSpeech(pete.initiateTradeResponse));
+        yield return new WaitUntil(NPCSpeechComplete);
+        npcSpeechComplete = false;
+        List<Item> weaponList = new List<Item>();
+        List<Item> armorList = new List<Item>();
+        List<Item> shieldList = new List<Item>();
+        for (int i = 0; i < controller.registerObjects.allItems.Length; i++)
+        {
+            if (controller.registerObjects.allItems[i] is Weapon && controller.registerObjects.allItems[i].unlocked) { weaponList.Add(controller.registerObjects.allItems[i]); }
+            else if (controller.registerObjects.allItems[i] is Armor && controller.registerObjects.allItems[i].unlocked) { armorList.Add(controller.registerObjects.allItems[i]); }
+            else if (controller.registerObjects.allItems[i] is Shield && controller.registerObjects.allItems[i].unlocked) { shieldList.Add(controller.registerObjects.allItems[i]); }
+        }
+        weaponText.text = WriteShoppingList(weaponList);
+        armorText.text = WriteShoppingList(armorList);
+        shieldText.text = WriteShoppingList(shieldList);
+        string normalWeaponText = weaponText.text;
+        string normalArmorText = armorText.text;
+        string normalShieldText = shieldText.text;
+        int selectedElement = 0;
+        int weaponMemory = -1;
+        int armorMemory = -1;
+        int shieldMemory = -1;
+        int columnMemory = 1;
+        yield return new WaitForSeconds(.5f);
+        buyComplete = false;
+        StartCoroutine(Buy());
+        yield return new WaitUntil(BuyComplete);
+        buyComplete = false;
+
+
+
+        IEnumerator Buy()
+        {
+            weaponHighlight.SetActive(false);
+            armorHighlight.SetActive(false);
+            shieldHighlight.SetActive(false);
+            shop.SetActive(true);
+            shopBackground.SetActive(true);
+            if (columnMemory == 1) { weaponHighlight.SetActive(true); }
+            else if (columnMemory == 2) { armorHighlight.SetActive(true); }
+            else if (columnMemory == 3) { shieldHighlight.SetActive(true); }
+
+            while (true)
+            {
+                weaponText.text = normalWeaponText;
+                armorText.text = normalArmorText;
+                shieldText.text = normalShieldText;
+                int itemLength = 0;
+                int itemIndex = 0;
+                string currentListText = "";
+                if (weaponHighlight.activeInHierarchy)
+                {
+                    if (selectedElement < 0) { selectedElement = weaponList.Count - 1; }
+                    if (selectedElement > weaponList.Count - 1) { selectedElement = 0; }
+                    itemLength = weaponList[selectedElement].nome.Length;
+                    itemIndex = weaponText.text.IndexOf(myTI.ToTitleCase(weaponList[selectedElement].nome));
+                    currentListText = weaponText.text;
+                }
+                else if (armorHighlight.activeInHierarchy)
+                {
+                    if (selectedElement < 0) { selectedElement = armorList.Count - 1; }
+                    if (selectedElement > armorList.Count - 1) { selectedElement = 0; }
+                    itemLength = armorList[selectedElement].nome.Length;
+                    itemIndex = armorText.text.IndexOf(myTI.ToTitleCase(armorList[selectedElement].nome));
+                    currentListText = armorText.text;
+                }
+                else if (shieldHighlight.activeInHierarchy)
+                {
+                    if (selectedElement < 0) { selectedElement = shieldList.Count - 1; }
+                    if (selectedElement > shieldList.Count - 1) { selectedElement = 0; }
+                    itemLength = shieldList[selectedElement].nome.Length;
+                    itemIndex = shieldText.text.IndexOf(myTI.ToTitleCase(shieldList[selectedElement].nome));
+                    currentListText = shieldText.text;
+                }
+
+                string newText = "";
+
+                for (int i = 0; i < itemIndex; i++) { newText += currentListText[i]; }
+
+                newText += "<color=yellow>";
+
+                for (int i = itemIndex; i < itemIndex + itemLength; i++) { newText += currentListText[i]; }
+
+                newText += "</color>";
+
+                for (int i = itemIndex + itemLength; i < currentListText.Length; i++) { newText += currentListText[i]; }
+
+                if (weaponHighlight.activeInHierarchy)
+                {
+                    weaponText.text = newText;
+                    ShopStats(weaponList[selectedElement]);
+                }
+                else if (armorHighlight.activeInHierarchy)
+                {
+                    armorText.text = newText;
+                    ShopStats(armorList[selectedElement]);
+                }
+                else if (shieldHighlight.activeInHierarchy)
+                {
+                    shieldText.text = newText;
+                    ShopStats(shieldList[selectedElement]);
+                }
+
+                yield return new WaitUntil(controller.LeftRightUpDownEnterEscPressed);
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    selectedElement--;
+                }
+                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    selectedElement++;
+                }
+                else if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    if (weaponHighlight.activeInHierarchy)
+                    {
+                        weaponHighlight.SetActive(false);
+                        armorHighlight.SetActive(true);
+                        weaponMemory = selectedElement;
+                        if (armorMemory != -1) { selectedElement = armorMemory; }
+                    }
+                    else if (armorHighlight.activeInHierarchy)
+                    {
+                        armorHighlight.SetActive(false);
+                        shieldHighlight.SetActive(true);
+                        armorMemory = selectedElement;
+                        if (shieldMemory != -1) { selectedElement = shieldMemory; }
+                    }
+                    else if (shieldHighlight.activeInHierarchy)
+                    {
+                        shieldHighlight.SetActive(false);
+                        weaponHighlight.SetActive(true);
+                        shieldMemory = selectedElement;
+                        if (weaponMemory != -1) { selectedElement = weaponMemory; }
+                    }
+                }
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    controller.interactableItems.cursorCancel.Play();
+                    shop.SetActive(false);
+                    shopBackground.SetActive(false);
+                    buyComplete = true;
+                    break;
+                }
+                else if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    //if enough
+                    controller.interactableItems.cursorSelect.Play();
+                    controller.interactableItems.invDisplay.SetActive(false);
+                    controller.interactableItems.invDisplayBorder.SetActive(false);
+                    selectedItem = alreadyListed[selectedElement];
+                }
+            }
+        }        
     }
     string WriteShoppingList(List<Item> itemList)
     {
@@ -799,6 +962,7 @@ public class NPCInteraction : MonoBehaviour
     bool NPCSpeechComplete() { return npcSpeechComplete; }
     bool MessageComplete() { return messageComplete; }
     bool InventoryClosed() { return inventoryClosed; }
+    bool BuyComplete() { return buyComplete; }
 
 
 
