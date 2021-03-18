@@ -16,8 +16,9 @@ public class NPCInteraction : MonoBehaviour
     public NPC[] allNPCs;
     public AudioSource purchase, error;
 
-    int endingCharacter;
-    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete;
+    int endingCharacter, genericOptionSelected;
+    int saleDivider = 4;
+    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, genericOptionComplete;
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences;
@@ -70,10 +71,102 @@ public class NPCInteraction : MonoBehaviour
         NPCSpeech(speaker.openingGreeting);
         StartCoroutine(OptionSelect(speaker));
     }
-    IEnumerator OptionSelect(NPC speaker)
+    IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
     {
         optionBoxGreyFilter.SetActive(false);
-        WriteDialogueOptions(speaker.options[0], speaker.options[1], speaker.options[2], speaker.options[3]);
+        WriteDialogueOptions(opt1, opt2, opt3, opt4);
+
+        int selectedElement = 0;
+        int memoryElement = -1;
+        string plainOption1 = option1.text;
+        string plainOption2 = option2.text;
+        string plainOption3 = option3.text;
+        string plainOption4 = option4.text;
+
+        while (true)
+        {
+            if (memoryElement != -1) { selectedElement = memoryElement; }
+            if (selectedElement < 0) { selectedElement = 3; }
+            if (selectedElement > 3) { selectedElement = 0; }
+
+            option1.text = plainOption1;
+            option2.text = plainOption2;
+            option3.text = plainOption3;
+            option4.text = plainOption4;
+
+            if (selectedElement == 0) { option1.text = $"<color=yellow>{option1.text}</color>"; }
+            else if (selectedElement == 1) { option2.text = $"<color=yellow>{option2.text}</color>"; }
+            else if (selectedElement == 2) { option3.text = $"<color=yellow>{option3.text}</color>"; }
+            else if (selectedElement == 3) { option4.text = $"<color=yellow>{option4.text}</color>"; }
+
+            yield return new WaitUntil(controller.UpDownEnterEscPressed);
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                controller.interactableItems.cursorMove.Play();
+                selectedElement--;
+                if (option4.text == null && selectedElement == 3) { selectedElement = 2; }
+                if (option3.text == null && selectedElement == 2) { selectedElement = 1; }
+                if (option2.text == null && selectedElement == 1) { selectedElement = 0; }
+                if (option1.text == null && selectedElement == 0) { selectedElement = 3; }
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                controller.interactableItems.cursorMove.Play();
+                selectedElement++;
+                if (option1.text == null && selectedElement == 0) { selectedElement = 1; }
+                if (option2.text == null && selectedElement == 1) { selectedElement = 2; }
+                if (option3.text == null && selectedElement == 2) { selectedElement = 3; }
+                if (option4.text == null && selectedElement == 3) { selectedElement = 0; }
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                optionBoxGreyFilter.SetActive(true);
+                controller.interactableItems.cursorCancel.Play();
+                option1.text = plainOption1;
+                option2.text = plainOption2;
+                option3.text = plainOption3;
+                option4.text = plainOption4;
+                yield return -1;
+                genericOptionComplete = true;
+                break;
+            }
+            else if (Input.GetKeyDown(KeyCode.Return))
+            {
+                optionBoxGreyFilter.SetActive(true);
+                if (selectedElement == 0)
+                {
+                    memoryElement = selectedElement;
+                    genericOptionSelected = 0;
+                }
+                else if (selectedElement == 1)
+                {
+                    memoryElement = selectedElement;
+                    genericOptionSelected = 1;
+                }
+                else if (selectedElement == 2)
+                {
+                    memoryElement = selectedElement;
+                    genericOptionSelected = 2;
+                }
+                else if (selectedElement == 3)
+                {
+                    memoryElement = selectedElement;
+                    genericOptionSelected = 3;
+                }
+                genericOptionComplete = true;
+                break;
+            }
+        }
+    }
+    IEnumerator OptionSelect(NPC speaker, string opt1 = "default", string opt2 = "default", string opt3 = "default", string opt4 = "default")
+    {
+        if (opt1 == "default") { opt1 = speaker.options[0]; }
+        if (opt2 == "default") { opt2 = speaker.options[1]; }
+        if (opt3 == "default") { opt3 = speaker.options[2]; }
+        if (opt4 == "default") { opt4 = speaker.options[3]; }
+
+        optionBoxGreyFilter.SetActive(false);
+        WriteDialogueOptions(opt1, opt2, opt3, opt4);
 
         int selectedElement = 0;
         int memoryElement = -1;
@@ -190,13 +283,10 @@ public class NPCInteraction : MonoBehaviour
     void NPCTradeDistributor(NPC npc)
     {
         //if npc.trade == thing {activate correct coroutine
+        if (npc.nome == "Skinny Pete") { StartCoroutine(PeteShop(npc)); }
     }
     IEnumerator PeteShop(NPC pete)
     {
-        npcSpeechComplete = false;
-        StartCoroutine(NPCSpeech(pete.initiateTradeResponse));
-        yield return new WaitUntil(NPCSpeechComplete);
-        npcSpeechComplete = false;
         List<Item> weaponList = new List<Item>();
         List<Item> armorList = new List<Item>();
         List<Item> shieldList = new List<Item>();
@@ -217,12 +307,53 @@ public class NPCInteraction : MonoBehaviour
         int armorMemory = -1;
         int shieldMemory = -1;
         int columnMemory = 1;
-        yield return new WaitForSeconds(.5f);
-        buyComplete = false;
-        StartCoroutine(Buy());
-        yield return new WaitUntil(BuyComplete);
-        buyComplete = false;
 
+        npcSpeechComplete = false;
+        StartCoroutine(NPCSpeech(pete.initiateTradeResponse));
+        yield return new WaitUntil(NPCSpeechComplete);
+        npcSpeechComplete = false;
+        genericOptionComplete = false;
+        StartCoroutine(GenericOptionSelection("Buy", "Sell", null, "Nevermind"));
+        yield return new WaitUntil(GenericOptionComplete);
+        genericOptionComplete = false;
+        if (genericOptionSelected == 0)
+        {
+            npcSpeechComplete = false;
+            List<string> buyChosen = new List<string>();
+            buyChosen.Add($"Just let me know if you see something you like!");
+            StartCoroutine(NPCSpeech(buyChosen));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            yield return new WaitForSeconds(.5f);
+            buyComplete = false;
+            StartCoroutine(Buy());
+            yield return new WaitUntil(BuyComplete);
+            buyComplete = false;
+        }
+        else if (genericOptionSelected == 1)
+        {
+            npcSpeechComplete = false;
+            List<string> sellChosen = new List<string>();
+            sellChosen.Add($"Whatcha got for me, {guy}?");
+            StartCoroutine(NPCSpeech(sellChosen));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            yield return new WaitForSeconds(.5f);
+            sellComplete = false;
+            StartCoroutine(Sell());
+            yield return new WaitUntil(SellComplete);
+            sellComplete = false;
+        }
+        if (genericOptionSelected == 3 || genericOptionSelected == -1)
+        {
+            npcSpeechComplete = false;
+            List<string> optionReturn = new List<string>();
+            optionReturn.Add($"All right, {dude}, can I do anything else for ya?");
+            StartCoroutine(NPCSpeech(optionReturn));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            StartCoroutine(OptionSelect(pete));
+        }
 
 
         IEnumerator Buy()
@@ -363,6 +494,13 @@ public class NPCInteraction : MonoBehaviour
                     controller.interactableItems.cursorCancel.Play();
                     shop.SetActive(false);
                     shopBackground.SetActive(false);
+                    npcSpeechComplete = false;
+                    List<string> buyExit = new List<string>();
+                    buyExit.Add($"All right, {dude}, can I do anything else for ya?");
+                    StartCoroutine(NPCSpeech(buyExit));
+                    yield return new WaitUntil(NPCSpeechComplete);
+                    npcSpeechComplete = false;
+                    StartCoroutine(OptionSelect(pete));
                     buyComplete = true;
                     break;
                 }
@@ -488,7 +626,83 @@ public class NPCInteraction : MonoBehaviour
                     }                    
                 }
             }
-        }        
+        }
+        IEnumerator Sell()
+        {
+            inventoryClosed = false;
+            StartCoroutine(DisplayInventory());
+            yield return new WaitUntil(InventoryClosed);
+            inventoryClosed = false;
+            if (selectedItem != null)
+            {
+                npcSpeechComplete = false;
+                List<string> sellCheck = new List<string>();
+                sellCheck.Add($"The {selectedItem.nome}? Is {Mathf.RoundToInt(selectedItem.price / saleDivider)} crystals cool?");
+                StartCoroutine(NPCSpeech(sellCheck));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
+                genericOptionComplete = false;
+                StartCoroutine(GenericOptionSelection("Let's do it!", "I don't think so.", null, null));
+                yield return new WaitUntil(GenericOptionComplete);
+                genericOptionComplete = false;
+                if (genericOptionSelected == 0)
+                {
+                    ego.blueCrystals += Mathf.RoundToInt(selectedItem.price / saleDivider);
+                    if (ego.equippedWeapon != null) { if (selectedItem == ego.equippedWeapon) { controller.GetUnEquipped(); } }
+                    if (ego.equippedArmor != null) { if (selectedItem == ego.equippedArmor) { controller.GetUnDressed(); } }
+                    if (ego.equippedShield != null) { if (selectedItem == ego.equippedShield) { controller.GetUnStrapped(); } }
+                    controller.interactableItems.inventory.Remove(selectedItem);
+                    npcSpeechComplete = false;
+                    List<string> sellConfirm = new List<string>();
+                    sellConfirm.Add($"Hey {man} good doing business with you.");
+                    sellConfirm.Add($"Got anything else for me?");
+                    StartCoroutine(NPCSpeech(sellConfirm));
+                    yield return new WaitUntil(NPCSpeechComplete);
+                    npcSpeechComplete = false;
+                }
+                else if (genericOptionSelected == 1 || genericOptionSelected == -1)
+                {
+                    npcSpeechComplete = false;
+                    List<string> sellCancel = new List<string>();
+                    sellCancel.Add($"Aw, all right. Maybe next time.");
+                    sellCancel.Add($"Got anything else for me?");
+                    StartCoroutine(NPCSpeech(sellCancel));
+                    yield return new WaitUntil(NPCSpeechComplete);
+                    npcSpeechComplete = false;
+                }
+                genericOptionComplete = false;
+                StartCoroutine(GenericOptionSelection("Yes", "No", null, null));
+                yield return new WaitUntil(GenericOptionComplete);
+                genericOptionComplete = false;
+                if (genericOptionSelected == 0)
+                {                    
+                    sellComplete = false;
+                    StartCoroutine(Sell());
+                    yield return new WaitUntil(SellComplete);
+                    sellComplete = false;
+                }
+                else if (genericOptionSelected == 1 || genericOptionSelected == -1)
+                {
+                    npcSpeechComplete = false;
+                    List<string> sellExit = new List<string>();
+                    sellExit.Add($"Cool, {man} - anything else?");
+                    StartCoroutine(NPCSpeech(sellExit));
+                    yield return new WaitUntil(NPCSpeechComplete);
+                    npcSpeechComplete = false;
+                    StartCoroutine(OptionSelect(pete));
+                }
+            }
+            else
+            {
+                npcSpeechComplete = false;
+                List<string> nullItem = new List<string>();
+                nullItem.Add($"Cool, {man} - anything else?");
+                StartCoroutine(NPCSpeech(nullItem));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
+                StartCoroutine(OptionSelect(pete));
+            }
+        }
     }
     string WriteShoppingList(List<Item> itemList)
     {
@@ -1107,6 +1321,8 @@ public class NPCInteraction : MonoBehaviour
     bool MessageComplete() { return messageComplete; }
     bool InventoryClosed() { return inventoryClosed; }
     bool BuyComplete() { return buyComplete; }
+    bool SellComplete() { return sellComplete; }
+    bool GenericOptionComplete() { return genericOptionComplete; }
 
 
 
