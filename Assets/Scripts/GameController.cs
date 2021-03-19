@@ -75,6 +75,7 @@ public class GameController : MonoBehaviour
     [HideInInspector] public NPCTalk npcTalk;
     [HideInInspector] public Achievements achievements;
     [HideInInspector] public TeleType teleType;
+    [HideInInspector] public NPCInteraction npcInteraction;
     [HideInInspector] public string currentActiveInput;
     [HideInInspector] public string userInput;
     Color orange = new Color(1.0f, 0.64f, 0.0f);
@@ -108,6 +109,7 @@ public class GameController : MonoBehaviour
         debugClass = GetComponent<DebugMode>();
         additionalNarrations = GetComponent<AdditionalNarrations>();
         npcTalk = GetComponent<NPCTalk>();
+        npcInteraction = GetComponent<NPCInteraction>();
         achievements = GetComponent<Achievements>();
         teleType = GetComponent<TeleType>();
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0.5f;

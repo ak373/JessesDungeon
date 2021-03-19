@@ -10,15 +10,15 @@ public class NPCInteraction : MonoBehaviour
     public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, option1, option2, option3, option4;
 
-    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded;
+    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
 
     public NPC[] allNPCs;
-    public AudioSource purchase, error;
+    public AudioSource purchase, error, rest;
 
     int endingCharacter, genericOptionSelected;
     int saleDivider = 4;
-    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, genericOptionComplete;
+    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, restComplete, genericOptionComplete;
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences;
@@ -60,9 +60,8 @@ public class NPCInteraction : MonoBehaviour
         if (dialogueTree[7] != null) { reply8.text = dialogueTree[7].reply; }
         if (dialogueTree[8] != null) { reply9.text = dialogueTree[8].reply; }
     }
-    IEnumerator InitiateDialogue(NPC speaker)
+    public IEnumerator InitiateDialogue(NPC speaker)
     {
-        optionBoxGreyFilter.SetActive(true);
         WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
         dialogueBox.SetActive(true);
@@ -218,7 +217,7 @@ public class NPCInteraction : MonoBehaviour
                 option2.text = plainOption2;
                 option3.text = plainOption3;
                 option4.text = plainOption4;
-                controller.UnlockUserInput();
+                ReturnToGame();
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
@@ -249,7 +248,7 @@ public class NPCInteraction : MonoBehaviour
                     option2.text = plainOption2;
                     option3.text = plainOption3;
                     option4.text = plainOption4;
-                    controller.UnlockUserInput();
+                    ReturnToGame();
                 }
                 break;
             }
@@ -284,6 +283,91 @@ public class NPCInteraction : MonoBehaviour
     {
         //if npc.trade == thing {activate correct coroutine
         if (npc.nome == "Skinny Pete") { StartCoroutine(PeteShop(npc)); }
+        else if (npc.nome == "Badger") { StartCoroutine(BadgerRest(npc)); }
+    }
+    IEnumerator BadgerRest(NPC badger)
+    {
+        npcSpeechComplete = false;
+        StartCoroutine(NPCSpeech(badger.initiateTradeResponse));
+        yield return new WaitUntil(NPCSpeechComplete);
+        npcSpeechComplete = false;
+        genericOptionComplete = false;
+        StartCoroutine(GenericOptionSelection("Yeah I'll take a break", "No! I must press on!", null, null));
+        yield return new WaitUntil(GenericOptionComplete);
+        genericOptionComplete = false;
+        if (genericOptionSelected == 0)
+        {
+            if (ego.blueCrystals >= 3)
+            {
+                npcSpeechComplete = false;
+                List<string> restChosen = new List<string>();
+                restChosen.Add($"Don't worry for a second -- me and Pete got your back.");
+                StartCoroutine(NPCSpeech(restChosen));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
+                yield return new WaitForSeconds(.5f);
+                restComplete = false;
+                StartCoroutine(Rest());
+                yield return new WaitUntil(RestComplete);
+                restComplete = false;
+                yield return new WaitForSeconds(.5f);
+                npcSpeechComplete = false;
+                List<string> restFinish = new List<string>();
+                restFinish.Add($"Don't you look like a million bucks? Now - up and at them!");
+                StartCoroutine(NPCSpeech(restFinish));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
+            }
+            else
+            {
+                npcSpeechComplete = false;
+                List<string> restFail = new List<string>();
+                restFail.Add($"You're looking a little light in the pockets -- I need to eat too... you understand, right? I'll be here when you've got a few more to spend.");
+                StartCoroutine(NPCSpeech(restFail));
+                yield return new WaitUntil(NPCSpeechComplete);
+                npcSpeechComplete = false;
+            }
+            ReturnToGame();
+        }
+        else if (genericOptionSelected == 1 || genericOptionSelected == -1)
+        {
+            npcSpeechComplete = false;
+            List<string> optionReturn = new List<string>();
+            optionReturn.Add($"All right, that's cool... Maybe next time. Can I help you with anything else?");
+            StartCoroutine(NPCSpeech(optionReturn));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            StartCoroutine(OptionSelect(badger));
+        }
+        IEnumerator Rest()
+        {
+            rest.Play();
+            yield return new WaitForSeconds(1f);
+            wholeScreenFadeBlack.SetActive(true);
+            FadeAudio(rest, 4f);
+            yield return new WaitForSeconds(5f);
+            ego.blueCrystals -= 3;
+            ego.allStats[0].value = ego.allStats[2].value + ego.allStats[2].effectValue;
+            ego.allStats[1].value = ego.allStats[0].value;
+            while (true)
+            {
+                int counter = 0;
+                for (int i = 0; i < ego.activeEffects.Count; i++)
+                {
+                    if (!ego.activeEffects[i].beneficial)
+                    {
+                        ego.activeEffects.Remove(ego.activeEffects[i]);
+                        break;
+                    }
+                    else { counter++; }
+                }
+                if (counter == ego.activeEffects.Count) { break; }
+            }            
+            //townmusic? play
+            yield return new WaitForSeconds(1.5f);
+            wholeScreenFadeBlack.SetActive(false);
+            restComplete = true;
+        }
     }
     IEnumerator PeteShop(NPC pete)
     {
@@ -344,7 +428,7 @@ public class NPCInteraction : MonoBehaviour
             yield return new WaitUntil(SellComplete);
             sellComplete = false;
         }
-        if (genericOptionSelected == 3 || genericOptionSelected == -1)
+        else if (genericOptionSelected == 3 || genericOptionSelected == -1)
         {
             npcSpeechComplete = false;
             List<string> optionReturn = new List<string>();
@@ -1317,11 +1401,29 @@ public class NPCInteraction : MonoBehaviour
     {
         NPCText.text += text;
     }
+    IEnumerator FadeAudio(AudioSource audio, float fadeTime)
+    {
+        float startVolume = audio.volume;
+        while (audio.volume > 0)
+        {
+            audio.volume -= startVolume * Time.deltaTime / fadeTime;
+            yield return null;
+        }
+        audio.Stop();
+        audio.volume = startVolume;
+    }
+    void ReturnToGame()
+    {
+        dialogueBox.SetActive(false);
+        dialogueBoxBackground.SetActive(false);
+        controller.UnlockUserInput();
+    }
     bool NPCSpeechComplete() { return npcSpeechComplete; }
     bool MessageComplete() { return messageComplete; }
     bool InventoryClosed() { return inventoryClosed; }
     bool BuyComplete() { return buyComplete; }
     bool SellComplete() { return sellComplete; }
+    bool RestComplete() { return restComplete; }
     bool GenericOptionComplete() { return genericOptionComplete; }
 
 
