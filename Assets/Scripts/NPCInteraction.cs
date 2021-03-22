@@ -8,13 +8,15 @@ public class NPCInteraction : MonoBehaviour
 {
     public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
     public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
-    public TMP_Text NPC1Name, NPC2Name, NPCText, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, option1, option2, option3, option4;
+    public TMP_Text NPC1Name, NPC2Name, NPCText, reply0, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, escToReturnReply, option1, option2, option3, option4;
+    TMP_Text[] replyRay = { null, null, null, null, null, null, null, null, null };
 
     public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
 
     public NPC[] allNPCs;
     public AudioSource purchase, error, rest;
+    public Ego ego;
 
     int endingCharacter, genericOptionSelected;
     int saleDivider = 4;
@@ -22,7 +24,6 @@ public class NPCInteraction : MonoBehaviour
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences;
-    Ego ego;
     Item selectedItem;
     //second quest pronouns
     [HideInInspector] public string bro = "bro";
@@ -30,10 +31,33 @@ public class NPCInteraction : MonoBehaviour
     [HideInInspector] public string dude = "dude";
     [HideInInspector] public string guy = "guy";
 
+    //
+    //allNPCs[0] = Badger
+    //allNPCs[1] = Skinny Pete
+
+
     // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<GameController>();
+        replyRay[0] = reply0;
+        replyRay[1] = reply1;
+        replyRay[2] = reply2;
+        replyRay[3] = reply3;
+        replyRay[4] = reply4;
+        replyRay[5] = reply5;
+        replyRay[6] = reply6;
+        replyRay[7] = reply7;
+        replyRay[8] = reply8;
+        replyRay[9] = reply9;
+        replyRay[10] = reply10;
+
+
+        //badger dialogue
+        allNPCs[0].openingGreeting.Add($"Hey, {man}, is there something I can help you with?");
+        allNPCs[0].giveItemResponse.Add($"Oh? What do you have for me?");
+        allNPCs[0].initiateTradeResponse.Add($"Yeah, {man}, get some rest. Is 3 crystals OK?");
+        allNPCs[0].closingRemark.Add($"Don't over-do it, yeah?");
     }
 
     void WriteNPCName(string name, int boxNumber = 1)
@@ -50,15 +74,77 @@ public class NPCInteraction : MonoBehaviour
     }
     void WriteDialogueReplies(List<DialogueOption> dialogueTree)
     {
-        if (dialogueTree[0] != null) { reply1.text = dialogueTree[0].reply; }
-        if (dialogueTree[1] != null) { reply2.text = dialogueTree[1].reply; }
-        if (dialogueTree[2] != null) { reply3.text = dialogueTree[2].reply; }
-        if (dialogueTree[3] != null) { reply4.text = dialogueTree[3].reply; }
-        if (dialogueTree[4] != null) { reply5.text = dialogueTree[4].reply; }
-        if (dialogueTree[5] != null) { reply6.text = dialogueTree[5].reply; }
-        if (dialogueTree[6] != null) { reply7.text = dialogueTree[6].reply; }
-        if (dialogueTree[7] != null) { reply8.text = dialogueTree[7].reply; }
-        if (dialogueTree[8] != null) { reply9.text = dialogueTree[8].reply; }
+        int counter = 0;
+        for (int i = 0; i < dialogueTree.Count; i++)
+        {
+            if (dialogueTree[i].availableToSay)
+            {
+                replyRay[counter].text = dialogueTree[i].reply;
+                counter++;
+            }
+        }
+        for (int i = counter; i < 10; i++)
+        {
+            replyRay[i].text = "";
+        }
+
+        //if (dialogueTree[0] != null)
+        //{
+        //    if (dialogueTree[0].availableToSay)
+        //    {
+        //        reply1.text = dialogueTree[0].reply;
+        //        if (dialogueTree[0].hasBeenSaid) { reply1.color = Color.gray; }
+        //        else { reply1.color = Color.white; }
+        //    }            
+        //}
+        //if (dialogueTree[1] != null)
+        //{
+        //    reply2.text = dialogueTree[1].reply;
+        //    if (dialogueTree[1].hasBeenSaid) { reply2.color = Color.gray; }
+        //    else { reply2.color = Color.white; }
+        //}
+        //if (dialogueTree[2] != null)
+        //{
+        //    reply3.text = dialogueTree[2].reply;
+        //    if (dialogueTree[2].hasBeenSaid) { reply3.color = Color.gray; }
+        //    else { reply3.color = Color.white; }
+        //}
+        //if (dialogueTree[3] != null)
+        //{
+        //    reply4.text = dialogueTree[3].reply;
+        //    if (dialogueTree[3].hasBeenSaid) { reply4.color = Color.gray; }
+        //    else { reply4.color = Color.white; }
+        //}
+        //if (dialogueTree[4] != null)
+        //{
+        //    reply5.text = dialogueTree[4].reply;
+        //    if (dialogueTree[4].hasBeenSaid) { reply5.color = Color.gray; }
+        //    else { reply5.color = Color.white; }
+        //}
+        //if (dialogueTree[5] != null)
+        //{
+        //    reply6.text = dialogueTree[5].reply;
+        //    if (dialogueTree[5].hasBeenSaid) { reply6.color = Color.gray; }
+        //    else { reply6.color = Color.white; }
+        //}
+        //if (dialogueTree[6] != null)
+        //{
+        //    reply7.text = dialogueTree[6].reply;
+        //    if (dialogueTree[6].hasBeenSaid) { reply7.color = Color.gray; }
+        //    else { reply7.color = Color.white; }
+        //}
+        //if (dialogueTree[7] != null)
+        //{
+        //    reply8.text = dialogueTree[7].reply;
+        //    if (dialogueTree[7].hasBeenSaid) { reply8.color = Color.gray; }
+        //    else { reply8.color = Color.white; }
+        //}
+        //if (dialogueTree[8] != null)
+        //{
+        //    reply9.text = dialogueTree[8].reply;
+        //    if (dialogueTree[8].hasBeenSaid) { reply9.color = Color.gray; }
+        //    else { reply9.color = Color.white; }
+        //}
     }
     public IEnumerator InitiateDialogue(NPC speaker)
     {

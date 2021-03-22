@@ -72,7 +72,7 @@ public class InteractableItems : MonoBehaviour
         potion2 = potionBelt.transform.Find("Potion2").gameObject;
         potion2Text = potion2.transform.GetComponent<TMP_Text>();
 
-        viewDeeds = invDisplay.transform.Find("viewDeeds").gameObject;
+        viewDeeds = invDisplay.transform.Find("ViewDeeds").gameObject;
         viewDeedsText = viewDeeds.transform.GetComponent<TMP_Text>();
     }
 
@@ -96,6 +96,10 @@ public class InteractableItems : MonoBehaviour
         notYetSearched.Clear();
         alreadySearched.Clear();
         listenToDictionary.Clear();
+    }
+    public void ActivateDisplayInventory()
+    {
+        StartCoroutine(DisplayInventory());
     }
     public IEnumerator DisplayInventory()
     {

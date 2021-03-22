@@ -6,9 +6,10 @@ using UnityEngine;
 public class DialogueOption : ScriptableObject
 {
     public string reply;
+    [TextArea(2, 10)]
     public List<string> response = new List<string>();
     public List<DialogueOption> additionalReplies = new List<DialogueOption>();
     public List<DialogueOption> parentReplyList;
     public bool availableToSay;
-    public bool hasBeenSaid;
+    [HideInInspector] public bool hasBeenSaid;
 }

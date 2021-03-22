@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9afacf60603a994388c10682c6a7339, type: 3}
+  m_Name: Dungeon
+  m_EditorClassIdentifier: 
+  reply: Dungeon
+  response:
+  - I know, right? What is this place, even?
+  - I don't know. Pete and I just woke up down here one day. He and I were one of
+    the firsts, and more and more just kept showing up. We mostly all know each other...
+    but no one knows why we're here.
+  additionalReplies:
+  - {fileID: 11400000, guid: e9ddc9a7ee5e51c4289cbe1936d12990, type: 2}
+  parentReplyList: []
+  availableToSay: 1
+  hasBeenSaid: 0

@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
     public TMP_Text invDisplayCritResist;
     public TMP_Text invDisplayDmgReduction;
     public GameObject inputBox, displayBox;
-    public InputField inputField;
+    public TMP_InputField inputField;
     public GameObject popUpBox;
     public Scrollbar scrollBar;
     public Button scrollUpArrow, scrollDownArrow, scrollNonArrow;
@@ -1038,7 +1038,7 @@ public class GameController : MonoBehaviour
         //    }
         //}
         //else if (!enterToContinue && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
-        if (!inputField.isFocused && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
+        if (!inputField.isFocused && inputBox.activeInHierarchy && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
         //if (escToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
         //{
         //    if (Input.GetKeyDown(KeyCode.Escape))
