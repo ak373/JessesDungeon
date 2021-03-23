@@ -60,6 +60,7 @@ public class GameController : MonoBehaviour
     public GameObject scrollArrows;
     public Ego ego;
     public InputAction[] inputActions;
+    public AudioSource mainTheme;
     [HideInInspector] public InputAction inputAction;
     [HideInInspector] public InteractableObject interactableObject;
     [HideInInspector] public RoomNavigation roomNavigation;
@@ -74,6 +75,7 @@ public class GameController : MonoBehaviour
     [HideInInspector] public SecondQuest secondQuest;
     [HideInInspector] public NPCTalk npcTalk;
     [HideInInspector] public Achievements achievements;
+    [HideInInspector] public Combat combat;
     [HideInInspector] public TeleType teleType;
     [HideInInspector] public NPCInteraction npcInteraction;
     [HideInInspector] public string currentActiveInput;
@@ -111,6 +113,7 @@ public class GameController : MonoBehaviour
         npcTalk = GetComponent<NPCTalk>();
         npcInteraction = GetComponent<NPCInteraction>();
         achievements = GetComponent<Achievements>();
+        combat = GetComponent<Combat>();
         teleType = GetComponent<TeleType>();
         GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0.5f;
         //enterToContinue = false;
@@ -173,6 +176,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        mainTheme.Play();
         DisplayRoomText();
     }
 

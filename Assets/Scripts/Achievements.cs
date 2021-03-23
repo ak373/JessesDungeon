@@ -96,6 +96,7 @@ public class Achievements : MonoBehaviour
 
         while (true)
         {
+            if (doneDeeds.Count == 0) { skipToOptions = true; }
             deedListText.text = normalDeedListText;
             if (selectedElement < 0) { selectedElement = doneDeeds.Count - 1; }
             if (selectedElement > doneDeeds.Count - 1) { selectedElement = 0; }
@@ -188,42 +189,48 @@ public class Achievements : MonoBehaviour
                     }
                     else if (Input.GetKeyDown(KeyCode.Return))
                     {
+                        deedSwitch.text = plainSwitch;
+                        deedErase.text = plainErase;
                         if (optionElement == 0)
                         {
                             controller.interactableItems.cursorSelect.Play();
                             toDoDeedsCoroutine = DisplayToDoAchievements();
                             StartCoroutine(toDoDeedsCoroutine);
+                            yield return new WaitForSeconds(1f);
                         }
                         else if (optionElement == 1)
                         {
                             bool yesSelected = false;
                             while (true)
                             {
-                                if (yesSelected) { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=yellow>[Yes]</color>. Wipe it clean!", "", "[No] Wait! Don't!", ""); }
-                                else { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "[Yes]. Wipe it clean!", "", "<color=yellow>[No]</color> Wait! Don't!", ""); }
-                                yield return new WaitUntil(controller.LeftRightEnterPressed);
+                                if (yesSelected) { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=yellow>[Yes]</color><color=#FFC8AF>. Wipe it clean!</color>", "", "<color=#FFC8AF>[No] wait! Don't!</color>", ""); }
+                                else { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=#FFC8AF>[Yes]. Wipe it clean!</color>", "", "<color=yellow>[No]</color> <color=#FFC8AF>wait! Don't!</color>", ""); }
+                                yield return new WaitUntil(controller.LeftRightEnterEscPressed);
                                 if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
                                 {
                                     controller.interactableItems.cursorMove.Play();
                                     yesSelected = !yesSelected;
                                 }
-                                else if (Input.GetKeyDown(KeyCode.Return))
+                                else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape))
                                 {
+                                    if (Input.GetKeyDown(KeyCode.Escape)) { yesSelected = false; }
                                     if (yesSelected)
                                     {
-                                        controller.interactableItems.cursorSelect.Play();
+                                        controller.combat.badEffect.Play();
                                         ClearDeeds();
                                         controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                         yield return new WaitUntil(controller.EscPressed);
+                                        controller.interactableItems.cursorCancel.Play();
                                         controller.popUpMessage.font = controller.achievements.originalFont;
                                         //dropUsed = true;
                                     }
                                     else
                                     {
-                                        controller.interactableItems.cursorCancel.Play();
-                                        controller.OpenPopUpWindow("", "", "You're right. What's the point of doing good deeds if no one knows about it?", "", "", "", "", "Press ESC to return");
+                                        controller.OpenPopUpWindow("", "", "You're right. What's the point of doing good deeds if nobody knows about them?", "", "", "", "", "Press ESC to return");
                                         controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                        yield return new WaitForSeconds(.25f);
                                         yield return new WaitUntil(controller.EscPressed);
+                                        controller.interactableItems.cursorCancel.Play();
                                         controller.popUpMessage.font = controller.achievements.originalFont;
                                     }
                                     controller.ClosePopUpWindow();
@@ -324,7 +331,7 @@ public class Achievements : MonoBehaviour
         if (toDoDeeds.Count == 0) { skipToOptions = true; }
         else { selectedDeed = toDoDeeds[0]; }
 
-        int deedListIndex = 30;
+        int deedListIndex = 36;
         int deedLength = 0;
 
         while (true)
@@ -340,8 +347,8 @@ public class Achievements : MonoBehaviour
             {
                 deedListText.color = Color.grey;
                 deedLength = 4;
-                deedListIndex += 4;
-                if (deedListIndex > deedListText.textInfo.characterCount + 22) { deedListIndex = 30; }
+                if (deedListIndex > toDoDeeds.Count * 5 + 36 - 5) { deedListIndex = 36; }
+                if (deedListIndex < 36) { deedListIndex = toDoDeeds.Count * 5 + 36 - 5; }
             }
             else
             {
@@ -361,18 +368,20 @@ public class Achievements : MonoBehaviour
             newText += "</color>";
 
             for (int i = deedListIndex + deedLength; i < deedListText.text.Length; i++) { newText += deedListText.text[i]; }
-
+            
             deedListText.text = newText;
 
             yield return new WaitUntil(controller.RightUpDownEnterEscPressed);
 
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
+                if (!allDeeds[1].achieved) { deedListIndex -= 5; }
                 controller.interactableItems.cursorMove.Play();
                 selectedElement--;
             }
             else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
+                if (!allDeeds[1].achieved) { deedListIndex += 5; }
                 controller.interactableItems.cursorMove.Play();
                 selectedElement++;
             }
@@ -431,42 +440,48 @@ public class Achievements : MonoBehaviour
                     }
                     else if (Input.GetKeyDown(KeyCode.Return))
                     {
+                        deedSwitch.text = plainSwitch;
+                        deedErase.text = plainErase;
                         if (optionElement == 0)
                         {
                             controller.interactableItems.cursorSelect.Play();
                             doneDeedsCoroutine = DisplayDoneAchievements();
                             StartCoroutine(doneDeedsCoroutine);
+                            yield return new WaitForSeconds(1f);
                         }
                         else if (optionElement == 1)
                         {
                             bool yesSelected = false;
                             while (true)
                             {
-                                if (yesSelected) { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=yellow>[Yes]</color>. Wipe it clean!", "", "[No] Wait! Don't!", ""); }
-                                else { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "[Yes]. Wipe it clean!", "", "<color=yellow>[No]</color> Wait! Don't!", ""); }
-                                yield return new WaitUntil(controller.LeftRightEnterPressed);
+                                if (yesSelected) { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=yellow>[Yes]</color><color=#FFC8AF>. Wipe it clean!</color>", "", "<color=#FFC8AF>[No] wait! Don't!</color>", ""); }
+                                else { controller.OpenPopUpWindow("Reset accomplished deeds?", "", "This action cannot be undone.", "", "<color=#FFC8AF>[Yes]. Wipe it clean!</color>", "", "<color=yellow>[No]</color> <color=#FFC8AF>wait! Don't!</color>", ""); }
+                                yield return new WaitUntil(controller.LeftRightEnterEscPressed);
                                 if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
                                 {
                                     controller.interactableItems.cursorMove.Play();
                                     yesSelected = !yesSelected;
                                 }
-                                else if (Input.GetKeyDown(KeyCode.Return))
+                                else if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape))
                                 {
+                                    if (Input.GetKeyDown(KeyCode.Escape)) { yesSelected = false; }
                                     if (yesSelected)
                                     {
-                                        controller.interactableItems.cursorSelect.Play();
+                                        controller.combat.badEffect.Play();
                                         ClearDeeds();
                                         controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
                                         yield return new WaitUntil(controller.EscPressed);
+                                        controller.interactableItems.cursorCancel.Play();
                                         controller.popUpMessage.font = controller.achievements.originalFont;
                                         //dropUsed = true;
                                     }
                                     else
                                     {
-                                        controller.interactableItems.cursorCancel.Play();
-                                        controller.OpenPopUpWindow("", "", "You're right. What's the point of doing good deeds if no one knows about it?", "", "", "", "", "Press ESC to return");
+                                        controller.OpenPopUpWindow("", "", "You're right. What's the point of doing good deeds if nobody knows about them?", "", "", "", "", "Press ESC to return");
                                         controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                        yield return new WaitForSeconds(.25f);
                                         yield return new WaitUntil(controller.EscPressed);
+                                        controller.interactableItems.cursorCancel.Play();
                                         controller.popUpMessage.font = controller.achievements.originalFont;
                                     }
                                     controller.ClosePopUpWindow();
@@ -494,9 +509,9 @@ public class Achievements : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Return))
             {
                 controller.interactableItems.cursorSelect.Play();
-                selectedDeed = doneDeeds[selectedElement];
+                selectedDeed = toDoDeeds[selectedElement];
                 if (controller.secondQuestActive) { controller.OpenPopUpWindow(selectedDeed.title, "", selectedDeed.description, "", "", "", "", "Press ESC to return"); }
-                else { controller.OpenPopUpWindow("<color=grey>???</color>", "", "<color=grey>???</color>", "", "", "", "", "Press ESC to return"); }
+                else { controller.OpenPopUpWindow("<color=#AFAFAF>????</color>", "", "<color=#AFAFAF>????</color>", "", "", "", "", "Press ESC to return"); }
                 originalFont = controller.popUpMessage.font;
                 controller.popUpMessage.font = deedDescriptionFont;
                 yield return new WaitUntil(controller.EscPressed);
