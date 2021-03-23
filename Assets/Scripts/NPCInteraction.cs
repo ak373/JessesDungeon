@@ -9,7 +9,7 @@ public class NPCInteraction : MonoBehaviour
     public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
     public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply0, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, escToReturnReply, option1, option2, option3, option4;
-    TMP_Text[] replyRay = { null, null, null, null, null, null, null, null, null };
+    TMP_Text[] replyRay = { null, null, null, null, null, null, null, null, null, null, null };
 
     public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
@@ -145,6 +145,10 @@ public class NPCInteraction : MonoBehaviour
         //    if (dialogueTree[8].hasBeenSaid) { reply9.color = Color.gray; }
         //    else { reply9.color = Color.white; }
         //}
+    }
+    public void StartInitiateDialogue(NPC speaker)
+    {
+        StartCoroutine(InitiateDialogue(speaker));
     }
     public IEnumerator InitiateDialogue(NPC speaker)
     {

@@ -12,6 +12,7 @@ public class Achievements : MonoBehaviour
     public Deed[] allDeeds;
     string doneDeedsDisplayed = "";
     string toDoDeedsDisplayed = "";
+    [HideInInspector] public bool returnToInventory;
 
     public GameObject deedpopUpWindow, deedWindow, deedWhiteScreen, deedGreyScreen;
     public TMP_Text deedTitle, deedBlurb, deedSwitch, deedErase;
@@ -51,14 +52,15 @@ public class Achievements : MonoBehaviour
     //    }
     //}
     public void InitiateDisplayAchievements()
-    {        
+    {
         doneDeedsDisplayed = "";
         toDoDeedsDisplayed = "";
         for (int i = 0; i < doneDeeds.Count; i++) { doneDeedsDisplayed += $"[{doneDeeds[i].title}]\n"; }
         for (int i = 0; i < toDoDeeds.Count; i++)
         {
             if (allDeeds[1].achieved) { toDoDeedsDisplayed += $"[{toDoDeeds[i].title}]\n"; }
-            else { toDoDeedsDisplayed += "<color=#AFAFAF>????</color>\n"; }            
+            //else { toDoDeedsDisplayed += "<color=#AFAFAF>????</color>\n"; }
+            else { toDoDeedsDisplayed += "????\n"; }
         }
         //if (doneDeeds.Count == 0) { doneDeedsDisplayed = "You've achieved nothing. Step up your game, hero."; }
         //if (toDoDeeds.Count == 0) { toDoDeedsDisplayed = "You've done it all! Congratulations! You're really a hero!"; }
@@ -72,6 +74,7 @@ public class Achievements : MonoBehaviour
         //    int difference = 5 - toDoDeeds.Count;
         //    for (int i = 0; i < difference; i++) { toDoDeedsDisplayed += "\n"; }
         //}
+        deedWindow.SetActive(true);
         doneDeedsCoroutine = DisplayDoneAchievements();
         StartCoroutine(doneDeedsCoroutine);
     }
@@ -80,21 +83,29 @@ public class Achievements : MonoBehaviour
         if (toDoDeedsCoroutine != null) { StopCoroutine(toDoDeedsCoroutine); }
         WriteDeedScreen($"<size=40><b>Done Deeds</size></b>\n\n{doneDeedsDisplayed}");
         deedSwitch.text = "To Do Deeds";
+
+        string normalDeedListText = deedListText.text;
+        Deed selectedDeed = null;
+        int selectedElement = 0;
+        int memoryElement = 0;
+        bool skipToOptions = false;
+        if (doneDeeds.Count == 0) { skipToOptions = true; }
+        else { selectedDeed = doneDeeds[0]; }
+        int deedLength = 0;
+        int deedListIndex = 0;
+
         while (true)
         {
-            string normalDeedListText = deedListText.text;
-            Deed selectedDeed = doneDeeds[0];
-            int selectedElement = 0;
-            int memoryElement = 0;
-            bool skipToOptions = false;
-            if (doneDeeds.Count == 0) { skipToOptions = true; }
-
             deedListText.text = normalDeedListText;
             if (selectedElement < 0) { selectedElement = doneDeeds.Count - 1; }
             if (selectedElement > doneDeeds.Count - 1) { selectedElement = 0; }
-            int deedLength = doneDeeds[selectedElement].title.Length;
-            int deedListIndex = 0;
-            deedListIndex = deedListText.text.IndexOf(myTI.ToTitleCase(doneDeeds[selectedElement].title));
+            
+
+            if (doneDeeds.Count > 0)
+            {
+                deedLength = doneDeeds[selectedElement].title.Length;
+                deedListIndex = deedListText.text.IndexOf(myTI.ToTitleCase(doneDeeds[selectedElement].title));
+            }
 
             string newText = "";
 
@@ -140,6 +151,8 @@ public class Achievements : MonoBehaviour
 
                     deedSwitch.text = plainSwitch;
                     deedErase.text = plainErase;
+                    if (optionElement == 0) { deedSwitch.text = $"<color=yellow>{deedSwitch.text}</color>"; }
+                    else if (optionElement == 1) { deedErase.text = $"<color=yellow>{deedErase.text}</color>"; }
 
                     yield return new WaitUntil(controller.LeftUpDownEnterEscPressed);
                     if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -169,6 +182,7 @@ public class Achievements : MonoBehaviour
                         deedSwitch.text = plainSwitch;
                         deedErase.text = plainErase;
                         deedWindow.SetActive(false);
+                        returnToInventory = true;
                         //doubleBreak = true;
                         break;
                     }
@@ -231,6 +245,7 @@ public class Achievements : MonoBehaviour
                 controller.interactableItems.cursorCancel.Play();
                 deedListText.text = normalDeedListText;
                 deedWindow.SetActive(false);
+                returnToInventory = true;
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
@@ -241,6 +256,7 @@ public class Achievements : MonoBehaviour
                 originalFont = controller.popUpMessage.font;
                 controller.popUpMessage.font = deedDescriptionFont;
                 yield return new WaitUntil(controller.EscPressed);
+                controller.interactableItems.cursorCancel.Play();
                 controller.popUpMessage.font = originalFont;
                 controller.ClosePopUpWindow();
             }
@@ -299,21 +315,40 @@ public class Achievements : MonoBehaviour
         if (doneDeedsCoroutine != null) { StopCoroutine(doneDeedsCoroutine); }
         WriteDeedScreen($"<size=40><b>To Do Deeds</size></b>\n\n{toDoDeedsDisplayed}");
         deedSwitch.text = "Done Deeds";
+
+        string normalDeedListText = deedListText.text;
+        Deed selectedDeed = null;
+        int selectedElement = 0;
+        int memoryElement = 0;
+        bool skipToOptions = false;
+        if (toDoDeeds.Count == 0) { skipToOptions = true; }
+        else { selectedDeed = toDoDeeds[0]; }
+
+        int deedListIndex = 30;
+        int deedLength = 0;
+
         while (true)
         {
-            string normalDeedListText = deedListText.text;
-            Deed selectedDeed = toDoDeeds[0];
-            int selectedElement = 0;
-            int memoryElement = 0;
-            bool skipToOptions = false;
-            if (toDoDeeds.Count == 0) { skipToOptions = true; }
-
             deedListText.text = normalDeedListText;
             if (selectedElement < 0) { selectedElement = toDoDeeds.Count - 1; }
             if (selectedElement > toDoDeeds.Count - 1) { selectedElement = 0; }
-            int deedLength = toDoDeeds[selectedElement].title.Length;
-            int deedListIndex = 0;
-            deedListIndex = deedListText.text.IndexOf(myTI.ToTitleCase(toDoDeeds[selectedElement].title));
+            //int deedLength = toDoDeeds[selectedElement].title.Length;
+            //int deedListIndex = 0;
+
+            //this stuff has to be fixed and put on the up/down keys
+            if (!allDeeds[1].achieved)
+            {
+                deedListText.color = Color.grey;
+                deedLength = 4;
+                deedListIndex += 4;
+                if (deedListIndex > deedListText.textInfo.characterCount + 22) { deedListIndex = 30; }
+            }
+            else
+            {
+                deedListText.color = Color.white;
+                deedLength = toDoDeeds[selectedElement].title.Length;
+                deedListIndex = deedListText.text.IndexOf(myTI.ToTitleCase(toDoDeeds[selectedElement].title));
+            }
 
             string newText = "";
 
@@ -359,6 +394,8 @@ public class Achievements : MonoBehaviour
 
                     deedSwitch.text = plainSwitch;
                     deedErase.text = plainErase;
+                    if (optionElement == 0) { deedSwitch.text = $"<color=yellow>{deedSwitch.text}</color>"; }
+                    else if (optionElement == 1) { deedErase.text = $"<color=yellow>{deedErase.text}</color>"; }
 
                     yield return new WaitUntil(controller.LeftUpDownEnterEscPressed);
                     if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -388,6 +425,7 @@ public class Achievements : MonoBehaviour
                         deedSwitch.text = plainSwitch;
                         deedErase.text = plainErase;
                         deedWindow.SetActive(false);
+                        returnToInventory = true;
                         //doubleBreak = true;
                         break;
                     }
@@ -450,6 +488,7 @@ public class Achievements : MonoBehaviour
                 controller.interactableItems.cursorCancel.Play();
                 deedListText.text = normalDeedListText;
                 deedWindow.SetActive(false);
+                returnToInventory = true;
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
@@ -461,6 +500,7 @@ public class Achievements : MonoBehaviour
                 originalFont = controller.popUpMessage.font;
                 controller.popUpMessage.font = deedDescriptionFont;
                 yield return new WaitUntil(controller.EscPressed);
+                controller.interactableItems.cursorCancel.Play();
                 controller.popUpMessage.font = originalFont;
                 controller.ClosePopUpWindow();
             }
@@ -727,7 +767,7 @@ public class Achievements : MonoBehaviour
         deedGreyScreen.SetActive(false);
 
     }
-
+    public bool ReturnToInventory() { return returnToInventory; }
 
 
 

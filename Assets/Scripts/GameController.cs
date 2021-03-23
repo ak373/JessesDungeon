@@ -229,10 +229,7 @@ public class GameController : MonoBehaviour
         ForceTextWindowDown();
         yield return new WaitForSeconds(.25f);
         yield return new WaitUntil(EnterPressed);
-        inputBox.SetActive(true);
-        textInput.inputField.ActivateInputField();
-        textInput.inputField.text = null;
-        DisplayRoomText();
+        UnlockUserInput();
     }
     public void UnlockUserInput()
     {

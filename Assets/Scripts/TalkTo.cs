@@ -21,7 +21,7 @@ public class TalkTo : InputAction
             {
                 if (controller.npcInteraction.myTI.ToTitleCase(NPCName) == controller.npcInteraction.allNPCs[i].nome) { npc = controller.npcInteraction.allNPCs[i]; }
             }
-            if (npc != null) { controller.npcInteraction.InitiateDialogue(npc); }
+            if (npc != null) { controller.npcInteraction.StartInitiateDialogue(npc); }
             else { controller.InitiateNarrator("No, you don't."); }
 
             //enter all npcs

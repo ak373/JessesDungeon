@@ -104,51 +104,30 @@ public class InteractableItems : MonoBehaviour
     public IEnumerator DisplayInventory()
     {
         string toPassIn;
+        string normalInvText = invText.text;
+        string plainPotion0 = potion0Text.text;
+        string plainPotion1 = potion1Text.text;
+        string plainPotion2 = potion2Text.text;
+        string plainWeapon = weaponText.text;
+        string plainArmor = armorText.text;
+        string plainShield = shieldText.text;
+        string plainDeeds = viewDeedsText.text;
         List<Item> alreadyListed = new List<Item>();
 
         controller.inputBox.SetActive(false);
         invDisplay.SetActive(true);
         invDisplayBorder.SetActive(true);
+        WriteInventory();
         DisplayPotionBelt();
-        alreadyListed.Clear();
-        toPassIn = "";
-        if (inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
-        else
-        {
-            for (int i = 0; i < inventory.Count; i++)
-            {
-                if (alreadyListed.Contains(inventory[i])) { continue; }
-                else
-                {
-                    int counter = 0;
-                    for (int j = i; j < inventory.Count; j++)
-                    {
-                        if (inventory[i] == inventory[j]) { counter++; }
-                    }
-                    alreadyListed.Add(inventory[i]);
-                    string total = counter.ToString();
-                    toPassIn += total + " " + myTI.ToTitleCase(inventory[i].nome) + "\n";
-                }
-            }
-        }
-        invText.text = toPassIn;
-        void DisplayPotionBelt()
-        {
-            potion0Text.text = "";
-            potion1Text.text = "";
-            potion2Text.text = "";
-            if (ego.potionBelt.Count > 0) { potion0Text.text = myTI.ToTitleCase(ego.potionBelt[0].nome); }
-            if (ego.potionBelt.Count > 1) { potion1Text.text = myTI.ToTitleCase(ego.potionBelt[1].nome); }
-            if (ego.potionBelt.Count > 2) { potion2Text.text = myTI.ToTitleCase(ego.potionBelt[2].nome); }
-        }
-
+        DisplayEquippedItems();
+        
 
         if (inventory.Count > 0 || ego.equippedWeapon != null || ego.equippedArmor != null || ego.equippedShield != null || ego.potionBelt.Count > 0)
         {
             bool skipToEquipment = false;
             if (inventory.Count <= 0) { skipToEquipment = true; }
-            string normalInvText = invText.text;
-            Item selectedItem = alreadyListed[0];
+            Item selectedItem = null;
+            if (!skipToEquipment) { selectedItem = alreadyListed[0]; }
             int selectedElement = 0;
             int memoryElement = 0;
             bool itemUsed = false;
@@ -156,6 +135,10 @@ public class InteractableItems : MonoBehaviour
             bool doubleBreak = false;
             while (true)
             {
+                WriteInventory();
+                if (inventory.Count <= 0) { skipToEquipment = true; }
+                DisplayPotionBelt();
+                DisplayEquippedItems();
                 if (!skipToEquipment)
                 {
                     invText.text = normalInvText;
@@ -197,31 +180,34 @@ public class InteractableItems : MonoBehaviour
                 //Right Side
                 else if (Input.GetKeyDown(KeyCode.RightArrow) || skipToEquipment)
                 {
+                    InvStats(null);
                     if (skipToEquipment) { skipToEquipment = false; }
                     else { cursorMove.Play(); }
                     invText.text = normalInvText;
                     memoryElement = selectedElement;
                     int equipmentElement = 0;
-                    string plainPotion0 = potion0Text.text;
-                    string plainPotion1 = potion1Text.text;
-                    string plainPotion2 = potion2Text.text;
-                    string plainWeapon = weaponText.text;
-                    string plainArmor = armorText.text;
-                    string plainShield = shieldText.text;
-                    string plainDeeds = viewDeedsText.text;
+                    if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement++; }
+                    if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement++; }
+                    if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement++; }
+                    if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 6; }
+                    if (ego.potionBelt.Count == 1 && equipmentElement == 4) { equipmentElement = 6; }
+                    if (ego.potionBelt.Count == 2 && equipmentElement == 5) { equipmentElement = 6; }
 
                     while (true)
                     {
+                        WriteInventory();
+                        DisplayPotionBelt();
+                        DisplayEquippedItems();
+                        viewDeedsText.text = plainDeeds;
                         if (equipmentElement < 0) { equipmentElement = 6; }
                         if (equipmentElement > 6) { equipmentElement = 0; }
 
-                        potion0Text.text = plainPotion0;
-                        potion1Text.text = plainPotion1;
-                        potion2Text.text = plainPotion2;
-                        weaponText.text = plainWeapon;
-                        armorText.text = plainArmor;
-                        shieldText.text = plainShield;
-                        viewDeedsText.text = plainDeeds;
+                        //potion0Text.text = plainPotion0;
+                        //potion1Text.text = plainPotion1;
+                        //potion2Text.text = plainPotion2;
+                        //weaponText.text = plainWeapon;
+                        //armorText.text = plainArmor;
+                        //shieldText.text = plainShield;
 
                         if (equipmentElement == 0) { weaponText.text = $"<color=yellow>{weaponText.text}</color>"; }
                         else if (equipmentElement == 1) { armorText.text = $"<color=yellow>{armorText.text}</color>"; }
@@ -247,6 +233,7 @@ public class InteractableItems : MonoBehaviour
                         {
                             cursorMove.Play();
                             equipmentElement++;
+                            if (equipmentElement == 7) { equipmentElement = 0; }
                             if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement++; }
                             if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement++; }
                             if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement++; }
@@ -290,20 +277,29 @@ public class InteractableItems : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Return))
                         {
-                            invOptions.SetActive(true);
-                            invOptionsBorder.SetActive(true);
+                            if (equipmentElement != 6)
+                            {
+                                invOptions.SetActive(true);
+                                invOptionsBorder.SetActive(true);
+                            }                            
                             cursorSelect.Play();
                             if (equipmentElement == 0) { selectedItem = ego.equippedWeapon; }
                             else if (equipmentElement == 1) { selectedItem = ego.equippedArmor; }
                             else if (equipmentElement == 2) { selectedItem = ego.equippedShield; }
-                            else if (equipmentElement == 6) { controller.achievements.InitiateDisplayAchievements(); }
+                            else if (equipmentElement == 6)
+                            {
+                                controller.achievements.InitiateDisplayAchievements();
+                                controller.achievements.returnToInventory = false;
+                                yield return new WaitUntil(controller.achievements.ReturnToInventory);
+                                controller.achievements.returnToInventory = false;
+                            }
                             else { selectedItem = ego.potionBelt[equipmentElement]; }
 
                             int option = 0;
                             if (selectedItem is Potion) { invActions[1].color = darkGrey; }
                             else { invActions[1].text = "Unequip"; }
                             bool useUsed = false;
-                            while (true)
+                            while (equipmentElement != 6)
                             {
                                 invOptions.SetActive(true);
                                 invOptionsBorder.SetActive(true);
@@ -342,23 +338,45 @@ public class InteractableItems : MonoBehaviour
                                     //Inspect
                                     if (option == 0)
                                     {
-                                        Inspect(selectedItem);
+                                        StartCoroutine(Inspect(selectedItem));
+                                        yield return new WaitUntil(controller.EscPressed);
                                     }
                                     //Unequip
                                     if (option == 1)
                                     {
-                                        invActions[1].text = "Equip";
                                         invOptions.SetActive(false);
                                         invOptionsBorder.SetActive(false);
-                                        if (selectedItem is Weapon) { controller.GetUnEquipped(); }
-                                        if (selectedItem is Armor) { controller.GetUnDressed(); }
-                                        if (selectedItem is Shield) { controller.GetUnStrapped(); }
-                                        controller.OpenPopUpWindow($"", "", $"You unequip the {myTI.ToTitleCase(selectedItem.nome)}.", "", "", "", "", "Press ESC to return");
-                                        controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
-                                        controller.popUpMessage.font = controller.achievements.originalFont;
-                                        yield return new WaitUntil(controller.EscPressed);
-                                        cursorCancel.Play();
-                                        controller.ClosePopUpWindow();
+                                        invActions[1].text = "Equip";
+                                        if (selectedItem is Weapon)
+                                        {
+                                            controller.GetUnEquipped();
+                                            equipmentElement = 1;
+                                            if (ego.equippedArmor == null) { equipmentElement = 2; }
+                                            if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement = 3; }
+                                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 6; }
+                                        }
+                                        if (selectedItem is Armor)
+                                        {
+                                            controller.GetUnDressed();
+                                            equipmentElement = 2;
+                                            if (ego.equippedShield == null) { equipmentElement = 0; }
+                                            if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement = 3; }
+                                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 6; }
+                                        }
+                                        if (selectedItem is Shield)
+                                        {
+                                            controller.GetUnStrapped();
+                                            equipmentElement = 0;
+                                            if (ego.equippedWeapon == null) { equipmentElement = 1; }
+                                            if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement = 3; }
+                                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 6; }
+                                        }
+                                        //controller.OpenPopUpWindow($"", "", $"You unequip the {myTI.ToTitleCase(selectedItem.nome)}.", "", "", "", "", "Press ESC to return");
+                                        //controller.popUpMessage.font = controller.achievements.deedDescriptionFont;
+                                        //controller.popUpMessage.font = controller.achievements.originalFont;
+                                        //yield return new WaitUntil(controller.EscPressed);
+                                        //cursorCancel.Play();
+                                        //controller.ClosePopUpWindow();
                                         break;
                                     }
                                     //Use
@@ -369,7 +387,7 @@ public class InteractableItems : MonoBehaviour
                                         invDisplayBorder.SetActive(false);
                                         invOptions.SetActive(false);
                                         invOptionsBorder.SetActive(false);
-                                        Use(selectedItem);
+                                        StartCoroutine(Use(selectedItem));
                                         break;
                                     }
                                     //Drop
@@ -490,7 +508,8 @@ public class InteractableItems : MonoBehaviour
                             //Inspect
                             if (option == 0)
                             {
-                                Inspect(selectedItem);
+                                StartCoroutine(Inspect(selectedItem));
+                                yield return new WaitUntil(controller.EscPressed);
                             }
                             //Equip
                             if (option == 1)
@@ -542,7 +561,10 @@ public class InteractableItems : MonoBehaviour
                                 //{
                                 //    itemUsed = true;
                                 //}
-                                controller.GetEquipped((Weapon)selectedItem);
+                                if (selectedItem is Weapon) { controller.GetEquipped((Weapon)selectedItem); }
+                                else if (selectedItem is Armor) { controller.GetDressed((Armor)selectedItem); }
+                                else if (selectedItem is Shield) { controller.GetStrapped((Shield)selectedItem); }
+
                                 break;
                             }
                             //Use
@@ -550,7 +572,7 @@ public class InteractableItems : MonoBehaviour
                             {
                                 invDisplay.SetActive(false);
                                 invDisplayBorder.SetActive(false);
-                                Use(selectedItem);
+                                StartCoroutine(Use(selectedItem));
                                 break;
                             }
                             //Drop
@@ -630,15 +652,91 @@ public class InteractableItems : MonoBehaviour
         }
         else
         {
-            yield return new WaitUntil(controller.EscPressed);
-            cursorCancel.Play();
-            invDisplay.SetActive(false);
-            invDisplayBorder.SetActive(false);
-            controller.inputBox.SetActive(true);
-            controller.textInput.inputField.ActivateInputField();
-            controller.textInput.inputField.text = null;
+            InvStats(null);
+            while (true)
+            {
+                viewDeedsText.color = Color.yellow;
+                yield return new WaitUntil(controller.LeftRightUpDownEnterEscPressed);
+                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    cursorMove.Play();
+                    viewDeedsText.color = Color.white;
+                    yield return new WaitForSeconds(.05f);
+                    viewDeedsText.color = Color.yellow;
+                }
+                else if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    cursorCancel.Play();
+                    invDisplay.SetActive(false);
+                    invDisplayBorder.SetActive(false);
+                    viewDeedsText.color = Color.white;
+                    controller.UnlockUserInput();
+                    break;
+                }
+                else if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    cursorSelect.Play();
+                    controller.achievements.InitiateDisplayAchievements();
+                    controller.achievements.returnToInventory = false;
+                    yield return new WaitUntil(controller.achievements.ReturnToInventory);
+                    controller.achievements.returnToInventory = false;
+                }
+            }
         }
 
+
+
+
+        void WriteInventory()
+        {
+            toPassIn = "";
+            alreadyListed.Clear();
+            if (inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
+            else
+            {
+                for (int i = 0; i < inventory.Count; i++)
+                {
+                    if (alreadyListed.Contains(inventory[i])) { continue; }
+                    else
+                    {
+                        int counter = 0;
+                        for (int j = i; j < inventory.Count; j++)
+                        {
+                            if (inventory[i] == inventory[j]) { counter++; }
+                        }
+                        alreadyListed.Add(inventory[i]);
+                        string total = counter.ToString();
+                        toPassIn += total + " " + myTI.ToTitleCase(inventory[i].nome) + "\n";
+                    }
+                }
+            }
+            invText.text = toPassIn;
+            normalInvText = invText.text;
+        }
+        void DisplayPotionBelt()
+        {
+            potion0Text.text = "";
+            potion1Text.text = "";
+            potion2Text.text = "";
+            if (ego.potionBelt.Count > 0) { potion0Text.text = myTI.ToTitleCase(ego.potionBelt[0].nome); }
+            if (ego.potionBelt.Count > 1) { potion1Text.text = myTI.ToTitleCase(ego.potionBelt[1].nome); }
+            if (ego.potionBelt.Count > 2) { potion2Text.text = myTI.ToTitleCase(ego.potionBelt[2].nome); }
+            plainPotion0 = potion0Text.text;
+            plainPotion1 = potion1Text.text;
+            plainPotion2 = potion2Text.text;
+        }
+        void DisplayEquippedItems()
+        {
+            if (ego.equippedWeapon != null) { weaponText.text = myTI.ToTitleCase(ego.equippedWeapon.nome); }
+            else { weaponText.text = "None"; }
+            if (ego.equippedArmor != null) { armorText.text = myTI.ToTitleCase(ego.equippedArmor.nome); }
+            else { armorText.text = "None"; }
+            if (ego.equippedShield != null) { shieldText.text = myTI.ToTitleCase(ego.equippedShield.nome); }
+            else { shieldText.text = "None"; }
+            plainWeapon = weaponText.text;
+            plainArmor = armorText.text;
+            plainShield = shieldText.text;
+        }
         IEnumerator Inspect(Item itemInspected)
         {
             controller.OpenPopUpWindow();

@@ -66,6 +66,40 @@ public class DebugMode : MonoBehaviour
             //controller.DisplayNarratorResponse("Black sheep wall!");
             StartCoroutine(controller.Narrator("Black sheep wall!"));
         }
+        else if (userInput == "i'm a knight!" && controller.debugMode)
+        {
+            controller.textInput.textIsGood = true;
+            StartCoroutine(SuitUp());
+
+            IEnumerator SuitUp()
+            {
+                controller.inputBox.SetActive(false);
+                controller.AddToMainWindowWithLine("All right, Heath, settle down.");
+                yield return new WaitForSeconds(1.25f);
+                controller.AddToMainWindow("\n.");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(.5f);
+                controller.AddToMainWindow("\n.");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(.5f);
+                controller.AddToMainWindow("\n.");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(.35f);
+                controller.AddToMainWindow(".");
+                yield return new WaitForSeconds(1f);
+                controller.GetEquipped((Weapon)controller.registerObjects.allItems[7]);
+                controller.GetDressed((Armor)controller.registerObjects.allItems[5]);
+                controller.GetStrapped((Shield)controller.registerObjects.allItems[6]);
+                StartCoroutine(controller.Narrator("All set! Sorry no horse and stick."));
+            }
+        }
     }
 
 

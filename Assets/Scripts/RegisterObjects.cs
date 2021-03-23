@@ -10,6 +10,9 @@ public class RegisterObjects : MonoBehaviour
     //public Weapon bubbleLead;
     public Potion[] allPotions;
     public Item[] allItems;
+    //5 = chainmail
+    //6 = shield
+    //7 = sword
     public InteractableObject[] allObjects;
 
     private void Awake()
