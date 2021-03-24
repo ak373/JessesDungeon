@@ -16,4 +16,5 @@ public class Room : ScriptableObject
     [HideInInspector] public bool visited;
     public Exit[] exits;
     public InteractableObject[] interactableObjectsInRoom;
+    public AudioSource music;
 }

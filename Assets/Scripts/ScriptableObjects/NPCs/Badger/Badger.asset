@@ -13,12 +13,28 @@ MonoBehaviour:
   m_Name: Badger
   m_EditorClassIdentifier: 
   nome: Badger
-  openingGreeting: []
-  giveItemResponse: []
-  initiateTradeResponse: []
-  closingRemark: []
+  openingGreeting:
+  - Hey, man, is there something I can help you with?
+  - Hey, man, is there something I can help you with?
+  - Hey, man, is there something I can help you with?
+  giveItemResponse:
+  - Oh? What do you have for me?
+  - Oh? What do you have for me?
+  - Oh? What do you have for me?
+  initiateTradeResponse:
+  - Yeah, man, get some rest. Is 3 crystals OK?
+  - Yeah, man, get some rest. Is 3 crystals OK?
+  - Yeah, man, get some rest. Is 3 crystals OK?
+  closingRemark:
+  - Don't over-do it, yeah?
+  - Don't over-do it, yeah?
+  - Don't over-do it, yeah?
   askAbout:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  options: []
+  - {fileID: 11400000, guid: d48c68f998873cd4e8bf9c15571bf168, type: 2}
+  - {fileID: 11400000, guid: ba8946429c880294984a9fd89a40edcd, type: 2}
+  - {fileID: 11400000, guid: a298d31300e042946996d549cc0d6605, type: 2}
+  options:
+  - Ask about...
+  - Give item
+  - Rest
+  - Enough already

@@ -176,7 +176,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        mainTheme.Play();
+        //mainTheme.Play();
         DisplayRoomText();
     }
 
@@ -807,6 +807,7 @@ public class GameController : MonoBehaviour
     void UnpackRoom()
     {
         roomNavigation.UnpackExitsInRoom();
+        roomNavigation.MusicListener(roomNavigation.lastRoom, roomNavigation.currentRoom);
         roomNavigation.currentRoom.visited = true;
         PrepareInteractablesInRoom(roomNavigation.currentRoom);
     }

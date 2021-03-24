@@ -23,7 +23,7 @@ public class NPCInteraction : MonoBehaviour
     bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, restComplete, genericOptionComplete;
     GameController controller;
     IEnumerator askAbout;
-    Queue<string> sentences;
+    Queue<string> sentences = new Queue<string>();
     Item selectedItem;
     //second quest pronouns
     [HideInInspector] public string bro = "bro";
@@ -54,9 +54,13 @@ public class NPCInteraction : MonoBehaviour
 
 
         //badger dialogue
+        allNPCs[0].openingGreeting.Clear();
         allNPCs[0].openingGreeting.Add($"Hey, {man}, is there something I can help you with?");
+        allNPCs[0].giveItemResponse.Clear();
         allNPCs[0].giveItemResponse.Add($"Oh? What do you have for me?");
+        allNPCs[0].initiateTradeResponse.Clear();
         allNPCs[0].initiateTradeResponse.Add($"Yeah, {man}, get some rest. Is 3 crystals OK?");
+        allNPCs[0].closingRemark.Clear();
         allNPCs[0].closingRemark.Add($"Don't over-do it, yeah?");
     }
 
@@ -157,7 +161,10 @@ public class NPCInteraction : MonoBehaviour
         dialogueBox.SetActive(true);
         dialogueBoxBackground.SetActive(true);
         yield return new WaitForSeconds(.5f);
-        NPCSpeech(speaker.openingGreeting);
+        npcSpeechComplete = false;
+        StartCoroutine(NPCSpeech(speaker.openingGreeting));
+        yield return new WaitUntil(NPCSpeechComplete);
+        npcSpeechComplete = false;
         StartCoroutine(OptionSelect(speaker));
     }
     IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)

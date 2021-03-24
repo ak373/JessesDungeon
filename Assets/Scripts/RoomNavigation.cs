@@ -5,7 +5,8 @@ using System.Threading;
 
 public class RoomNavigation : MonoBehaviour
 {
-    public Room currentRoom;
+    public Room currentRoom; 
+    [HideInInspector] public Room lastRoom;
     GameController controller;
 
     Dictionary<string, Room> exitDictionary = new Dictionary<string, Room>();
@@ -13,6 +14,7 @@ public class RoomNavigation : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<GameController>();
+        lastRoom = currentRoom;
     }
 
     public void UnpackExitsInRoom()
@@ -22,11 +24,43 @@ public class RoomNavigation : MonoBehaviour
             exitDictionary.Add(currentRoom.exits[i].keyString, currentRoom.exits[i].valueRoom);
         }
     }
+    public void MusicListener(Room last, Room current)
+    {
+        if (last.music != current.music)
+        {
+            StartCoroutine(FadeAudioOut(last.music, .25f));
+            StartCoroutine(FadeAudioIn(current.music, .25f));
+        }
+        lastRoom = currentRoom;
+    }
+    IEnumerator FadeAudioOut(AudioSource audio, float fadeTime)
+    {
+        float startVolume = audio.volume;
 
+        while (audio.volume > 0)
+        {
+            audio.volume -= startVolume * Time.deltaTime / fadeTime;
+            yield return null;
+        }
+        audio.Stop();
+        audio.volume = startVolume;
+    }
+    IEnumerator FadeAudioIn(AudioSource audio, float fadeTime)
+    {
+        float startVolume = audio.volume;
+        audio.volume = 0;
+        audio.Play();
+        while (audio.volume < startVolume)
+        {
+            audio.volume += startVolume * Time.deltaTime / fadeTime;
+            yield return null;
+        }
+    }
     public void AttemptToChangeRooms(string direction)
     {
         if (exitDictionary.ContainsKey(direction))
         {
+            lastRoom = currentRoom;
             currentRoom = exitDictionary[direction];
             controller.additionalNarrations.SnatchRoom(currentRoom);
             exitDictionary.Clear();
