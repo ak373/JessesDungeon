@@ -87,7 +87,7 @@ public class NPCInteraction : MonoBehaviour
                 counter++;
             }
         }
-        for (int i = counter; i < 10; i++)
+        for (int i = counter; i < 11; i++)
         {
             replyRay[i].text = "";
         }
@@ -1406,6 +1406,7 @@ public class NPCInteraction : MonoBehaviour
         WriteDialogueReplies(replyList);
         int selectedElement = 0;
         int memoryElement = -1;
+        string plainReply0 = reply0.text;
         string plainReply1 = reply1.text;
         string plainReply2 = reply2.text;
         string plainReply3 = reply3.text;
@@ -1427,6 +1428,7 @@ public class NPCInteraction : MonoBehaviour
             if (selectedElement < 0) { selectedElement = replyList.Count - 1; }
             if (selectedElement > replyList.Count - 1) { selectedElement = 0; }
 
+            reply0.text = plainReply0;
             reply1.text = plainReply1;
             reply2.text = plainReply2;
             reply3.text = plainReply3;
@@ -1438,16 +1440,17 @@ public class NPCInteraction : MonoBehaviour
             reply9.text = plainReply9;
             reply10.text = plainReply10;
 
-            if (selectedElement == 0) { reply1.text = $"<color=yellow>{reply1.text}</color>"; }
-            else if (selectedElement == 1) { reply2.text = $"<color=yellow>{reply2.text}</color>"; }
-            else if (selectedElement == 2) { reply3.text = $"<color=yellow>{reply3.text}</color>"; }
-            else if (selectedElement == 3) { reply4.text = $"<color=yellow>{reply4.text}</color>"; }
-            else if (selectedElement == 4) { reply5.text = $"<color=yellow>{reply5.text}</color>"; }
-            else if (selectedElement == 5) { reply6.text = $"<color=yellow>{reply6.text}</color>"; }
-            else if (selectedElement == 6) { reply7.text = $"<color=yellow>{reply7.text}</color>"; }
-            else if (selectedElement == 7) { reply8.text = $"<color=yellow>{reply8.text}</color>"; }
-            else if (selectedElement == 8) { reply9.text = $"<color=yellow>{reply9.text}</color>"; }
-            else if (selectedElement == 9) { reply10.text = $"<color=yellow>{reply10.text}</color>"; }
+            if (selectedElement == 0) { reply0.text = $"<color=yellow>{reply0.text}</color>"; }
+            else if (selectedElement == 1) { reply1.text = $"<color=yellow>{reply1.text}</color>"; }
+            else if (selectedElement == 2) { reply2.text = $"<color=yellow>{reply2.text}</color>"; }
+            else if (selectedElement == 3) { reply3.text = $"<color=yellow>{reply3.text}</color>"; }
+            else if (selectedElement == 4) { reply4.text = $"<color=yellow>{reply4.text}</color>"; }
+            else if (selectedElement == 5) { reply5.text = $"<color=yellow>{reply5.text}</color>"; }
+            else if (selectedElement == 6) { reply6.text = $"<color=yellow>{reply6.text}</color>"; }
+            else if (selectedElement == 7) { reply7.text = $"<color=yellow>{reply7.text}</color>"; }
+            else if (selectedElement == 8) { reply8.text = $"<color=yellow>{reply8.text}</color>"; }
+            else if (selectedElement == 9) { reply9.text = $"<color=yellow>{reply9.text}</color>"; }
+            else if (selectedElement == 10) { reply10.text = $"<color=yellow>{reply10.text}</color>"; }
 
             yield return new WaitUntil(controller.UpDownEnterEscPressed);
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -1463,6 +1466,7 @@ public class NPCInteraction : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
                 controller.interactableItems.cursorCancel.Play();
+                reply0.text = plainReply0;
                 reply1.text = plainReply1;
                 reply2.text = plainReply2;
                 reply3.text = plainReply3;
@@ -1473,7 +1477,7 @@ public class NPCInteraction : MonoBehaviour
                 reply8.text = plainReply8;
                 reply9.text = plainReply9;
                 reply10.text = plainReply10;
-                if (replyList[selectedElement].parentReplyList != null)
+                if (replyList[selectedElement].parentReplyList == null)
                 {
                     replyBoxFade.SetActive(false);
                     replyBox.SetActive(false);
@@ -1487,10 +1491,15 @@ public class NPCInteraction : MonoBehaviour
             {
                 memoryElement = selectedElement;
                 controller.interactableItems.cursorSelect.Play();
+                replyBoxFade.SetActive(false);
+                replyBox.SetActive(false);
+                replyBoxBackground.SetActive(false);
+                yield return new WaitForSeconds(.15f);
                 npcSpeechComplete = false;
                 StartCoroutine(NPCSpeech(replyList[selectedElement].response));
                 yield return new WaitUntil(NPCSpeechComplete);
                 npcSpeechComplete = false;
+                NPCText.text = "";
                 if (replyList[selectedElement].additionalReplies.Count == 0)
                 {
                     StartCoroutine(ActivateAskAbout(replyList, speaker));

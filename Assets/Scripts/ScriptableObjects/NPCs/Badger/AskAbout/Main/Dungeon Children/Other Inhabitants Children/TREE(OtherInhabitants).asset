@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9afacf60603a994388c10682c6a7339, type: 3}
+  m_Name: TREE(OtherInhabitants)
+  m_EditorClassIdentifier: 
+  reply: main
+  response: []
+  additionalReplies:
+  - {fileID: 11400000, guid: 696eb33dd3d3bf343b6363d07c24ee57, type: 2}
+  - {fileID: 11400000, guid: f68f2f77aa0fc5342b5f6a65cf78cab6, type: 2}
+  - {fileID: 11400000, guid: b9b7602472a7c934d809d4cbaa23416b, type: 2}
+  - {fileID: 11400000, guid: 7b68994ca54242b478d875f36cf7f670, type: 2}
+  - {fileID: 11400000, guid: 6cd34fd18dc5df14dba2ec59bdcd2c7f, type: 2}
+  - {fileID: 11400000, guid: 1157f1cf66d7c294d98a292dba830c59, type: 2}
+  - {fileID: 11400000, guid: 3a8e94830e7aafc4c983f2852b5268e1, type: 2}
+  - {fileID: 11400000, guid: a9e17d362466dc24ea52f6e8a0120869, type: 2}
+  - {fileID: 11400000, guid: 20b50f57e6b95e84a921896e7172d388, type: 2}
+  - {fileID: 11400000, guid: 118d162fd7580cb498bd2c6f1de12c1e, type: 2}
+  - {fileID: 11400000, guid: 62d0be3cd68801045ae005bbd3c6526a, type: 2}
+  parentReplyList: []
+  availableToSay: 0
+  hasBeenSaid: 0
