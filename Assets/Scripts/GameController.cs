@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour
     //bool enterToContinueDialogue;
     bool earlyConvoBail = false;
     [HideInInspector] public bool stupidEnterGlitch = true;
+    public bool narratorComplete;
 
     public GameObject conversation1, conversation2, conversation3, conversation4, conversation5, conversation6, conversation7, jokeConversation1, jokeConversation2, jokeConversation3, jokeConversation4;
     public GameObject conversation1Repeat, conversation2Repeat, conversation3Repeat, conversation4Repeat, conversation5Repeat, conversation6Repeat, conversation7Repeat;
@@ -176,7 +177,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        //mainTheme.Play();
+        mainTheme.Play();
         DisplayRoomText();
     }
 
@@ -184,7 +185,7 @@ public class GameController : MonoBehaviour
     {
         ClearRoom();
         //Initial Town Entrance Script
-        if (roomNavigation.currentRoom.roomName == "F7" && !registerRooms.allRooms[32].visited) { additionalNarrations.InitiateFirstTownVisit(); }
+        if (roomNavigation.currentRoom.roomName == "F7" && !registerRooms.allRooms[32].visited) { StartCoroutine(additionalNarrations.InitiateFirstTownVisit()); }
         else
         {
             UnpackRoom();
@@ -934,7 +935,7 @@ public class GameController : MonoBehaviour
     public bool LeftUpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
     public bool LeftRightEnterPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow); }
     public bool UpDownEnterEscPressed() { return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow); }
-
+    public bool NarratorComplete() { return narratorComplete; }
     public void SnatchInput(string fromTextInput) { userInput = fromTextInput; }
 
 

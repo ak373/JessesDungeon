@@ -58,24 +58,47 @@ public class AdditionalNarrations : MonoBehaviour
     {
         
     }
-    public void InitiateFirstTownVisit()
+    public IEnumerator InitiateFirstTownVisit()
     {
         controller.inputBox.SetActive(false);
         controller.registerRooms.allRooms[32].visited = true;
 
-        string[] townScript =
-            {
-                "There are two men conversing, who stop and look as you enter. A third sits in a corner and writes in a book, seemingly unaware of your presence. The first two are each standing behind a crudely built podium; one has a [plank] of wood lying beside him, while the other conversely has a large, filled [sack].",
-                "The man with the wooden plank speaks.\n\n\"Hey. You must be new? Haven't seen you around before. You can call me Badger, and this here is Skinny Pete. That one doodling in the corner is Jeff. Welcome to your new home!\"",
-                "The man in the corner looks up.\n\n\"That'd be 'Geoff.'\"",
-                "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"Right. What'd I say? Anyways...\"\n\n\"If you wanna do some trading, Skinny Pete is your man. He's interested in pretty much anything - and that's how he's also got pretty much anything! Otherwise, if you need to rest -- I'm your guy. For just a small fee, you can get a full night's rest and (rest assured!) I'll watch out for ya.\"",
-                "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"And Jeff there likes to draw caricatures.\"",
-                "<size=15><b>Geoff</b></size>\n-------------------------------------\n\n\n\"I'm a WRITER! You know - with ink and parchment?\"\n\n\"I would be happy to create a log of your journey. Just have a seat at your leisure and tell me of your exploits so we can write down your progress.\"",
-                "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"Otherwise, if you want to 'make something' of yourself down here, you can go pay your respects to the cartel just out and to the north. I'd be careful getting involved with them, though.\""
-            };
-        if (controller.secondQuestActive) { townScript[1] = "The man with the wooden plank speaks.\n\n\"Hey. You must be new? Gee -- aren't you a looker! Best keep that mace handy. You can call me Badger, and this here is Skinny Pete. That one doodling in the corner is Jeff. Welcome to your new home!\""; }
-        float[] townPauses = { 0, 0, 0, 0, 0, 0, 0 };
-        controller.InitiateMultiLineDialogue(townScript, townPauses);
+        List<string> townInitial = new List<string>();
+        townInitial.Add("Hey. You must be new? Haven't seen you around before. You can call me Badger, and this here is Skinny Pete. Welcome to your new home!");
+        townInitial.Add("If you wanna do some trading, Skinny Pete is your man. He's interested in pretty much anything - and that's how he's also got pretty much anything! Otherwise, if you need to rest -- I'm your guy. For just a small fee, you can get a full night's rest and (rest assured!) I'll watch out for ya.");
+        townInitial.Add("And if you want to \"make something\" of yourself, you can go pay your respects to the cartel just out and to the north. I'd be careful getting involved with them, though.");
+        townInitial.Add("It's good to see a friendly face around here. If there's anything we can do to help just let us know. Working together is the best way to survive down here!");
+        if (controller.secondQuestActive) { townInitial[0] = "Hey. You must be new? Gee -- aren't you a looker! Best keep that mace handy. You can call me Badger, and this here is Skinny Pete. Welcome to your new home!\""; }
+        
+        controller.narratorComplete = false;
+        controller.OverwriteMainWindow("There are two men conversing, who stop and look as you enter. They are each standing behind a crudely built podium; one has a [plank] of wood lying beside him, while the other conversely has a large, filled [sack].\n\nThe man with the wooden plank speaks.\n\n\nPress ENTER to continue.");
+        yield return new WaitForSeconds(.25f);
+        yield return new WaitUntil(controller.EnterPressed);
+
+        controller.npcInteraction.WriteNPCName("Badger");
+        controller.npcInteraction.WriteDialogueOptions(null, null, null, null);
+        controller.npcInteraction.ActivateDialogueBox();
+        yield return new WaitForSeconds(.5f);
+        controller.npcInteraction.npcSpeechComplete = false;
+        StartCoroutine(controller.npcInteraction.NPCSpeech(townInitial));
+        yield return new WaitUntil(controller.npcInteraction.NPCSpeechComplete);
+        controller.npcInteraction.npcSpeechComplete = false;
+        controller.UnlockUserInput();
+        controller.npcInteraction.dialogueBox.SetActive(false);
+        controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        //string[] townScript =
+        //    {
+        //        "There are two men conversing, who stop and look as you enter. A third sits in a corner and writes in a book, seemingly unaware of your presence. The first two are each standing behind a crudely built podium; one has a [plank] of wood lying beside him, while the other conversely has a large, filled [sack].",
+        //        "The man with the wooden plank speaks.\n\n\"Hey. You must be new? Haven't seen you around before. You can call me Badger, and this here is Skinny Pete. That one doodling in the corner is Jeff. Welcome to your new home!\"",
+        //        "The man in the corner looks up.\n\n\"That'd be 'Geoff.'\"",
+        //        "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"Right. What'd I say? Anyways...\"\n\n\"If you wanna do some trading, Skinny Pete is your man. He's interested in pretty much anything - and that's how he's also got pretty much anything! Otherwise, if you need to rest -- I'm your guy. For just a small fee, you can get a full night's rest and (rest assured!) I'll watch out for ya.\"",
+        //        "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"And Jeff there likes to draw caricatures.\"",
+        //        "<size=15><b>Geoff</b></size>\n-------------------------------------\n\n\n\"I'm a WRITER! You know - with ink and parchment?\"\n\n\"I would be happy to create a log of your journey. Just have a seat at your leisure and tell me of your exploits so we can write down your progress.\"",
+        //        "<size=15><b>Badger</b></size>\n-------------------------------------\n\n\n\"Otherwise, if you want to 'make something' of yourself down here, you can go pay your respects to the cartel just out and to the north. I'd be careful getting involved with them, though.\""
+        //    };
+        //if (controller.secondQuestActive) { townScript[1] = "The man with the wooden plank speaks.\n\n\"Hey. You must be new? Gee -- aren't you a looker! Best keep that mace handy. You can call me Badger, and this here is Skinny Pete. That one doodling in the corner is Jeff. Welcome to your new home!\""; }
+        //float[] townPauses = { 0, 0, 0, 0, 0, 0, 0 };
+        //controller.InitiateMultiLineDialogue(townScript, townPauses);
     }
     public void Conversation(Ego ego)
     {

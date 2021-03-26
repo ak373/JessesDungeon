@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: F7
   m_EditorClassIdentifier: 
   description1: '[Badger] and [Skinny Pete] stop their conversation and look at you.
-    [Geoff] looks up from his scribblings to nod, and returns to work.
 
 
     "How''s
@@ -57,3 +56,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: be0ad6892eb388346af75367fce8f146, type: 2}
   - {fileID: 11400000, guid: bd9c5c028d7ece24ca1b83a58b81593b, type: 2}
   - {fileID: 11400000, guid: ad8206346acbc7042ae89bf21ff23469, type: 2}
+  music: {fileID: 0}

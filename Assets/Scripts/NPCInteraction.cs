@@ -7,7 +7,7 @@ using TMPro;
 public class NPCInteraction : MonoBehaviour
 {
     public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
-    public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, optionBoxGreyFilter, continueArrow;
+    public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, option1Background, option2Background, option3Background, option4Background, option1Highlight, option2Highlight, option3Highlight, option4Highlight, optionBoxBackground, npcTextBackground, optionBoxGreyFilter, continueArrow;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply0, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, escToReturnReply, option1, option2, option3, option4;
     TMP_Text[] replyRay = { null, null, null, null, null, null, null, null, null, null, null };
 
@@ -20,7 +20,7 @@ public class NPCInteraction : MonoBehaviour
 
     int endingCharacter, genericOptionSelected;
     int saleDivider = 4;
-    bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, restComplete, genericOptionComplete;
+    [HideInInspector] public bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, restComplete, genericOptionComplete;
     GameController controller;
     IEnumerator askAbout;
     Queue<string> sentences = new Queue<string>();
@@ -64,12 +64,12 @@ public class NPCInteraction : MonoBehaviour
         allNPCs[0].closingRemark.Add($"Don't over-do it, yeah?");
     }
 
-    void WriteNPCName(string name, int boxNumber = 1)
+    public void WriteNPCName(string name, int boxNumber = 1)
     {
         if (boxNumber == 1) { NPC1Name.text = name; }
         else { NPC2Name.text = name; }
     }
-    void WriteDialogueOptions(string line1 = "Ask about...", string line2 = "Give item", string line3 = null, string line4 = "Enough already")
+    public void WriteDialogueOptions(string line1 = "Ask about...", string line2 = "Give item", string line3 = null, string line4 = "Enough already")
     {
         option1.text = line1;
         option2.text = line2;
@@ -158,14 +158,19 @@ public class NPCInteraction : MonoBehaviour
     {
         WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
-        dialogueBox.SetActive(true);
-        dialogueBoxBackground.SetActive(true);
+        ActivateDialogueBox();
         yield return new WaitForSeconds(.5f);
         npcSpeechComplete = false;
         StartCoroutine(NPCSpeech(speaker.openingGreeting));
         yield return new WaitUntil(NPCSpeechComplete);
         npcSpeechComplete = false;
         StartCoroutine(OptionSelect(speaker));
+    }
+    public void ActivateDialogueBox()
+    {
+        NPCText.text = "";
+        dialogueBox.SetActive(true);
+        dialogueBoxBackground.SetActive(true);
     }
     IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
     {
@@ -178,6 +183,14 @@ public class NPCInteraction : MonoBehaviour
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
         string plainOption4 = option4.text;
+        option1Background.SetActive(false);
+        option2Background.SetActive(false);
+        option3Background.SetActive(false);
+        option4Background.SetActive(false);
+        if (opt1 != null) { option1Background.SetActive(true); }
+        if (opt2 != null) { option2Background.SetActive(true); }
+        if (opt3 != null) { option3Background.SetActive(true); }
+        if (opt4 != null) { option4Background.SetActive(true); }
 
         while (true)
         {
@@ -189,11 +202,31 @@ public class NPCInteraction : MonoBehaviour
             option2.text = plainOption2;
             option3.text = plainOption3;
             option4.text = plainOption4;
+            option1Highlight.SetActive(false);
+            option2Highlight.SetActive(false);
+            option3Highlight.SetActive(false);
+            option4Highlight.SetActive(false);
 
-            if (selectedElement == 0) { option1.text = $"<color=yellow>{option1.text}</color>"; }
-            else if (selectedElement == 1) { option2.text = $"<color=yellow>{option2.text}</color>"; }
-            else if (selectedElement == 2) { option3.text = $"<color=yellow>{option3.text}</color>"; }
-            else if (selectedElement == 3) { option4.text = $"<color=yellow>{option4.text}</color>"; }
+            if (selectedElement == 0)
+            {
+                option1.text = $"<color=yellow>{option1.text}</color>";
+                option1Highlight.SetActive(true);
+            }
+            else if (selectedElement == 1)
+            {
+                option2.text = $"<color=yellow>{option2.text}</color>";
+                option2Highlight.SetActive(true);
+            }
+            else if (selectedElement == 2)
+            {
+                option3.text = $"<color=yellow>{option3.text}</color>";
+                option3Highlight.SetActive(true);
+            }
+            else if (selectedElement == 3)
+            {
+                option4.text = $"<color=yellow>{option4.text}</color>";
+                option4Highlight.SetActive(true);
+            }
 
             yield return new WaitUntil(controller.UpDownEnterEscPressed);
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -270,7 +303,15 @@ public class NPCInteraction : MonoBehaviour
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
         string plainOption4 = option4.text;
-        
+        option1Background.SetActive(false);
+        option2Background.SetActive(false);
+        option3Background.SetActive(false);
+        option4Background.SetActive(false);
+        if (opt1 != null) { option1Background.SetActive(true); }
+        if (opt2 != null) { option2Background.SetActive(true); }
+        if (opt3 != null) { option3Background.SetActive(true); }
+        if (opt4 != null) { option4Background.SetActive(true); }
+
         while (true)
         {
             if (memoryElement != -1) { selectedElement = memoryElement; }
@@ -281,11 +322,31 @@ public class NPCInteraction : MonoBehaviour
             option2.text = plainOption2;
             option3.text = plainOption3;
             option4.text = plainOption4;
+            option1Highlight.SetActive(false);
+            option2Highlight.SetActive(false);
+            option3Highlight.SetActive(false);
+            option4Highlight.SetActive(false);
 
-            if (selectedElement == 0) { option1.text = $"<color=yellow>{option1.text}</color>"; }
-            else if (selectedElement == 1) { option2.text = $"<color=yellow>{option2.text}</color>"; }
-            else if (selectedElement == 2) { option3.text = $"<color=yellow>{option3.text}</color>"; }
-            else if (selectedElement == 3) { option4.text = $"<color=yellow>{option4.text}</color>"; }
+            if (selectedElement == 0)
+            {
+                option1.text = $"<color=yellow>{option1.text}</color>";
+                option1Highlight.SetActive(true);
+            }
+            else if (selectedElement == 1)
+            {
+                option2.text = $"<color=yellow>{option2.text}</color>";
+                option2Highlight.SetActive(true);
+            }
+            else if (selectedElement == 2)
+            {
+                option3.text = $"<color=yellow>{option3.text}</color>";
+                option3Highlight.SetActive(true);
+            }
+            else if (selectedElement == 3)
+            {
+                option4.text = $"<color=yellow>{option4.text}</color>";
+                option4Highlight.SetActive(true);
+            }
 
             yield return new WaitUntil(controller.UpDownEnterEscPressed);
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -1443,7 +1504,7 @@ public class NPCInteraction : MonoBehaviour
             }
         }
     }
-    IEnumerator NPCSpeech(List<string> responseList, float endPause = .5f)
+    public IEnumerator NPCSpeech(List<string> responseList, float endPause = .5f)
     {
         sentences.Clear();
         foreach (string sentence in responseList) { sentences.Enqueue(sentence); }
@@ -1464,7 +1525,7 @@ public class NPCInteraction : MonoBehaviour
         }
         npcSpeechComplete = true;
     }
-    IEnumerator TeletypeMessage(int startingCharacter, float characterPause = 0.025f)
+    IEnumerator TeletypeMessage(int startingCharacter, float characterPause = 0.02f)
     {
         int totalVisibleCharacters = NPCText.textInfo.characterCount;
         int counter = startingCharacter;
@@ -1515,7 +1576,7 @@ public class NPCInteraction : MonoBehaviour
         dialogueBoxBackground.SetActive(false);
         controller.UnlockUserInput();
     }
-    bool NPCSpeechComplete() { return npcSpeechComplete; }
+    public bool NPCSpeechComplete() { return npcSpeechComplete; }
     bool MessageComplete() { return messageComplete; }
     bool InventoryClosed() { return inventoryClosed; }
     bool BuyComplete() { return buyComplete; }
