@@ -8,8 +8,12 @@ public class NPCInteraction : MonoBehaviour
 {
     public TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
     public GameObject dialogueBox, dialogueBoxBackground, NPC1Border, NPC2Border, replyBox, replyBoxBackground, replyBoxFade, optionBox, option1Background, option2Background, option3Background, option4Background, option1Highlight, option2Highlight, option3Highlight, option4Highlight, optionBoxBackground, npcTextBackground, optionBoxGreyFilter, continueArrow;
+    public GameObject reply0Background, reply1Background, reply2Background, reply3Background, reply4Background, reply5Background, reply6Background, reply7Background, reply8Background, reply9Background, reply10Background;
+    public GameObject reply0Highlight, reply1Highlight, reply2Highlight, reply3Highlight, reply4Highlight, reply5Highlight, reply6Highlight, reply7Highlight, reply8Highlight, reply9Highlight, reply10Highlight;
     public TMP_Text NPC1Name, NPC2Name, NPCText, reply0, reply1, reply2, reply3, reply4, reply5, reply6, reply7, reply8, reply9, reply10, escToReturnReply, option1, option2, option3, option4;
     TMP_Text[] replyRay = { null, null, null, null, null, null, null, null, null, null, null };
+    GameObject[] replyBackRay = { null, null, null, null, null, null, null, null, null, null, null };
+    GameObject[] replyHighRay = { null, null, null, null, null, null, null, null, null, null, null };
 
     public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
@@ -51,6 +55,28 @@ public class NPCInteraction : MonoBehaviour
         replyRay[8] = reply8;
         replyRay[9] = reply9;
         replyRay[10] = reply10;
+        replyBackRay[0] = reply0Background;
+        replyBackRay[1] = reply1Background;
+        replyBackRay[2] = reply2Background;
+        replyBackRay[3] = reply3Background;
+        replyBackRay[4] = reply4Background;
+        replyBackRay[5] = reply5Background;
+        replyBackRay[6] = reply6Background;
+        replyBackRay[7] = reply7Background;
+        replyBackRay[8] = reply8Background;
+        replyBackRay[9] = reply9Background;
+        replyBackRay[10] = reply10Background;
+        replyHighRay[0] = reply0Highlight;
+        replyHighRay[1] = reply1Highlight;
+        replyHighRay[2] = reply2Highlight;
+        replyHighRay[3] = reply3Highlight;
+        replyHighRay[4] = reply4Highlight;
+        replyHighRay[5] = reply5Highlight;
+        replyHighRay[6] = reply6Highlight;
+        replyHighRay[7] = reply7Highlight;
+        replyHighRay[8] = reply8Highlight;
+        replyHighRay[9] = reply9Highlight;
+        replyHighRay[10] = reply10Highlight;
 
 
         //badger dialogue
@@ -84,71 +110,17 @@ public class NPCInteraction : MonoBehaviour
             if (dialogueTree[i].availableToSay)
             {
                 replyRay[counter].text = dialogueTree[i].reply;
+                replyBackRay[counter].SetActive(true);
+                if (dialogueTree[i].hasBeenSaid) { replyRay[counter].color = Color.gray; }
+                else { replyRay[counter].color = Color.white; }
                 counter++;
             }
         }
         for (int i = counter; i < 11; i++)
         {
             replyRay[i].text = "";
+            replyBackRay[i].SetActive(false);
         }
-
-        //if (dialogueTree[0] != null)
-        //{
-        //    if (dialogueTree[0].availableToSay)
-        //    {
-        //        reply1.text = dialogueTree[0].reply;
-        //        if (dialogueTree[0].hasBeenSaid) { reply1.color = Color.gray; }
-        //        else { reply1.color = Color.white; }
-        //    }            
-        //}
-        //if (dialogueTree[1] != null)
-        //{
-        //    reply2.text = dialogueTree[1].reply;
-        //    if (dialogueTree[1].hasBeenSaid) { reply2.color = Color.gray; }
-        //    else { reply2.color = Color.white; }
-        //}
-        //if (dialogueTree[2] != null)
-        //{
-        //    reply3.text = dialogueTree[2].reply;
-        //    if (dialogueTree[2].hasBeenSaid) { reply3.color = Color.gray; }
-        //    else { reply3.color = Color.white; }
-        //}
-        //if (dialogueTree[3] != null)
-        //{
-        //    reply4.text = dialogueTree[3].reply;
-        //    if (dialogueTree[3].hasBeenSaid) { reply4.color = Color.gray; }
-        //    else { reply4.color = Color.white; }
-        //}
-        //if (dialogueTree[4] != null)
-        //{
-        //    reply5.text = dialogueTree[4].reply;
-        //    if (dialogueTree[4].hasBeenSaid) { reply5.color = Color.gray; }
-        //    else { reply5.color = Color.white; }
-        //}
-        //if (dialogueTree[5] != null)
-        //{
-        //    reply6.text = dialogueTree[5].reply;
-        //    if (dialogueTree[5].hasBeenSaid) { reply6.color = Color.gray; }
-        //    else { reply6.color = Color.white; }
-        //}
-        //if (dialogueTree[6] != null)
-        //{
-        //    reply7.text = dialogueTree[6].reply;
-        //    if (dialogueTree[6].hasBeenSaid) { reply7.color = Color.gray; }
-        //    else { reply7.color = Color.white; }
-        //}
-        //if (dialogueTree[7] != null)
-        //{
-        //    reply8.text = dialogueTree[7].reply;
-        //    if (dialogueTree[7].hasBeenSaid) { reply8.color = Color.gray; }
-        //    else { reply8.color = Color.white; }
-        //}
-        //if (dialogueTree[8] != null)
-        //{
-        //    reply9.text = dialogueTree[8].reply;
-        //    if (dialogueTree[8].hasBeenSaid) { reply9.color = Color.gray; }
-        //    else { reply9.color = Color.white; }
-        //}
     }
     public void StartInitiateDialogue(NPC speaker)
     {
@@ -450,13 +422,14 @@ public class NPCInteraction : MonoBehaviour
         yield return new WaitUntil(NPCSpeechComplete);
         npcSpeechComplete = false;
         genericOptionComplete = false;
-        StartCoroutine(GenericOptionSelection("Yeah I'll take a break", "No! I must press on!", null, null));
+        StartCoroutine(GenericOptionSelection("Yeah I'll take a break.", "No! I must press on!", null, null));
         yield return new WaitUntil(GenericOptionComplete);
         genericOptionComplete = false;
         if (genericOptionSelected == 0)
         {
             if (ego.blueCrystals >= 3)
             {
+                controller.interactableItems.cursorSelect.Play();
                 npcSpeechComplete = false;
                 List<string> restChosen = new List<string>();
                 restChosen.Add($"Don't worry for a second -- me and Pete got your back.");
@@ -478,6 +451,7 @@ public class NPCInteraction : MonoBehaviour
             }
             else
             {
+                error.Play();
                 npcSpeechComplete = false;
                 List<string> restFail = new List<string>();
                 restFail.Add($"You're looking a little light in the pockets -- I need to eat too... you understand, right? I'll be here when you've got a few more to spend.");
@@ -489,6 +463,7 @@ public class NPCInteraction : MonoBehaviour
         }
         else if (genericOptionSelected == 1 || genericOptionSelected == -1)
         {
+            controller.interactableItems.cursorSelect.Play();
             npcSpeechComplete = false;
             List<string> optionReturn = new List<string>();
             optionReturn.Add($"All right, that's cool... Maybe next time. Can I help you with anything else?");
@@ -1406,6 +1381,7 @@ public class NPCInteraction : MonoBehaviour
         WriteDialogueReplies(replyList);
         int selectedElement = 0;
         int memoryElement = -1;
+        int lastElement = 0;
         string plainReply0 = reply0.text;
         string plainReply1 = reply1.text;
         string plainReply2 = reply2.text;
@@ -1439,20 +1415,33 @@ public class NPCInteraction : MonoBehaviour
             reply8.text = plainReply8;
             reply9.text = plainReply9;
             reply10.text = plainReply10;
+            if (lastElement == selectedElement) { yield return new WaitForSeconds(.05f); }
+            lastElement = selectedElement;
 
-            if (selectedElement == 0) { reply0.text = $"<color=yellow>{reply0.text}</color>"; }
-            else if (selectedElement == 1) { reply1.text = $"<color=yellow>{reply1.text}</color>"; }
-            else if (selectedElement == 2) { reply2.text = $"<color=yellow>{reply2.text}</color>"; }
-            else if (selectedElement == 3) { reply3.text = $"<color=yellow>{reply3.text}</color>"; }
-            else if (selectedElement == 4) { reply4.text = $"<color=yellow>{reply4.text}</color>"; }
-            else if (selectedElement == 5) { reply5.text = $"<color=yellow>{reply5.text}</color>"; }
-            else if (selectedElement == 6) { reply6.text = $"<color=yellow>{reply6.text}</color>"; }
-            else if (selectedElement == 7) { reply7.text = $"<color=yellow>{reply7.text}</color>"; }
-            else if (selectedElement == 8) { reply8.text = $"<color=yellow>{reply8.text}</color>"; }
-            else if (selectedElement == 9) { reply9.text = $"<color=yellow>{reply9.text}</color>"; }
-            else if (selectedElement == 10) { reply10.text = $"<color=yellow>{reply10.text}</color>"; }
+            for (int i = 0; i < replyRay.Length; i++)
+            {
+                if (selectedElement == i)
+                {
+                    replyRay[i].text = $"<color=yellow>{replyRay[i].text}</color>";
+                    replyHighRay[i].SetActive(true);
+                }
+            }
+
+            //if (selectedElement == 0) { reply0.text = $"<color=yellow>{reply0.text}</color>"; }
+            //else if (selectedElement == 1) { reply1.text = $"<color=yellow>{reply1.text}</color>"; }
+            //else if (selectedElement == 2) { reply2.text = $"<color=yellow>{reply2.text}</color>"; }
+            //else if (selectedElement == 3) { reply3.text = $"<color=yellow>{reply3.text}</color>"; }
+            //else if (selectedElement == 4) { reply4.text = $"<color=yellow>{reply4.text}</color>"; }
+            //else if (selectedElement == 5) { reply5.text = $"<color=yellow>{reply5.text}</color>"; }
+            //else if (selectedElement == 6) { reply6.text = $"<color=yellow>{reply6.text}</color>"; }
+            //else if (selectedElement == 7) { reply7.text = $"<color=yellow>{reply7.text}</color>"; }
+            //else if (selectedElement == 8) { reply8.text = $"<color=yellow>{reply8.text}</color>"; }
+            //else if (selectedElement == 9) { reply9.text = $"<color=yellow>{reply9.text}</color>"; }
+            //else if (selectedElement == 10) { reply10.text = $"<color=yellow>{reply10.text}</color>"; }
 
             yield return new WaitUntil(controller.UpDownEnterEscPressed);
+            for (int i = 0; i < replyHighRay.Length; i++) { replyHighRay[i].SetActive(false); }
+
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 controller.interactableItems.cursorMove.Play();
@@ -1477,14 +1466,14 @@ public class NPCInteraction : MonoBehaviour
                 reply8.text = plainReply8;
                 reply9.text = plainReply9;
                 reply10.text = plainReply10;
-                if (replyList[selectedElement].parentReplyList == null)
+                if (replyList[selectedElement].parentReplies.Count == 0)
                 {
                     replyBoxFade.SetActive(false);
                     replyBox.SetActive(false);
                     replyBoxBackground.SetActive(false);
                     StartCoroutine(OptionSelect(speaker));
                 }
-                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplyList, speaker)); }
+                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplies, speaker)); }
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))

@@ -20,7 +20,7 @@ MonoBehaviour:
   - One of his guys comes here to trade from time to time. He's got some bunker to
     the east and a bit north of here.
   additionalReplies: []
-  parentReplyList:
-  - {fileID: 11400000, guid: a5503773a2213e248937c5bdd691d630, type: 2}
+  parentReplies:
+  - {fileID: 11400000, guid: 05baa4d3a77c3214fb0bed62b2136bc5, type: 2}
   availableToSay: 1
   hasBeenSaid: 0

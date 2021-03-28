@@ -47,7 +47,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 20b50f57e6b95e84a921896e7172d388, type: 2}
   - {fileID: 11400000, guid: 118d162fd7580cb498bd2c6f1de12c1e, type: 2}
   - {fileID: 11400000, guid: 62d0be3cd68801045ae005bbd3c6526a, type: 2}
-  parentReplyList:
-  - {fileID: 11400000, guid: 8200305af42226046815df2d3d886de7, type: 2}
+  parentReplies:
+  - {fileID: 11400000, guid: d48c68f998873cd4e8bf9c15571bf168, type: 2}
+  - {fileID: 11400000, guid: ba8946429c880294984a9fd89a40edcd, type: 2}
+  - {fileID: 11400000, guid: a298d31300e042946996d549cc0d6605, type: 2}
   availableToSay: 1
   hasBeenSaid: 0

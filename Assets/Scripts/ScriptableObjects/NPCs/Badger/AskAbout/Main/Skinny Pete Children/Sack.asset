@@ -17,7 +17,9 @@ MonoBehaviour:
   - He's pretty protective of that sack of goodies.
   - Nothing wrong with a man taking some pride in his work, ya know?
   additionalReplies: []
-  parentReplyList:
-  - {fileID: 11400000, guid: 8200305af42226046815df2d3d886de7, type: 2}
+  parentReplies:
+  - {fileID: 11400000, guid: d48c68f998873cd4e8bf9c15571bf168, type: 2}
+  - {fileID: 11400000, guid: ba8946429c880294984a9fd89a40edcd, type: 2}
+  - {fileID: 11400000, guid: a298d31300e042946996d549cc0d6605, type: 2}
   availableToSay: 1
   hasBeenSaid: 0

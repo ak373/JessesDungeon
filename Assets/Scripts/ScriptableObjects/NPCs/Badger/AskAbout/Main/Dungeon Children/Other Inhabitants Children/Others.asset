@@ -21,15 +21,15 @@ MonoBehaviour:
     But don''t let that humorous bit fool you - he will smash you if he sees you.'
   - But some of them aren't so hostile. There's one guy who had come to do some trading
     with us who dressed and spoke like he was some sort of priest.
-  - Then one other guy... Looks like a pit fighter or something. Seems to keep his
-    fighting to sport, though, and didn't seem at all like the others.
+  - Then this one other guy who must be a pit fighter or something. Looks to keep
+    his fighting to sport, though, and doesn't seem at all like the others.
   - You know, like he's about to gut me.
   additionalReplies:
   - {fileID: 11400000, guid: 39b845225f7787e4a9cfe0d3b52fa3b9, type: 2}
   - {fileID: 11400000, guid: 03267fc149cd6ac439847bf3f3e689cf, type: 2}
   - {fileID: 11400000, guid: 7474a34ae05b16d4585b62b0d90b8226, type: 2}
   - {fileID: 11400000, guid: ab6e6f81a174d034aba34c14465e3c3f, type: 2}
-  parentReplyList:
-  - {fileID: 11400000, guid: a5503773a2213e248937c5bdd691d630, type: 2}
+  parentReplies:
+  - {fileID: 11400000, guid: 05baa4d3a77c3214fb0bed62b2136bc5, type: 2}
   availableToSay: 1
   hasBeenSaid: 0

@@ -15,9 +15,9 @@ MonoBehaviour:
   reply: Badger
   response:
   - Why, that's me!
-  - I'm nobody special. Just a simple guy mixed up in something; much like you, I'd
-    imagine.
+  - I'm not anyone special. Just a simple guy mixed up in something; much like you,
+    I'd imagine.
   additionalReplies: []
-  parentReplyList: []
+  parentReplies: []
   availableToSay: 1
   hasBeenSaid: 0

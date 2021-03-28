@@ -9,7 +9,7 @@ public class DialogueOption : ScriptableObject
     [TextArea(2, 10)]
     public List<string> response = new List<string>();
     public List<DialogueOption> additionalReplies = new List<DialogueOption>();
-    public List<DialogueOption> parentReplyList;
+    public List<DialogueOption> parentReplies = new List<DialogueOption>();
     public bool availableToSay;
     [HideInInspector] public bool hasBeenSaid;
 }
