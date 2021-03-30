@@ -24,6 +24,8 @@ public class NPCInteraction : MonoBehaviour
 
     int endingCharacter, genericOptionSelected;
     int saleDivider = 4;
+    int askAboutMemoryElement = -1;
+    int optionSelectMemoryElement = -1;
     [HideInInspector] public bool messageComplete, npcSpeechComplete, inventoryClosed, buyComplete, sellComplete, restComplete, genericOptionComplete;
     GameController controller;
     IEnumerator askAbout;
@@ -78,7 +80,7 @@ public class NPCInteraction : MonoBehaviour
         replyHighRay[9] = reply9Highlight;
         replyHighRay[10] = reply10Highlight;
 
-
+        ResetHasBeenSaid();
         //badger dialogue
         allNPCs[0].openingGreeting.Clear();
         allNPCs[0].openingGreeting.Add($"Hey, {man}, is there something I can help you with?");
@@ -89,7 +91,31 @@ public class NPCInteraction : MonoBehaviour
         allNPCs[0].closingRemark.Clear();
         allNPCs[0].closingRemark.Add($"Don't over-do it, yeah?");
     }
+    void ResetHasBeenSaid()
+    {
+        for (int i = 0; i < allNPCs.Length; i++)
+        {
+            if (allNPCs[i].askAbout.Count > 0)
+            {
+                for (int j = 0; j < allNPCs[i].askAbout.Count; j++)
+                {
+                    DigTreeDeeper(allNPCs[i].askAbout);                    
+                }
+            }            
+        }
 
+        void DigTreeDeeper(List<DialogueOption> currentTree)
+        {
+            for (int i = 0; i < currentTree.Count; i++)
+            {
+                currentTree[i].hasBeenSaid = false;
+                if (currentTree[i].additionalReplies.Count > 0)
+                {
+                    DigTreeDeeper(currentTree[i].additionalReplies);
+                }
+            }
+        }
+    }
     public void WriteNPCName(string name, int boxNumber = 1)
     {
         if (boxNumber == 1) { NPC1Name.text = name; }
@@ -128,6 +154,11 @@ public class NPCInteraction : MonoBehaviour
     }
     public IEnumerator InitiateDialogue(NPC speaker)
     {
+        controller.inputBox.SetActive(false);
+        option1Background.SetActive(false);
+        option2Background.SetActive(false);
+        option3Background.SetActive(false);
+        option4Background.SetActive(false);
         WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
         ActivateDialogueBox();
@@ -150,7 +181,6 @@ public class NPCInteraction : MonoBehaviour
         WriteDialogueOptions(opt1, opt2, opt3, opt4);
 
         int selectedElement = 0;
-        int memoryElement = -1;
         string plainOption1 = option1.text;
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
@@ -166,7 +196,11 @@ public class NPCInteraction : MonoBehaviour
 
         while (true)
         {
-            if (memoryElement != -1) { selectedElement = memoryElement; }
+            if (optionSelectMemoryElement != -1)
+            {
+                selectedElement = optionSelectMemoryElement;
+                optionSelectMemoryElement = -1;
+            }
             if (selectedElement < 0) { selectedElement = 3; }
             if (selectedElement > 3) { selectedElement = 0; }
 
@@ -228,6 +262,7 @@ public class NPCInteraction : MonoBehaviour
                 option3.text = plainOption3;
                 option4.text = plainOption4;
                 yield return -1;
+                optionSelectMemoryElement = -1;
                 genericOptionComplete = true;
                 break;
             }
@@ -236,24 +271,27 @@ public class NPCInteraction : MonoBehaviour
                 optionBoxGreyFilter.SetActive(true);
                 if (selectedElement == 0)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     genericOptionSelected = 0;
                 }
                 else if (selectedElement == 1)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     genericOptionSelected = 1;
                 }
                 else if (selectedElement == 2)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     genericOptionSelected = 2;
                 }
                 else if (selectedElement == 3)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     genericOptionSelected = 3;
                 }
+                //needs to move? but if 3 isn't cancel then where does it go?
+                optionSelectMemoryElement = -1;
+                //
                 genericOptionComplete = true;
                 break;
             }
@@ -270,7 +308,6 @@ public class NPCInteraction : MonoBehaviour
         WriteDialogueOptions(opt1, opt2, opt3, opt4);
 
         int selectedElement = 0;
-        int memoryElement = -1;
         string plainOption1 = option1.text;
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
@@ -286,7 +323,11 @@ public class NPCInteraction : MonoBehaviour
 
         while (true)
         {
-            if (memoryElement != -1) { selectedElement = memoryElement; }
+            if (optionSelectMemoryElement != -1)
+            {
+                selectedElement = optionSelectMemoryElement;
+                optionSelectMemoryElement = -1;
+            }
             if (selectedElement < 0) { selectedElement = 3; }
             if (selectedElement > 3) { selectedElement = 0; }
 
@@ -347,6 +388,7 @@ public class NPCInteraction : MonoBehaviour
                 option2.text = plainOption2;
                 option3.text = plainOption3;
                 option4.text = plainOption4;
+                optionSelectMemoryElement = -1;
                 ReturnToGame();
                 break;
             }
@@ -355,24 +397,26 @@ public class NPCInteraction : MonoBehaviour
                 optionBoxGreyFilter.SetActive(true);
                 if (selectedElement == 0)
                 {
-                    memoryElement = selectedElement;
+                    askAboutMemoryElement = -1;
+                    optionSelectMemoryElement = selectedElement;
                     controller.interactableItems.cursorSelect.Play();
                     StartCoroutine(ActivateAskAbout(speaker.askAbout, speaker));
                 }
                 else if (selectedElement == 1)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     controller.interactableItems.cursorSelect.Play();
                     StartCoroutine(GiveItem(speaker));
                 }
                 else if (selectedElement == 2)
                 {
-                    memoryElement = selectedElement;
+                    optionSelectMemoryElement = selectedElement;
                     controller.interactableItems.cursorSelect.Play();
                     NPCTradeDistributor(speaker);
                 }
                 else if (selectedElement == 3)
                 {
+                    optionSelectMemoryElement = -1;
                     controller.interactableItems.cursorCancel.Play();
                     option1.text = plainOption1;
                     option2.text = plainOption2;
@@ -386,6 +430,8 @@ public class NPCInteraction : MonoBehaviour
     }
     IEnumerator GiveItem(NPC receiver)
     {
+        NPCText.text = "";
+        yield return new WaitForSeconds(.2f);
         npcSpeechComplete = false;
         StartCoroutine(NPCSpeech(receiver.giveItemResponse));
         yield return new WaitUntil(NPCSpeechComplete);
@@ -394,9 +440,20 @@ public class NPCInteraction : MonoBehaviour
         StartCoroutine(DisplayInventory());
         yield return new WaitUntil(InventoryClosed);
         inventoryClosed = false;
+        NPCText.text = "";
+        yield return new WaitForSeconds(.2f);
         if (selectedItem != null)
         {
             //good point. what happens??
+            //if proper receiver and proper item
+            //else
+            npcSpeechComplete = false;
+            List<string> returnItem = new List<string>();
+            returnItem.Add("That's very thoughtful, but I think this'll be better off with you.");
+            StartCoroutine(NPCSpeech(returnItem));
+            yield return new WaitUntil(NPCSpeechComplete);
+            npcSpeechComplete = false;
+            StartCoroutine(OptionSelect(receiver));
         }
         else
         {
@@ -408,6 +465,7 @@ public class NPCInteraction : MonoBehaviour
             npcSpeechComplete = false;
             StartCoroutine(OptionSelect(receiver));
         }
+        NPCText.text = "";
     }
     void NPCTradeDistributor(NPC npc)
     {
@@ -1316,6 +1374,7 @@ public class NPCInteraction : MonoBehaviour
                         }
                         else if (Input.GetKeyDown(KeyCode.Escape))
                         {
+                            selectedItem = null;
                             controller.interactableItems.cursorCancel.Play();
                             controller.interactableItems.potion0Text.text = plainPotion0;
                             controller.interactableItems.potion1Text.text = plainPotion1;
@@ -1337,6 +1396,7 @@ public class NPCInteraction : MonoBehaviour
                             else if (equipmentElement == 1) { selectedItem = ego.equippedArmor; }
                             else if (equipmentElement == 2) { selectedItem = ego.equippedShield; }
                             else { selectedItem = ego.potionBelt[equipmentElement]; }
+                            break;
                         }
                         if (doubleBreak)
                         {
@@ -1348,6 +1408,7 @@ public class NPCInteraction : MonoBehaviour
                 //End Right Side
                 else if (Input.GetKeyDown(KeyCode.Escape))
                 {
+                    selectedItem = null;
                     controller.interactableItems.cursorCancel.Play();
                     controller.interactableItems.invDisplay.SetActive(false);
                     controller.interactableItems.invDisplayBorder.SetActive(false);
@@ -1359,6 +1420,7 @@ public class NPCInteraction : MonoBehaviour
                     controller.interactableItems.invDisplay.SetActive(false);
                     controller.interactableItems.invDisplayBorder.SetActive(false);
                     selectedItem = alreadyListed[selectedElement];
+                    break;
                 }
                 if (doubleBreak)
                 {
@@ -1376,11 +1438,10 @@ public class NPCInteraction : MonoBehaviour
         }
         inventoryClosed = true;
     }
-    IEnumerator ActivateAskAbout(List<DialogueOption> replyList, NPC speaker)
+    IEnumerator ActivateAskAbout(List<DialogueOption> replyList, NPC speaker, bool internalTree = false)
     {
         WriteDialogueReplies(replyList);
         int selectedElement = 0;
-        int memoryElement = -1;
         int lastElement = 0;
         string plainReply0 = reply0.text;
         string plainReply1 = reply1.text;
@@ -1397,10 +1458,14 @@ public class NPCInteraction : MonoBehaviour
         replyBoxFade.SetActive(true);
         replyBox.SetActive(true);
         replyBoxBackground.SetActive(true);
-        yield return new WaitForSeconds(.6f);
+        if (!internalTree) { yield return new WaitForSeconds(.6f); }
         while (true)
         {
-            if (memoryElement != -1) { selectedElement = memoryElement; }
+            if (askAboutMemoryElement != -1)
+            {
+                selectedElement = askAboutMemoryElement;
+                askAboutMemoryElement = -1;
+            }
             if (selectedElement < 0) { selectedElement = replyList.Count - 1; }
             if (selectedElement > replyList.Count - 1) { selectedElement = 0; }
 
@@ -1418,6 +1483,13 @@ public class NPCInteraction : MonoBehaviour
             if (lastElement == selectedElement) { yield return new WaitForSeconds(.05f); }
             lastElement = selectedElement;
 
+            //grey out done asks
+            for (int i = 0; i < replyList.Count; i++)
+            {
+                if (replyList[i].hasBeenSaid) { replyRay[i].color = Color.gray; }
+                else { replyRay[i].color = Color.white; }
+            }
+            //highlight selection
             for (int i = 0; i < replyRay.Length; i++)
             {
                 if (selectedElement == i)
@@ -1473,17 +1545,18 @@ public class NPCInteraction : MonoBehaviour
                     replyBoxBackground.SetActive(false);
                     StartCoroutine(OptionSelect(speaker));
                 }
-                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplies, speaker)); }
+                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplies, speaker, true)); }
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
             {
-                memoryElement = selectedElement;
+                askAboutMemoryElement = selectedElement;
+                replyList[selectedElement].hasBeenSaid = true;
                 controller.interactableItems.cursorSelect.Play();
                 replyBoxFade.SetActive(false);
                 replyBox.SetActive(false);
                 replyBoxBackground.SetActive(false);
-                yield return new WaitForSeconds(.15f);
+                yield return new WaitForSeconds(.25f);
                 npcSpeechComplete = false;
                 StartCoroutine(NPCSpeech(replyList[selectedElement].response));
                 yield return new WaitUntil(NPCSpeechComplete);
@@ -1491,12 +1564,12 @@ public class NPCInteraction : MonoBehaviour
                 NPCText.text = "";
                 if (replyList[selectedElement].additionalReplies.Count == 0)
                 {
-                    StartCoroutine(ActivateAskAbout(replyList, speaker));
+                    StartCoroutine(ActivateAskAbout(replyList, speaker, true));
                 }
                 else
                 {
-                    memoryElement = -1;
-                    StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies, speaker));
+                    askAboutMemoryElement = -1;
+                    StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies, speaker, true));
                 }
                 break;
             }
@@ -1508,18 +1581,20 @@ public class NPCInteraction : MonoBehaviour
         foreach (string sentence in responseList) { sentences.Enqueue(sentence); }
         while (sentences.Count > 0)
         {
+            npcTextBackground.transform.SetSiblingIndex(npcTextBackground.transform.GetSiblingIndex() + 1);
             string reply = sentences.Dequeue();
             NPCText.text = reply;
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
             StartCoroutine(TeletypeMessage(0));
+            npcTextBackground.transform.SetSiblingIndex(npcTextBackground.transform.GetSiblingIndex() - 1);
             yield return new WaitUntil(MessageComplete);
             messageComplete = false;
             yield return new WaitForSeconds(endPause);
             continueArrow.SetActive(true);
             yield return new WaitUntil(controller.EnterPressed);
             continueArrow.SetActive(false);
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.25f);
         }
         npcSpeechComplete = true;
     }
@@ -1527,7 +1602,6 @@ public class NPCInteraction : MonoBehaviour
     {
         int totalVisibleCharacters = NPCText.textInfo.characterCount;
         int counter = startingCharacter;
-
         while (true)
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);

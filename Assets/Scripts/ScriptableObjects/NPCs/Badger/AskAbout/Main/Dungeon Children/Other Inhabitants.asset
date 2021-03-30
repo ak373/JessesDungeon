@@ -18,8 +18,8 @@ MonoBehaviour:
   - Well, there's me and Skinny Pete. We're the only ones that stuck around this
     "town square," as it were. We had a bit of a community going on here, but the
     others began to fan out as time went on and - well - as tensions rose.
-  - Let's see... there's Saul and his brother, Chuck. They took off a while back.
-    I don't see much of them anymore... I hope they're all right.
+  - Let's see... there's Saul and his brother, Chuck. They took off a while back
+    and I don't see much of them anymore. I hope they're all right.
   - Then there's Lydia, Mike, and the whole of Gus' crew. It didn't take long for
     them to split off and establish themselves elsewhere.
   - Oh, and the Salamancas. They actually were never a part of the community here...
@@ -29,7 +29,7 @@ MonoBehaviour:
     don't know much about her - and it's obvious she means it to be that way.
   - Of course there's Jesse himself and his girl, Jane. They had a nice cushy room
     somewhere and didn't stay here. At one point Jane started coming around, but
-    that gradually became less and less... and then not at all.
+    that gradually became less and less, and then not at all.
   - And I've never seen him myself... but the constant supply of blue crystals down
     here can only mean one thing... Heisenberg is somewhere down here, too.
   - There are a number of others that I don't really know, but they mostly came in
@@ -52,4 +52,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba8946429c880294984a9fd89a40edcd, type: 2}
   - {fileID: 11400000, guid: a298d31300e042946996d549cc0d6605, type: 2}
   availableToSay: 1
-  hasBeenSaid: 0
+  hasBeenSaid: 1

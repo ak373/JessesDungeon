@@ -71,7 +71,7 @@ public class AdditionalNarrations : MonoBehaviour
         if (controller.secondQuestActive) { townInitial[0] = "Hey. You must be new? Gee -- aren't you a looker! Best keep that mace handy. You can call me Badger, and this here is Skinny Pete. Welcome to your new home!\""; }
         
         controller.narratorComplete = false;
-        controller.OverwriteMainWindow("There are two men conversing, who stop and look as you enter. They are each standing behind a crudely built podium; one has a [plank] of wood lying beside him, while the other conversely has a large, filled [sack].\n\nThe man with the wooden plank speaks.\n\n\nPress ENTER to continue.");
+        controller.OverwriteMainWindow("There are two men conversing, who stop and look as you enter. They are each standing behind a crudely built podium; one has a plank of wood lying beside him, while the other conversely has a large, filled sack.\n\nThe man with the wooden plank speaks.\n\n\nPress ENTER to continue.");
         yield return new WaitForSeconds(.25f);
         yield return new WaitUntil(controller.EnterPressed);
 
