@@ -90,6 +90,15 @@ public class NPCInteraction : MonoBehaviour
         allNPCs[0].initiateTradeResponse.Add($"Yeah, {man}, get some rest. Is 3 crystals OK?");
         allNPCs[0].closingRemark.Clear();
         allNPCs[0].closingRemark.Add($"Don't over-do it, yeah?");
+        //skinny pete dialogue
+        allNPCs[1].openingGreeting.Clear();
+        allNPCs[1].openingGreeting.Add($"What's up, {bro}? Got somethin' to trade?");
+        allNPCs[1].giveItemResponse.Clear();
+        allNPCs[1].giveItemResponse.Add($"A freebie? You shouldn't have! What you got, {man}?");
+        allNPCs[1].initiateTradeResponse.Clear();
+        allNPCs[1].initiateTradeResponse.Add($"All right!! We buyin' or sellin'?");
+        allNPCs[1].closingRemark.Clear();
+        allNPCs[1].closingRemark.Add($"I know you gotta be careful and whatnot, but go bring me back some goodies, yeah?");
     }
     void ResetHasBeenSaid()
     {
@@ -155,10 +164,7 @@ public class NPCInteraction : MonoBehaviour
     public IEnumerator InitiateDialogue(NPC speaker)
     {
         controller.inputBox.SetActive(false);
-        option1Background.SetActive(false);
-        option2Background.SetActive(false);
-        option3Background.SetActive(false);
-        option4Background.SetActive(false);
+        TurnOffOptionBackLights();
         WriteNPCName(speaker.nome);
         WriteDialogueOptions(null, null, null, null);
         ActivateDialogueBox();
@@ -175,6 +181,17 @@ public class NPCInteraction : MonoBehaviour
         dialogueBox.SetActive(true);
         dialogueBoxBackground.SetActive(true);
     }
+    void TurnOffOptionBackLights()
+    {
+        option1Background.SetActive(false);
+        option2Background.SetActive(false);
+        option3Background.SetActive(false);
+        option4Background.SetActive(false);
+        option1Highlight.SetActive(false);
+        option2Highlight.SetActive(false);
+        option3Highlight.SetActive(false);
+        option4Highlight.SetActive(false);
+    }
     IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
     {
         optionBoxGreyFilter.SetActive(false);
@@ -185,10 +202,7 @@ public class NPCInteraction : MonoBehaviour
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
         string plainOption4 = option4.text;
-        option1Background.SetActive(false);
-        option2Background.SetActive(false);
-        option3Background.SetActive(false);
-        option4Background.SetActive(false);
+        TurnOffOptionBackLights();
         if (opt1 != null) { option1Background.SetActive(true); }
         if (opt2 != null) { option2Background.SetActive(true); }
         if (opt3 != null) { option3Background.SetActive(true); }
@@ -312,10 +326,7 @@ public class NPCInteraction : MonoBehaviour
         string plainOption2 = option2.text;
         string plainOption3 = option3.text;
         string plainOption4 = option4.text;
-        option1Background.SetActive(false);
-        option2Background.SetActive(false);
-        option3Background.SetActive(false);
-        option4Background.SetActive(false);
+        TurnOffOptionBackLights();
         if (opt1 != null) { option1Background.SetActive(true); }
         if (opt2 != null) { option2Background.SetActive(true); }
         if (opt3 != null) { option3Background.SetActive(true); }
@@ -475,22 +486,25 @@ public class NPCInteraction : MonoBehaviour
     }
     IEnumerator BadgerRest(NPC badger)
     {
+        TurnOffOptionBackLights();
         npcSpeechComplete = false;
+        yield return new WaitForSeconds(.25f);
         StartCoroutine(NPCSpeech(badger.initiateTradeResponse));
         yield return new WaitUntil(NPCSpeechComplete);
         npcSpeechComplete = false;
         genericOptionComplete = false;
-        StartCoroutine(GenericOptionSelection("Yeah I'll take a break.", "No! I must press on!", null, null));
+        StartCoroutine(GenericOptionSelection("Yeah. I'll take a break.", "No! I must press on!", null, null));
         yield return new WaitUntil(GenericOptionComplete);
         genericOptionComplete = false;
         if (genericOptionSelected == 0)
         {
             if (ego.blueCrystals >= 3)
             {
-                controller.interactableItems.cursorSelect.Play();
                 npcSpeechComplete = false;
                 List<string> restChosen = new List<string>();
                 restChosen.Add($"Don't worry for a second -- me and Pete got your back.");
+                yield return new WaitForSeconds(.25f);
+                controller.interactableItems.cursorSelect.Play();
                 StartCoroutine(NPCSpeech(restChosen));
                 yield return new WaitUntil(NPCSpeechComplete);
                 npcSpeechComplete = false;
@@ -509,34 +523,39 @@ public class NPCInteraction : MonoBehaviour
             }
             else
             {
-                error.Play();
                 npcSpeechComplete = false;
                 List<string> restFail = new List<string>();
-                restFail.Add($"You're looking a little light in the pockets -- I need to eat too... you understand, right? I'll be here when you've got a few more to spend.");
+                restFail.Add($"You're looking a little light in the pockets -- I need to eat, too... you understand, right? I'll be here when you've got a few more to spend.");
+                restFail.Add($"Can I help you with anything else?");
+                yield return new WaitForSeconds(.25f);
+                error.Play();
                 StartCoroutine(NPCSpeech(restFail));
                 yield return new WaitUntil(NPCSpeechComplete);
                 npcSpeechComplete = false;
+                StartCoroutine(OptionSelect(badger));
             }
-            ReturnToGame();
         }
         else if (genericOptionSelected == 1 || genericOptionSelected == -1)
         {
-            controller.interactableItems.cursorSelect.Play();
             npcSpeechComplete = false;
             List<string> optionReturn = new List<string>();
             optionReturn.Add($"All right, that's cool... Maybe next time. Can I help you with anything else?");
+            yield return new WaitForSeconds(.25f);
+            controller.interactableItems.cursorSelect.Play();
             StartCoroutine(NPCSpeech(optionReturn));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
             StartCoroutine(OptionSelect(badger));
         }
+
         IEnumerator Rest()
         {
-            rest.Play();
-            yield return new WaitForSeconds(1f);
+            StartCoroutine(controller.roomNavigation.FadeAudioOut(controller.registerRooms.townTheme, .25f));
+            StartCoroutine(controller.roomNavigation.FadeAudioIn(rest, .25f));
+            yield return new WaitForSeconds(2f);
             wholeScreenFadeBlack.SetActive(true);
-            FadeAudio(rest, 4f);
-            yield return new WaitForSeconds(5f);
+            StartCoroutine(controller.roomNavigation.FadeAudioOut(rest, 4f));
+            yield return new WaitForSeconds(6f);
             ego.blueCrystals -= 3;
             ego.allStats[0].value = ego.allStats[2].value + ego.allStats[2].effectValue;
             ego.allStats[1].value = ego.allStats[0].value;
@@ -553,9 +572,9 @@ public class NPCInteraction : MonoBehaviour
                     else { counter++; }
                 }
                 if (counter == ego.activeEffects.Count) { break; }
-            }            
-            //townmusic? play
-            yield return new WaitForSeconds(1.5f);
+            }
+            StartCoroutine(controller.roomNavigation.FadeAudioIn(controller.registerRooms.townTheme, .5f));
+            yield return new WaitForSeconds(1f);
             wholeScreenFadeBlack.SetActive(false);
             restComplete = true;
         }

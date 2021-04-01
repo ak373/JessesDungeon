@@ -33,7 +33,7 @@ public class RoomNavigation : MonoBehaviour
         }
         lastRoom = currentRoom;
     }
-    IEnumerator FadeAudioOut(AudioSource audio, float fadeTime)
+    public IEnumerator FadeAudioOut(AudioSource audio, float fadeTime)
     {
         float startVolume = audio.volume;
 
@@ -45,7 +45,7 @@ public class RoomNavigation : MonoBehaviour
         audio.Stop();
         audio.volume = startVolume;
     }
-    IEnumerator FadeAudioIn(AudioSource audio, float fadeTime)
+    public IEnumerator FadeAudioIn(AudioSource audio, float fadeTime)
     {
         float startVolume = audio.volume;
         audio.volume = 0;

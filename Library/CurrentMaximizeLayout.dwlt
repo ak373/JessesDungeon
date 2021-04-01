@@ -25,7 +25,7 @@ MonoBehaviour:
   m_MinSize: {x: 709, y: 492}
   m_MaxSize: {x: 18004, y: 14042}
   vertical: 0
-  controlID: 3978
+  controlID: 892
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -139,7 +139,7 @@ MonoBehaviour:
   m_MinSize: {x: 201, y: 442}
   m_MaxSize: {x: 4001, y: 8042}
   vertical: 1
-  controlID: 3979
+  controlID: 867
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -545,15 +545,15 @@ MonoBehaviour:
     y: 577
     width: 1221
     height: 410
-  m_MinSize: {x: 201, y: 221}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 2}
   m_Panes:
   - {fileID: 2}
   - {fileID: 9}
   - {fileID: 10}
   m_Selected: 0
-  m_LastSelected: 2
+  m_LastSelected: 1
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -608,7 +608,7 @@ MonoBehaviour:
   m_ViewDataDictionary: {fileID: 0}
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: 21574
+  m_LastSelectedObjectID: 25656
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -633,7 +633,7 @@ MonoBehaviour:
   m_MinSize: {x: 232, y: 492}
   m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
-  controlID: 3944
+  controlID: 827
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -779,8 +779,7 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SkipHidden: 0
     m_SearchArea: 1
-    m_Folders:
-    - Assets/Scripts/ScriptableObjects/Items/Weapons
+    m_Folders: []
   m_ViewMode: 0
   m_StartGridSize: 64
   m_LastFolders: []
@@ -817,9 +816,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_AssetTreeState:
-    scrollPos: {x: 0, y: 114.526306}
-    m_SelectedIDs: 28820000
-    m_LastClickedID: 33320
+    scrollPos: {x: 0, y: 534.5263}
+    m_SelectedIDs: 38640000
+    m_LastClickedID: 0
     m_ExpandedIDs: ffffffff00000000208300000a8500000c8500000e85000010850000128500001485000016850000188500001a8500001c8500001e85000020850000228500002485000026850000288500002a8500002c8500002e85000030850000328500003485000036850000388500003a850000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -845,8 +844,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 28820000
-    m_LastClickedInstanceID: 33320
+    m_SelectedInstanceIDs: 38640000
+    m_LastClickedInstanceID: 25656
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
@@ -939,7 +938,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_PreviewWindow: {fileID: 0}
-  m_LastInspectedObjectInstanceID: 33320
+  m_LastInspectedObjectInstanceID: 25656
   m_LastVerticalScrollValue: 0
 --- !u!114 &18
 MonoBehaviour:
