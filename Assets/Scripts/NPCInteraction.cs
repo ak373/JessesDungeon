@@ -181,7 +181,7 @@ public class NPCInteraction : MonoBehaviour
         dialogueBox.SetActive(true);
         dialogueBoxBackground.SetActive(true);
     }
-    void TurnOffOptionBackLights()
+    public void TurnOffOptionBackLights()
     {
         option1Background.SetActive(false);
         option2Background.SetActive(false);

@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Combat.cs" />
     <Compile Include="Assets\Scripts\DebugMode.cs" />
     <Compile Include="Assets\Scripts\Deed.cs" />
+    <Compile Include="Assets\Scripts\DemoScript.cs" />
     <Compile Include="Assets\Scripts\Dialogue.cs" />
     <Compile Include="Assets\Scripts\DialogueManager.cs" />
     <Compile Include="Assets\Scripts\DialogueOption.cs" />

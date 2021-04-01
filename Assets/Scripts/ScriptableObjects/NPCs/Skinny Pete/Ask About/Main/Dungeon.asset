@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9afacf60603a994388c10682c6a7339, type: 3}
+  m_Name: Dungeon
+  m_EditorClassIdentifier: 
+  reply: Dungeon
+  response:
+  - This place is the pits, I tell ya. I don't know what Jesse's got planned for
+    us all, but things have gotten pretty scary around here.
+  - At first it was just the broken crews of bad guys you had to worry about. They
+    mostly kept their feuding to each other and left the rest of us alone.
+  - But now they're roaming all over the dungeon! Anywhere you go there might be
+    some psycho waiting around a corner, so take care out there.
+  additionalReplies: []
+  parentReplies: []
+  availableToSay: 1
+  hasBeenSaid: 0

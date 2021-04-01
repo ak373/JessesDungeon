@@ -17,5 +17,12 @@ MonoBehaviour:
   giveItemResponse: []
   initiateTradeResponse: []
   closingRemark: []
-  askAbout: []
-  options: []
+  askAbout:
+  - {fileID: 11400000, guid: 60d69177912b0aa44bc30e1cb5b0a954, type: 2}
+  - {fileID: 11400000, guid: 5c15301674dcc3c47b97e6b6fc6e4c5a, type: 2}
+  - {fileID: 11400000, guid: 0938618b021ea774691442e2a6df1a0b, type: 2}
+  options:
+  - Ask about...
+  - Give item
+  - Shop
+  - Enough already

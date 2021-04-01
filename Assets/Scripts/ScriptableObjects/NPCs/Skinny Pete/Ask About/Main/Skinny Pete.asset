@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9afacf60603a994388c10682c6a7339, type: 3}
+  m_Name: Skinny Pete
+  m_EditorClassIdentifier: 
+  reply: Skinny Pete
+  response:
+  - I'm your go-to man for any equipment you might need down here! If you can think
+    of some way to use it as a weapon or strap it to your body as protection, then
+    I'm in it.
+  - Whether it's buying or selling I'll give you a fair price - even if there is
+    no competition around! We're only gonna survive down here by being good to each
+    other, ya know?
+  - And be sure to check for new stock from time to time. It's kind of small right
+    now, but I've got a feeling you're gonna stir things up around here!
+  additionalReplies:
+  - {fileID: 11400000, guid: ca154b59bb7ad3f418bc770d8ececbf1, type: 2}
+  - {fileID: 11400000, guid: baeb7d7d1f361a246a619a1c44b0fd9d, type: 2}
+  - {fileID: 11400000, guid: 66c2be8147eb4364f9e6480709c3e60b, type: 2}
+  parentReplies: []
+  availableToSay: 1
+  hasBeenSaid: 0

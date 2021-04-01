@@ -78,6 +78,7 @@ public class GameController : MonoBehaviour
     [HideInInspector] public Combat combat;
     [HideInInspector] public TeleType teleType;
     [HideInInspector] public NPCInteraction npcInteraction;
+    [HideInInspector] public DemoScript demoScript;
     [HideInInspector] public string currentActiveInput;
     [HideInInspector] public string userInput;
     Color orange = new Color(1.0f, 0.64f, 0.0f);
@@ -113,6 +114,7 @@ public class GameController : MonoBehaviour
         additionalNarrations = GetComponent<AdditionalNarrations>();
         npcTalk = GetComponent<NPCTalk>();
         npcInteraction = GetComponent<NPCInteraction>();
+        demoScript = GetComponent<DemoScript>();
         achievements = GetComponent<Achievements>();
         combat = GetComponent<Combat>();
         teleType = GetComponent<TeleType>();

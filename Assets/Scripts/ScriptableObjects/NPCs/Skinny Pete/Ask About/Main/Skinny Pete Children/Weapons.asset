@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9afacf60603a994388c10682c6a7339, type: 3}
+  m_Name: Weapons
+  m_EditorClassIdentifier: 
+  reply: Weapons
+  response:
+  - If you can hold it and it can cause damage, then it's a weapon.
+  - Some weapons are made to do good damage every swing, while others are more deadly
+    with a critical strike. Some are unwieldy, and others are balanced for a more
+    precise strike. And who knows what else you might find out there?
+  additionalReplies:
+  - {fileID: 11400000, guid: 036731967b5d4e4408f2e4d74714f029, type: 2}
+  - {fileID: 11400000, guid: 89fbed2a5eb2c5c4ab20bf4a4d5879ea, type: 2}
+  parentReplies:
+  - {fileID: 11400000, guid: 60d69177912b0aa44bc30e1cb5b0a954, type: 2}
+  - {fileID: 11400000, guid: 5c15301674dcc3c47b97e6b6fc6e4c5a, type: 2}
+  - {fileID: 11400000, guid: 0938618b021ea774691442e2a6df1a0b, type: 2}
+  availableToSay: 1
+  hasBeenSaid: 0

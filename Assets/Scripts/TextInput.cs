@@ -36,7 +36,7 @@ public class TextInput : MonoBehaviour
         controller.debugClass.SnatchInput(userInput);
         //controller.npcTalk.SnatchInput(userInput);
         //controller.achievements.SnatchInput(userInput);
-       
+
         char[] delimiterCharacters = { ' ' };
         string[] separatedInputWords = userInput.Split(delimiterCharacters);
         //if (userInput.StartsWith("test ")) { controller.ego.conversation = System.Convert.ToInt32(userInput.Substring(5)); }
