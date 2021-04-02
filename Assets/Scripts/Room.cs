@@ -17,4 +17,5 @@ public class Room : ScriptableObject
     public Exit[] exits;
     public InteractableObject[] interactableObjectsInRoom;
     public AudioSource music;
+    public bool battleRoom;
 }

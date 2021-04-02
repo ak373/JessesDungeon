@@ -51,12 +51,16 @@ public class DemoScript : MonoBehaviour
         demoDialogue.Add($"So here's how the rest of this is going to play out.");
         demoDialogue.Add($"I'm gonna provide you with supplies and you're going to fight a bunch of things. After each battle you'll be healed, and given access to new equipment.");
         demoDialogue.Add($"And it's gonna end like the blackhole in Star Fox. If you don't know what that means, well... you will.");
+        demoDialogue.Add($"Whatever you got on will be fine for this first one.");
         yield return new WaitForSeconds(.25f);
         controller.npcInteraction.WriteNPCName("Jesse");
         controller.npcInteraction.npcSpeechComplete = false;
         StartCoroutine(controller.npcInteraction.NPCSpeech(demoDialogue));
         yield return new WaitUntil(controller.npcInteraction.NPCSpeechComplete);
         controller.npcInteraction.npcSpeechComplete = false;
+        controller.npcInteraction.dialogueBox.SetActive(false);
+        controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        controller.npcInteraction.wholeScreenFadeBlack.SetActive(true);
     }
 
     // Update is called once per frame

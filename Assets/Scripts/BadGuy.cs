@@ -11,6 +11,7 @@ public class BadGuy : Character
     public int crystalLootMax;
     [TextArea(2,5)]
     public string battleCry;
+    public string multiBattleCry;
     [HideInInspector] public GameObject combatSlot;
     [HideInInspector] public GameObject combatBorder;
     public string specialAbility;

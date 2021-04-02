@@ -5,7 +5,8 @@ using System.Threading;
 
 public class RoomNavigation : MonoBehaviour
 {
-    public Room currentRoom; 
+    public Room currentRoom;
+    public AudioSource currentMusic;
     [HideInInspector] public Room lastRoom;
     GameController controller;
 
@@ -30,6 +31,7 @@ public class RoomNavigation : MonoBehaviour
         {
             StartCoroutine(FadeAudioOut(last.music, .25f));
             StartCoroutine(FadeAudioIn(current.music, .25f));
+            currentMusic = current.music;
         }
         lastRoom = currentRoom;
     }
@@ -71,6 +73,15 @@ public class RoomNavigation : MonoBehaviour
         {
             //controller.DisplayNarratorResponse("Try as you might, but you can't.");
             StartCoroutine(controller.Narrator("Try as you might, but you can't."));
+        }
+    }
+    public void RandomBattleCheck(Room newRoom)
+    {
+        if (newRoom.battleRoom)
+        {
+            //roll some randoms
+            //if roll does whatever
+            //controller.combat.InitiateCombat(enemy, number);
         }
     }
 

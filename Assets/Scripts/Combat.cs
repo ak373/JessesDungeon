@@ -29,16 +29,16 @@ public class Combat : MonoBehaviour
     public TMP_Text[] turnOrderNames;
     public TMP_Text[] turnOrderActions;
     public TMP_Text[] egoCombatOptions;
-    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen, fightOverWhiteScreen;
-    public TMP_Text battleText, effectsText, invText;
-    public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder, continueArrow;
+    public GameObject battleLog, battleLogGreyScreen, turnOrderBlackScreen, enemySlotGreyScreen, fightOverFade, fightOverFadedScreen, fightOverWhiteScreen, battleStartFadeFromBlack, battleStartFadeToBlack, battleStartBox;
+    public TMP_Text battleText, effectsText, invText, battleStartText;
+    public GameObject invDisplay, invDisplayBorder, invOptions, invOptionsBorder, continueArrow, battleStartContinueArrow;
     public TMP_Text combatInvDamage, combatInvCritMultiplier, combatInvToHitMod, combatInvArmorClass, combatInvCritResist, combatInvDmgReduction;
     public Scrollbar scrollBar;
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
     public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
-    public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect;
+    public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect, battleStartDrum;
     public AudioSource sicklyMusic, creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
     public TMP_Text potion0, potion1, potion2;
@@ -56,7 +56,7 @@ public class Combat : MonoBehaviour
     Effect priorityEffect;
     Color darkGrey = new Color(0.09411765f, 0.09411765f, 0.09411765f);
     TextInfo myTI = new CultureInfo("en-US", false).TextInfo;
-    AudioSource currentTheme;
+    AudioSource currentTheme, returnTheme;
     IEnumerator egoHP, badGuy0HP, badGuy1HP, badGuy2HP, badGuy3HP, badGuy4HP;
 
     GameController controller;
@@ -112,11 +112,52 @@ public class Combat : MonoBehaviour
     //A Bold Yet Discretionary Strategist = allBadGuys[3]
     //A Big Burly Brute = allBadGuys[4]
 
+    public IEnumerator BeginBattle(BadGuy badGuy, int numberOfBadGuys)
+    {
+        if (numberOfBadGuys == 1) { battleStartText.text = badGuy.battleCry; }
+        else { battleStartText.text = badGuy.multiBattleCry; }
+        
+        int totalVisibleCharacters = battleStartText.textInfo.characterCount;
+        int counter = 0;
+        returnTheme = controller.roomNavigation.currentMusic;
 
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(returnTheme, .25f));
+        battleStartDrum.Play();
+        battleStartFadeToBlack.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        battleStartBox.SetActive(true);
+        while (true)
+        {
+            int visibleCount = counter % (totalVisibleCharacters + 1);
+            battleStartText.maxVisibleCharacters = visibleCount;
+            if (Input.GetKey(KeyCode.Return))
+            {
+                battleStartText.maxVisibleCharacters = totalVisibleCharacters;
+                visibleCount = totalVisibleCharacters;
+                counter = totalVisibleCharacters;
+            }
+
+            if (visibleCount >= totalVisibleCharacters) { break; }
+            counter += 1;
+
+            yield return new WaitForSeconds(.025f);
+        }
+        yield return new WaitForSeconds(.25f);
+        battleStartContinueArrow.SetActive(true);
+        yield return new WaitUntil(controller.EnterPressed);
+        InitiateCombat(badGuy, numberOfBadGuys);
+        battleStartText.text = "";
+        battleStartBox.SetActive(false);
+        battleStartContinueArrow.SetActive(false);
+        battleStartFadeFromBlack.SetActive(true);
+        battleStartFadeToBlack.SetActive(false);
+        yield return new WaitForSeconds(1.5f);
+        battleStartFadeFromBlack.SetActive(false);
+    }
     public void InitiateCombat(BadGuy badGuy, int numberOfBadGuys)
     {
         FindBadGuyTheme();
-        currentTheme.Play();
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(currentTheme, .5f));
         curHPEgo.text = ego.allStats[0].value.ToString();
         maxHPEgo.text = ego.allStats[2].value.ToString();
         //reset previous battle gameobjects
