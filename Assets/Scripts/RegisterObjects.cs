@@ -9,10 +9,10 @@ public class RegisterObjects : MonoBehaviour
     //public Weapon rustyWoodenSpoon;
     //public Weapon bubbleLead;
     public Potion[] allPotions;
-    public Item[] allItems;
-    //5 = chainmail
-    //6 = shield
-    //7 = sword
+    public Item[] allUndroppables;
+    public Weapon[] allWeapons;
+    public Armor[] allArmor;
+    public Shield[] allShields;
     public InteractableObject[] allObjects;
 
     private void Awake()

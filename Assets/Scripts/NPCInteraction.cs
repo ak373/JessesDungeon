@@ -22,7 +22,8 @@ public class NPCInteraction : MonoBehaviour
     public AudioSource purchase, error, rest;
     public Ego ego;
 
-    int endingCharacter, genericOptionSelected;
+    int endingCharacter;
+    public int genericOptionSelected;
     int saleDivider = 4;
     int askAboutMemoryElement = -1;
     int optionSelectMemoryElement = -1;
@@ -192,7 +193,7 @@ public class NPCInteraction : MonoBehaviour
         option3Highlight.SetActive(false);
         option4Highlight.SetActive(false);
     }
-    IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
+    public IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
     {
         optionBoxGreyFilter.SetActive(false);
         WriteDialogueOptions(opt1, opt2, opt3, opt4);
@@ -275,7 +276,7 @@ public class NPCInteraction : MonoBehaviour
                 option2.text = plainOption2;
                 option3.text = plainOption3;
                 option4.text = plainOption4;
-                yield return -1;
+                genericOptionSelected = -1;
                 optionSelectMemoryElement = -1;
                 genericOptionComplete = true;
                 break;
@@ -584,11 +585,17 @@ public class NPCInteraction : MonoBehaviour
         List<Item> weaponList = new List<Item>();
         List<Item> armorList = new List<Item>();
         List<Item> shieldList = new List<Item>();
-        for (int i = 0; i < controller.registerObjects.allItems.Length; i++)
+        for (int i = 0; i < controller.registerObjects.allWeapons.Length; i++)
         {
-            if (controller.registerObjects.allItems[i] is Weapon && controller.registerObjects.allItems[i].unlocked) { weaponList.Add(controller.registerObjects.allItems[i]); }
-            else if (controller.registerObjects.allItems[i] is Armor && controller.registerObjects.allItems[i].unlocked) { armorList.Add(controller.registerObjects.allItems[i]); }
-            else if (controller.registerObjects.allItems[i] is Shield && controller.registerObjects.allItems[i].unlocked) { shieldList.Add(controller.registerObjects.allItems[i]); }
+            if (controller.registerObjects.allWeapons[i].unlocked) { weaponList.Add(controller.registerObjects.allWeapons[i]); }
+        }
+        for (int i = 0; i < controller.registerObjects.allArmor.Length; i++)
+        {
+            if (controller.registerObjects.allArmor[i].unlocked) { armorList.Add(controller.registerObjects.allArmor[i]); }
+        }
+        for (int i = 0; i < controller.registerObjects.allShields.Length; i++)
+        {
+            if (controller.registerObjects.allShields[i].unlocked) { shieldList.Add(controller.registerObjects.allShields[i]); }
         }
         weaponText.text = WriteShoppingList(weaponList);
         armorText.text = WriteShoppingList(armorList);
@@ -1673,7 +1680,7 @@ public class NPCInteraction : MonoBehaviour
     bool BuyComplete() { return buyComplete; }
     bool SellComplete() { return sellComplete; }
     bool RestComplete() { return restComplete; }
-    bool GenericOptionComplete() { return genericOptionComplete; }
+    public bool GenericOptionComplete() { return genericOptionComplete; }
 
 
 

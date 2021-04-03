@@ -94,9 +94,9 @@ public class DebugMode : MonoBehaviour
                 yield return new WaitForSeconds(.35f);
                 controller.AddToMainWindow(".");
                 yield return new WaitForSeconds(1f);
-                controller.GetEquipped(Instantiate((Weapon)controller.registerObjects.allItems[7]));
-                controller.GetDressed(Instantiate((Armor)controller.registerObjects.allItems[5]));
-                controller.GetStrapped(Instantiate((Shield)controller.registerObjects.allItems[6]));
+                controller.GetEquipped(Instantiate((Weapon)controller.registerObjects.allWeapons[13]));
+                controller.GetDressed(Instantiate((Armor)controller.registerObjects.allArmor[5]));
+                controller.GetStrapped(Instantiate((Shield)controller.registerObjects.allShields[4]));
                 StartCoroutine(controller.Narrator("All set! Sorry no horse and stick."));
             }
         }

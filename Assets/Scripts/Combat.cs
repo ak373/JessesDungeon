@@ -1965,11 +1965,11 @@ public class Combat : MonoBehaviour
                     AddEffect(ego, 1, Instantiate(allEffects[0]));
                     AddEffect(ego, 1, Instantiate(allEffects[2]));
                     AddEffect(ego, 1, Instantiate(allEffects[4]));
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[0]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[1]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[2]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[3]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allItems[4]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allWeapons[10]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allArmor[2]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allShields[3]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allPotions[4]);
+                    controller.interactableItems.inventory.Add(controller.registerObjects.allUndroppables[0]);
                     ego.potionBelt.Add(controller.registerObjects.allPotions[3]);
                     ego.potionBelt.Add(controller.registerObjects.allPotions[4]);
                     ego.potionBelt.Add(controller.registerObjects.allPotions[2]);

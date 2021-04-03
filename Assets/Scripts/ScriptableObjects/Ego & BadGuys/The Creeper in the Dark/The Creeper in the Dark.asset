@@ -29,20 +29,28 @@ MonoBehaviour:
   equippedArmor: {fileID: 11400000, guid: 83ba485a4428841459d841835e0e1b9f, type: 2}
   equippedWeapon: {fileID: 11400000, guid: fa13370bfb687a949bb187a11bd43f6c, type: 2}
   equippedShield: {fileID: 0}
+  potionBelt:
+  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
   currentInit: 0
+  currentTurnOrder: 0
   displayAction: 
+  chosenAction: 
+  chosenAbility: {fileID: 0}
+  chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
   itemLoot:
   - {fileID: 11400000, guid: fa13370bfb687a949bb187a11bd43f6c, type: 2}
   - {fileID: 11400000, guid: 83ba485a4428841459d841835e0e1b9f, type: 2}
-  potionBelt:
-  - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
   crystalLootMin: 0
   crystalLootMax: 10
   battleCry: From the far corner of the room emerges a creeper in the dark. He begins
     closing in with his weapon pointed at you.
+  multiBattleCry: From the far corners of the room emerge creepers in the dark. They
+    begins closing in with their weapons pointed at you.
   combatSlot: {fileID: 0}
+  combatBorder: {fileID: 0}
   specialAbility: Hide in Shadows
-  chosenAction: 
   normalAIRay:
   - {fileID: 11400000, guid: e95c68d54c6fb934698d22d2fd02e9da, type: 2}
   - {fileID: 11400000, guid: 730c538265dceb9449c401a69de8620b, type: 2}

@@ -29,18 +29,26 @@ MonoBehaviour:
   equippedArmor: {fileID: 11400000, guid: e65a6f7c96196a849acb157271ffdd3e, type: 2}
   equippedWeapon: {fileID: 11400000, guid: 16ae9d370fdeebb42b33bf1c09eb8f54, type: 2}
   equippedShield: {fileID: 11400000, guid: 957b82fcd60bd92459193fbe69e21fb8, type: 2}
-  currentInit: 0
-  displayAction: 
-  itemLoot: []
   potionBelt:
   - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
+  currentInit: 0
+  currentTurnOrder: 0
+  displayAction: 
+  chosenAction: 
+  chosenAbility: {fileID: 0}
+  chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
+  itemLoot: []
   crystalLootMin: 10
   crystalLootMax: 20
   battleCry: An Aggressive Peace Monger approaches with determination in his eyes.
     He forcefully encourages you to fall into line!
+  multiBattleCry: Aggressive Peace Mongers approach with determination in their eyes.
+    They forcefully encourage you to fall into line!
   combatSlot: {fileID: 0}
+  combatBorder: {fileID: 0}
   specialAbility: Chastize
-  chosenAction: 
   normalAIRay:
   - {fileID: 11400000, guid: 69cc4b8a8fe924343ad3731f93b8f1bf, type: 2}
   - {fileID: 11400000, guid: 13503d8649ca5914f803e0e4b4be0067, type: 2}

@@ -477,7 +477,7 @@ public class GameController : MonoBehaviour
             }
             else if (pause == 2)//equip spoon
             {
-                GetEquipped((Weapon)registerObjects.allItems[1]);
+                GetEquipped(registerObjects.allWeapons[0]);
                 AddToMainWindowWithLine(sentence + "\n\n\nPress ENTER to continue.");
                 while (stupidEnterGlitch)
                 {
@@ -488,7 +488,7 @@ public class GameController : MonoBehaviour
             }
             else if (pause == 3)//equip bowl
             {                
-                GetStrapped((Shield)registerObjects.allItems[2]);
+                GetStrapped(registerObjects.allShields[0]);
                 AddToMainWindowWithLine(sentence + "\n\n\nPress ENTER to continue.");
                 while (stupidEnterGlitch)
                 {
@@ -657,7 +657,7 @@ public class GameController : MonoBehaviour
 
     public Item ExtractItem(string itemName)
     {
-        if (itemName == "bubble lead") { return registerObjects.allItems[0]; }
+        if (itemName == "bubble lead") { return registerObjects.allWeapons[1]; }
         //if (ego.equippedWeapon == registerObjects.bubbleLead) { ego.equippedWeapon = null; }
         //if (!interactableItems.inventory.Contains(registerObjects.bubbleLead)) { interactableItems.inventory.Add(registerObjects.bubbleLead); }
         for (int i = 0; i < interactableItems.inventory.Count; i++)
@@ -1162,7 +1162,7 @@ public class GameController : MonoBehaviour
         //    dropItNot = false;
         //    DisplayNarratorResponse("Discretion is the better part of valor.\n\nPackrat.");
         //}
-        if (ego.equippedWeapon == registerObjects.allItems[0] || interactableItems.inventory.Contains(registerObjects.allItems[0])) { hasBubbleLead = true; }
+        if (ego.equippedWeapon == registerObjects.allWeapons[1] || interactableItems.inventory.Contains(registerObjects.allWeapons[1])) { hasBubbleLead = true; }
         else { hasBubbleLead = false; }
     }
 }

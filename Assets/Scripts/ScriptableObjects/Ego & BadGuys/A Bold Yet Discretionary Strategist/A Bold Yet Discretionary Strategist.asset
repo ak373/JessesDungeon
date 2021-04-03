@@ -44,8 +44,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 332836000f9f8634f91fa1c6d013770a, type: 2}
   crystalLootMin: 5
   crystalLootMax: 25
-  battleCry: Some Bold Yet Discretionary Strategists make several gradual moves toward
-    you until they are within range to strike!
+  battleCry: A Bold Yet Discretionary Strategist make several gradual moves toward
+    you until he is within range to strike!
+  multiBattleCry: Some Bold Yet Discretionary Strategists make several gradual moves
+    toward you until they are within range to strike!
   combatSlot: {fileID: 0}
   combatBorder: {fileID: 0}
   specialAbility: Strategize

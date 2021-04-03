@@ -29,19 +29,26 @@ MonoBehaviour:
   equippedArmor: {fileID: 11400000, guid: e65a6f7c96196a849acb157271ffdd3e, type: 2}
   equippedWeapon: {fileID: 11400000, guid: 0bac9ea53d31ce040a3ff2d384341d6c, type: 2}
   equippedShield: {fileID: 0}
-  currentInit: 0
-  displayAction: 
-  itemLoot:
-  - {fileID: 11400000, guid: 0bac9ea53d31ce040a3ff2d384341d6c, type: 2}
   potionBelt:
   - {fileID: 11400000, guid: c68516a14b9be0946af42e53876c2f9c, type: 2}
   - {fileID: 11400000, guid: ab8583e3e24727840854ce3966e2d2d8, type: 2}
+  currentInit: 0
+  currentTurnOrder: 0
+  displayAction: 
+  chosenAction: 
+  chosenAbility: {fileID: 0}
+  chosenTarget: {fileID: 0}
+  chosenItem: {fileID: 0}
+  chosenItem2: {fileID: 0}
+  itemLoot:
+  - {fileID: 11400000, guid: 0bac9ea53d31ce040a3ff2d384341d6c, type: 2}
   crystalLootMin: 10
   crystalLootMax: 20
   battleCry: A Big, Burly Brute grunts as he charges at you with a club!
+  multiBattleCry: Some Big, Burly Brutes grunt as they charge at you with clubs!
   combatSlot: {fileID: 0}
+  combatBorder: {fileID: 0}
   specialAbility: Brutalize
-  chosenAction: 
   normalAIRay:
   - {fileID: 11400000, guid: c42e3362a48f32948aaf178e527a9fed, type: 2}
   - {fileID: 11400000, guid: 8bc320d982df0be48a6b99eca5587967, type: 2}

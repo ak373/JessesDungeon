@@ -43,6 +43,7 @@ MonoBehaviour:
   crystalLootMin: 0
   crystalLootMax: 1
   battleCry: A small, sickly child limps over and assumes a fighting stance!
+  multiBattleCry: Some small, sickly children limp over and assume a fighting stance!
   combatSlot: {fileID: 0}
   combatBorder: {fileID: 0}
   specialAbility: Whine
