@@ -16,8 +16,8 @@ MonoBehaviour:
   response:
   - Badger's my best bro!
   - He and I run this town square together! If you need to rest and recover from
-    the harrows of this dungeon, Badger's got you covered.
+    the harrows of this dungeon, Badger's your man.
   additionalReplies: []
   parentReplies: []
   availableToSay: 1
-  hasBeenSaid: 0
+  hasBeenSaid: 1

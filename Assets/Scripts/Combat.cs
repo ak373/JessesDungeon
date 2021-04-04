@@ -14,6 +14,7 @@ public class Combat : MonoBehaviour
 
     public Ego ego;
     public BadGuy[] allBadGuys;
+    public GameObject combatScreen;
     public GameObject arrow, egoDoneArrow, slot1DoneArrow, slot2aDoneArrow, slot2bDoneArrow, slot3bDoneArrow, slot3cDoneArrow, slotFlank1DoneArrow, slotFlank2DoneArrow;
     public GameObject[] egoArrowPositions, slot1ArrowPositions, slot2aArrowPositions, slot2bArrowPositions, slot3bArrowPositions, slot3cArrowPositions, slotFlank1ArrowPositions, slotFlank2ArrowPositions;
     public GameObject borderEgo, border1, border2a, border2b, border3b, border3c, borderFlank1, borderFlank2;
@@ -116,15 +117,15 @@ public class Combat : MonoBehaviour
     {
         if (numberOfBadGuys == 1) { battleStartText.text = badGuy.battleCry; }
         else { battleStartText.text = badGuy.multiBattleCry; }
-        
+        yield return new WaitForSeconds(.1f);
         int totalVisibleCharacters = battleStartText.textInfo.characterCount;
         int counter = 0;
         returnTheme = controller.roomNavigation.currentMusic;
 
         StartCoroutine(controller.roomNavigation.FadeAudioOut(returnTheme, .25f));
-        battleStartDrum.Play();
         battleStartFadeToBlack.SetActive(true);
         yield return new WaitForSeconds(1f);
+        battleStartDrum.Play();
         battleStartBox.SetActive(true);
         while (true)
         {
@@ -144,6 +145,7 @@ public class Combat : MonoBehaviour
         }
         yield return new WaitForSeconds(.25f);
         battleStartContinueArrow.SetActive(true);
+        combatScreen.SetActive(true);
         yield return new WaitUntil(controller.EnterPressed);
         InitiateCombat(badGuy, numberOfBadGuys);
         battleStartText.text = "";
@@ -163,6 +165,7 @@ public class Combat : MonoBehaviour
         //reset previous battle gameobjects
         turnOrderBlackScreen.SetActive(false);
         fightOverFadedScreen.SetActive(false);
+        WhiteWash();
         //clear loot list
         lootBox.Clear();
         lootPurse = 0;
@@ -256,6 +259,8 @@ public class Combat : MonoBehaviour
             Effect flank = Instantiate(allEffects[3]);
             AddEffect(ego, 1, flank);
         }
+
+
 
         CalculateTurnOrder();
         DisplayTurnOrder();
@@ -764,7 +769,12 @@ public class Combat : MonoBehaviour
                 else //if (turnOrder[i] != jesse)
                 {
                     BadGuy currentTurn = (BadGuy)turnOrder[i];
-                    badGuyTurn.Play();
+                    //disallow sound for Lurk ability
+                    if (currentTurn.chosenAbility != null)
+                    {
+                        if (currentTurn.chosenAbility.title == "Lurk") { continue; }
+                    }
+                    else { badGuyTurn.Play(); }
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
                     if (turnOrder[i].displayAction == "Attack") { StartCoroutine(ExecuteBadGuyAttack((BadGuy)turnOrder[i])); }
                     else if (turnOrder[i].displayAction == "Inventory")
@@ -3700,10 +3710,12 @@ public class Combat : MonoBehaviour
             fightOverWhiteScreen.SetActive(true);
             yield return new WaitForSeconds(.2f);
             battleLogGreyScreen.SetActive(false);
-            yield return new WaitForSeconds(.5f);
+            yield return new WaitForSeconds(1.5f);
             winCoda.Stop();
+            combatScreen.SetActive(false);
             //fightOverWhiteScreen.SetActive(false);
             //return to game
+            controller.demoScript.demoProceed = true;
         }
         else
         {

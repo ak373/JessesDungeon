@@ -23,7 +23,7 @@ public class NPCInteraction : MonoBehaviour
     public Ego ego;
 
     int endingCharacter;
-    public int genericOptionSelected;
+    [HideInInspector] public int genericOptionSelected;
     int saleDivider = 4;
     int askAboutMemoryElement = -1;
     int optionSelectMemoryElement = -1;
@@ -211,11 +211,11 @@ public class NPCInteraction : MonoBehaviour
 
         while (true)
         {
-            if (optionSelectMemoryElement != -1)
-            {
-                selectedElement = optionSelectMemoryElement;
-                optionSelectMemoryElement = -1;
-            }
+            //if (optionSelectMemoryElement != -1)
+            //{
+            //    selectedElement = optionSelectMemoryElement;
+            //    optionSelectMemoryElement = -1;
+            //}
             if (selectedElement < 0) { selectedElement = 3; }
             if (selectedElement > 3) { selectedElement = 0; }
 
@@ -610,6 +610,7 @@ public class NPCInteraction : MonoBehaviour
         int columnMemory = 1;
 
         npcSpeechComplete = false;
+        yield return new WaitForSeconds(.25f);
         StartCoroutine(NPCSpeech(pete.initiateTradeResponse));
         yield return new WaitUntil(NPCSpeechComplete);
         npcSpeechComplete = false;
@@ -617,6 +618,7 @@ public class NPCInteraction : MonoBehaviour
         StartCoroutine(GenericOptionSelection("Buy", "Sell", null, "Nevermind"));
         yield return new WaitUntil(GenericOptionComplete);
         genericOptionComplete = false;
+        yield return new WaitForSeconds(.25f);
         if (genericOptionSelected == 0)
         {
             npcSpeechComplete = false;
