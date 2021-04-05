@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 
 public class DemoScript : MonoBehaviour
 {
+    public AudioSource interimTheme;
     bool listenerListener = true;
     bool demoListener = true;
     [HideInInspector] public bool demoProceed = false;
@@ -42,7 +43,7 @@ public class DemoScript : MonoBehaviour
         yield return new WaitUntil(controller.npcInteraction.NPCSpeechComplete);
         controller.npcInteraction.npcSpeechComplete = false;
         demoDialogue.Clear();
-        demoDialogue.Add($"Heyyy you found me!");
+        demoDialogue.Add($"Heeey! You found me!");
         demoDialogue.Add($"Well more like I found you. This is a short demo so I had to come to these few areas to which you can actually go.");
         demoDialogue.Add($"So here's how the rest of this is going to play out.");
         demoDialogue.Add($"I will provide you with supplies and you're going to fight a bunch of things. After each battle you'll pick some bonus equipment, then be shipped off to the next fight.");
@@ -56,14 +57,17 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.npcSpeechComplete = false;
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[1], 1));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
         controller.combat.fightOverWhiteScreen.SetActive(false);
 
-        //  battle 1 --
+        //  battle 2 --
         //controller.npcInteraction.ActivateDialogueBox();
+        controller.npcInteraction.NPCText.text = "";
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
         demoDialogue.Add($"A little too easy, right? Let's spice it up a bit. You'll probably want to increase your damage output for this one.");
         demoDialogue.Add($"Take any one you want.");
@@ -78,29 +82,43 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[5]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetEquipped(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Shield choice = Instantiate(controller.registerObjects.allShields[2]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetStrapped(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[0])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[0]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
 
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[1], 3));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
         controller.combat.fightOverWhiteScreen.SetActive(false);
 
-        //  battle 2 --
+        //  battle 3 --
         //controller.npcInteraction.ActivateDialogueBox();
+        controller.npcInteraction.ClearOptions();
+        controller.npcInteraction.NPCText.text = "";
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
         demoDialogue.Add($"A bit more to deal with that time, right? Let's up it a little bit more.");
         demoDialogue.Add($"Take any one you want.");
@@ -115,19 +133,29 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[6]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetEquipped(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[8]);
             controller.interactableItems.inventory.Add(choice);
             if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
             controller.GetEquipped(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[1])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[1]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
         // item 2
         demoDialogue.Clear();
         demoDialogue.Add($"Take any one you want.");
@@ -142,29 +170,43 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Armor choice = Instantiate(controller.registerObjects.allArmor[2]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetDressed(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Shield choice = Instantiate(controller.registerObjects.allShields[3]);
             controller.interactableItems.inventory.Add(choice);
             if (!controller.ego.equippedWeapon.twoHanded) { controller.GetStrapped(choice); }
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[1])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[1]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
 
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[2], 2));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
         controller.combat.fightOverWhiteScreen.SetActive(false);
 
-        //  battle 3 --
+        //  battle 4 --
         //controller.npcInteraction.ActivateDialogueBox();
+        controller.npcInteraction.ClearOptions();
+        controller.npcInteraction.NPCText.text = "";
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
         demoDialogue.Add($"Hmm. OK.");
         demoDialogue.Add($"Take any one you want.");
@@ -179,19 +221,29 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[12]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetEquipped(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[9]);
             controller.interactableItems.inventory.Add(choice);
             if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
             controller.GetEquipped(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[3])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[3]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
         // item 2
         demoDialogue.Clear();
         demoDialogue.Add($"Take any one you want.");
@@ -206,24 +258,41 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
-            Armor choice = Instantiate(controller.registerObjects.allArmor[2]);
+            controller.combat.cursorSelect.Play();
+            Armor choice = Instantiate(controller.registerObjects.allArmor[4]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetDressed(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 1 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[2])); }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 1 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[2]));
+        }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
 
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[3], 3));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
         controller.combat.fightOverWhiteScreen.SetActive(false);
 
-        //  battle 3 --
+        //  battle 5 --
         //controller.npcInteraction.ActivateDialogueBox();
+        controller.npcInteraction.ClearOptions();
+        controller.npcInteraction.NPCText.text = "";
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
         demoDialogue.Add($"Hope you have some HP left.");
         demoDialogue.Add($"Take any one you want.");
@@ -238,19 +307,29 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[13]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetEquipped(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[10]);
             controller.interactableItems.inventory.Add(choice);
             if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
             controller.GetEquipped(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
         // item 2
         demoDialogue.Clear();
         demoDialogue.Add($"Take any one you want.");
@@ -265,29 +344,43 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Armor choice = Instantiate(controller.registerObjects.allArmor[5]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetDressed(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Shield choice = Instantiate(controller.registerObjects.allShields[4]);
             controller.interactableItems.inventory.Add(choice);
             if (!controller.ego.equippedWeapon.twoHanded) { controller.GetStrapped(choice); }            
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[4]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
 
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[4], 2));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
         controller.combat.fightOverWhiteScreen.SetActive(false);
 
-        //  battle 4 --
+        //  battle 6 --
         //controller.npcInteraction.ActivateDialogueBox();
+        controller.npcInteraction.ClearOptions();
+        controller.npcInteraction.NPCText.text = "";
+        StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
         demoDialogue.Add($"All right, so -- I've got things to do. I'm going to set you up here with an automated system... while I set it up, HERE!");
         demoDialogue.Add($"Take any one you want.");
@@ -302,19 +395,29 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[14]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetEquipped(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Weapon choice = Instantiate(controller.registerObjects.allWeapons[15]);
             controller.interactableItems.inventory.Add(choice);
             if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
             controller.GetEquipped(choice);
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
         // item 2
         demoDialogue.Clear();
         demoDialogue.Add($"Take any one you want.");
@@ -329,21 +432,32 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.genericOptionComplete = false;
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
+            controller.combat.cursorSelect.Play();
             Armor choice = Instantiate(controller.registerObjects.allArmor[6]);
             controller.interactableItems.inventory.Add(choice);
             controller.GetDressed(choice);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
+            controller.combat.cursorSelect.Play();
             Shield choice = Instantiate(controller.registerObjects.allShields[5]);
             controller.interactableItems.inventory.Add(choice);
             if (!controller.ego.equippedWeapon.twoHanded) { controller.GetStrapped(choice); }
         }
-        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5])); }
-        else { martyrCounter++; }
+        else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+        {
+            controller.combat.cursorSelect.Play();
+            controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5]));
+        }
+        else
+        {
+            controller.interactableItems.cursorCancel.Play();
+            martyrCounter++;
+        }
 
         //controller.npcInteraction.dialogueBox.SetActive(false);
         //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+        StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
         StartCoroutine(controller.combat.BeginBattle(controller.combat.allBadGuys[0], 5));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
@@ -355,6 +469,9 @@ public class DemoScript : MonoBehaviour
         IEnumerator AutomatedSystem()
         {
             //controller.npcInteraction.ActivateDialogueBox();
+            controller.npcInteraction.ClearOptions();
+            controller.npcInteraction.NPCText.text = "";
+            StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
             demoDialogue.Clear();
             demoDialogue.Add($"Take any one you want.");
             yield return new WaitForSeconds(.5f);
@@ -368,12 +485,14 @@ public class DemoScript : MonoBehaviour
             controller.npcInteraction.genericOptionComplete = false;
             if (controller.npcInteraction.genericOptionSelected == 0)
             {
+                controller.combat.cursorSelect.Play();
                 Weapon choice = Instantiate(controller.registerObjects.allWeapons[14]);
                 controller.interactableItems.inventory.Add(choice);
                 controller.GetEquipped(choice);
             }
             else if (controller.npcInteraction.genericOptionSelected == 1)
             {
+                controller.combat.cursorSelect.Play();
                 Weapon choice = Instantiate(controller.registerObjects.allWeapons[15]);
                 controller.interactableItems.inventory.Add(choice);
                 if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
@@ -381,11 +500,13 @@ public class DemoScript : MonoBehaviour
             }
             else if (controller.npcInteraction.genericOptionSelected == 2)
             {
+                controller.combat.cursorSelect.Play();
                 Weapon choice = Instantiate(controller.registerObjects.allWeapons[11]);
                 controller.interactableItems.inventory.Add(choice);
                 if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
                 controller.GetEquipped(choice);
             }
+            else { controller.interactableItems.cursorCancel.Play(); }
             // item 2
             demoDialogue.Clear();
             demoDialogue.Add($"Take any one you want.");
@@ -400,18 +521,25 @@ public class DemoScript : MonoBehaviour
             controller.npcInteraction.genericOptionComplete = false;
             if (controller.npcInteraction.genericOptionSelected == 0)
             {
+                controller.combat.cursorSelect.Play();
                 Armor choice = Instantiate(controller.registerObjects.allArmor[6]);
                 controller.interactableItems.inventory.Add(choice);
                 controller.GetDressed(choice);
             }
             else if (controller.npcInteraction.genericOptionSelected == 1)
             {
+                controller.combat.cursorSelect.Play();
                 Shield choice = Instantiate(controller.registerObjects.allShields[5]);
                 controller.interactableItems.inventory.Add(choice);
                 if (!controller.ego.equippedWeapon.twoHanded) { controller.GetStrapped(choice); }
             }
-            else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count > 3) { controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5])); }
-            
+            else if (controller.npcInteraction.genericOptionSelected == 2 && controller.ego.potionBelt.Count < 3)
+            {
+                controller.combat.cursorSelect.Play();
+                controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[5]));
+            }
+            else { controller.interactableItems.cursorCancel.Play(); }
+
             // enemy choice
             BadGuy badGuyChosen = controller.combat.allBadGuys[0];
             demoDialogue.Clear();
@@ -425,10 +553,27 @@ public class DemoScript : MonoBehaviour
             controller.npcInteraction.genericOptionComplete = false;
             yield return new WaitUntil(controller.npcInteraction.GenericOptionComplete);
             controller.npcInteraction.genericOptionComplete = false;
-            if (controller.npcInteraction.genericOptionSelected == 0) { badGuyChosen = controller.combat.allBadGuys[0]; }
-            else if (controller.npcInteraction.genericOptionSelected == 1) { badGuyChosen = controller.combat.allBadGuys[1]; }
-            else if (controller.npcInteraction.genericOptionSelected == 2) { badGuyChosen = controller.combat.allBadGuys[2]; }
-            else if (controller.npcInteraction.genericOptionSelected == 3) { badGuyChosen = controller.combat.allBadGuys[3]; }
+            if (controller.npcInteraction.genericOptionSelected == 0)
+            {
+                controller.combat.cursorSelect.Play();
+                badGuyChosen = controller.combat.allBadGuys[0];
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 1)
+            {
+                controller.combat.cursorSelect.Play();
+                badGuyChosen = controller.combat.allBadGuys[1];
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 2)
+            {
+                controller.combat.cursorSelect.Play();
+                badGuyChosen = controller.combat.allBadGuys[2];
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 3)
+            {
+                controller.combat.cursorSelect.Play();
+                badGuyChosen = controller.combat.allBadGuys[3];
+            }
+            else { controller.interactableItems.cursorCancel.Play(); }
 
             // number choice
             int numberChosen = 5;
@@ -443,13 +588,31 @@ public class DemoScript : MonoBehaviour
             controller.npcInteraction.genericOptionComplete = false;
             yield return new WaitUntil(controller.npcInteraction.GenericOptionComplete);
             controller.npcInteraction.genericOptionComplete = false;
-            if (controller.npcInteraction.genericOptionSelected == 0) { numberChosen = 1; }
-            else if (controller.npcInteraction.genericOptionSelected == 1) { numberChosen = 2; }
-            else if (controller.npcInteraction.genericOptionSelected == 2) { numberChosen = 3; }
-            else if (controller.npcInteraction.genericOptionSelected == 3) { numberChosen = 4; }
+            if (controller.npcInteraction.genericOptionSelected == 0)
+            {
+                controller.combat.cursorSelect.Play();
+                numberChosen = 1;
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 1)
+            {
+                controller.combat.cursorSelect.Play();
+                numberChosen = 2;
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 2)
+            {
+                controller.combat.cursorSelect.Play();
+                numberChosen = 3;
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 3)
+            {
+                controller.combat.cursorSelect.Play();
+                numberChosen = 4;
+            }
+            else { controller.interactableItems.cursorCancel.Play(); }
 
             //controller.npcInteraction.dialogueBox.SetActive(false);
             //controller.npcInteraction.dialogueBoxBackground.SetActive(false);
+            StartCoroutine(controller.roomNavigation.FadeAudioOut(interimTheme, .25f));
             StartCoroutine(controller.combat.BeginBattle(badGuyChosen, numberChosen));
             demoProceed = false;
             yield return new WaitUntil(DemoProceed);

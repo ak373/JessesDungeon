@@ -193,6 +193,14 @@ public class NPCInteraction : MonoBehaviour
         option3Highlight.SetActive(false);
         option4Highlight.SetActive(false);
     }
+    public void ClearOptions()
+    {
+        option1.text = "";
+        option2.text = "";
+        option3.text = "";
+        option4.text = "";
+        TurnOffOptionBackLights();
+    }
     public IEnumerator GenericOptionSelection(string opt1, string opt2 = null, string opt3 = null, string opt4 = null)
     {
         optionBoxGreyFilter.SetActive(false);

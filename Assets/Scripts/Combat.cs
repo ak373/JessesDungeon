@@ -38,7 +38,7 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, miss, strangeOccurence, derpSound, joinedTheBattle;
+    public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, gunHit, gunCrit, miss, strangeOccurence, derpSound, joinedTheBattle;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect, battleStartDrum;
     public AudioSource sicklyMusic, creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
@@ -114,19 +114,21 @@ public class Combat : MonoBehaviour
     //A Big Burly Brute = allBadGuys[4]
 
     public IEnumerator BeginBattle(BadGuy badGuy, int numberOfBadGuys)
-    {
+    {        
         if (numberOfBadGuys == 1) { battleStartText.text = badGuy.battleCry; }
         else { battleStartText.text = badGuy.multiBattleCry; }
-        yield return new WaitForSeconds(.1f);
-        int totalVisibleCharacters = battleStartText.textInfo.characterCount;
-        int counter = 0;
+        battleStartText.maxVisibleCharacters = 0;
         returnTheme = controller.roomNavigation.currentMusic;
 
         StartCoroutine(controller.roomNavigation.FadeAudioOut(returnTheme, .25f));
         battleStartFadeToBlack.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        battleStartDrum.Play();
+        yield return new WaitForSeconds(.98f);
         battleStartBox.SetActive(true);
+        yield return new WaitForSeconds(.01f);
+        int totalVisibleCharacters = battleStartText.textInfo.characterCount;
+        int counter = 0;
+        yield return new WaitForSeconds(.01f);
+        battleStartDrum.Play();
         while (true)
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
@@ -141,7 +143,7 @@ public class Combat : MonoBehaviour
             if (visibleCount >= totalVisibleCharacters) { break; }
             counter += 1;
 
-            yield return new WaitForSeconds(.025f);
+            yield return new WaitForSeconds(.0125f);
         }
         yield return new WaitForSeconds(.25f);
         battleStartContinueArrow.SetActive(true);
@@ -772,7 +774,8 @@ public class Combat : MonoBehaviour
                     //disallow sound for Lurk ability
                     if (currentTurn.chosenAbility != null)
                     {
-                        if (currentTurn.chosenAbility.title == "Lurk") { continue; }
+                        if (currentTurn.chosenAbility.title == "Lurk") { }
+                        else { badGuyTurn.Play(); }
                     }
                     else { badGuyTurn.Play(); }
                     StartCoroutine(SelectFlicker(currentTurn.combatBorder));                    
@@ -1756,7 +1759,10 @@ public class Combat : MonoBehaviour
         else if (ego.equippedWeapon.type == "Piercing") { verb = "stab"; }
         else if (ego.equippedWeapon.type == "Polearm") { verb = "jab"; }
         else if (ego.equippedWeapon.type == "Ranged") { verb = "shoot"; }
-        
+
+        bool gunHeld = false;
+        if (ego.equippedWeapon != null) { if (ego.equippedWeapon.nome == "gun") { gunHeld = true; } }
+
         battleText.text = $"You {verb} at {badGuy.nome},";
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
@@ -1766,7 +1772,8 @@ public class Combat : MonoBehaviour
 
         if (attackRoll >= badGuyArmorClass && (d20 < 20))
         {
-            hit.Play();
+            if (gunHeld) { gunHit.Play(); }
+            else { hit.Play(); }
             battleText.text += $" and hit for {rolledDamage} damage!";
             
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
@@ -1774,7 +1781,8 @@ public class Combat : MonoBehaviour
         }
         else if (d20 == 20)
         {
-            criticalHit.Play();
+            if (gunHeld) { gunCrit.Play(); }
+            else { criticalHit.Play(); }
             battleText.text += $" and critically hit for {rolledDamage} damage!";
 
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
@@ -1843,7 +1851,10 @@ public class Combat : MonoBehaviour
                     //construct target cycle
                     for (int i = 0; i < activeBadGuys.Length; i++)
                     {
-                        if (activeBadGuys[i] != null) { activeBadGuyBorders.Add(activeBadGuys[i].combatBorder); }
+                        if (activeBadGuys[i] != null)
+                        {
+                            if (!deadThisRound.Contains(activeBadGuys[i])) { activeBadGuyBorders.Add(activeBadGuys[i].combatBorder); }                            
+                        }
                     }
                     //
                     while (true)

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: Defend
   likelihood: 20
-  message: 
   messages:
   - A Bold Yet Discretionary Strategist takes a defensive stance.
   effect: {fileID: 11400000, guid: 048de932740af4a48a4ac5176f5adf21, type: 2}
   target: self
+  beneficial: 1

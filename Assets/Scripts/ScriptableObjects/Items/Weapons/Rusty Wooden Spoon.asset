@@ -23,7 +23,7 @@ MonoBehaviour:
   useEffect: {fileID: 0}
   type: Blunt
   damage: 1
-  damageDie: 3
+  damageDie: 6
   critMultiplier: 2
   toHitMod: 0
   twoHanded: 0
