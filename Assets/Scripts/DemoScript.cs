@@ -120,7 +120,7 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
-        demoDialogue.Add($"A bit more to deal with that time, right? Let's up it a little bit more.");
+        demoDialogue.Add($"A bit more to deal with that time, right? Let's up it a little bit more. You might want to look into some protective items.");
         demoDialogue.Add($"Take any one you want.");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
@@ -208,7 +208,7 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
-        demoDialogue.Add($"Hmm. OK.");
+        demoDialogue.Add($"But can you handle these guys?");
         demoDialogue.Add($"Take any one you want.");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
@@ -382,7 +382,7 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
-        demoDialogue.Add($"All right, so -- I've got things to do. I'm going to set you up here with an automated system... while I set it up, HERE!");
+        demoDialogue.Add($"All right -- I've got things to do. I'm going to put in an automated system here... while I set it up, HERE!");
         demoDialogue.Add($"Take any one you want.");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
@@ -479,7 +479,7 @@ public class DemoScript : MonoBehaviour
             StartCoroutine(controller.npcInteraction.NPCSpeech(demoDialogue));
             yield return new WaitUntil(controller.npcInteraction.NPCSpeechComplete);
             controller.npcInteraction.npcSpeechComplete = false;
-            StartCoroutine(controller.npcInteraction.GenericOptionSelection("Mace", "Ganon's Trident", "Assassin's Dagger"));
+            StartCoroutine(controller.npcInteraction.GenericOptionSelection("Mace", "Ganon's Trident", "Assassin's Dagger", "Greater Healing Potion"));
             controller.npcInteraction.genericOptionComplete = false;
             yield return new WaitUntil(controller.npcInteraction.GenericOptionComplete);
             controller.npcInteraction.genericOptionComplete = false;
@@ -505,6 +505,11 @@ public class DemoScript : MonoBehaviour
                 controller.interactableItems.inventory.Add(choice);
                 if (controller.ego.equippedShield != null) { controller.GetUnStrapped(); }
                 controller.GetEquipped(choice);
+            }
+            else if (controller.npcInteraction.genericOptionSelected == 3 && controller.ego.potionBelt.Count < 3)
+            {
+                controller.combat.cursorSelect.Play();
+                controller.ego.potionBelt.Add(Instantiate(controller.registerObjects.allPotions[2]));
             }
             else { controller.interactableItems.cursorCancel.Play(); }
             // item 2
@@ -541,7 +546,7 @@ public class DemoScript : MonoBehaviour
             else { controller.interactableItems.cursorCancel.Play(); }
 
             // enemy choice
-            BadGuy badGuyChosen = controller.combat.allBadGuys[0];
+            BadGuy badGuyChosen = Instantiate(controller.combat.allBadGuys[0]);
             demoDialogue.Clear();
             demoDialogue.Add($"Choose your foe.");
             yield return new WaitForSeconds(.5f);
@@ -556,22 +561,22 @@ public class DemoScript : MonoBehaviour
             if (controller.npcInteraction.genericOptionSelected == 0)
             {
                 controller.combat.cursorSelect.Play();
-                badGuyChosen = controller.combat.allBadGuys[0];
+                badGuyChosen = Instantiate(controller.combat.allBadGuys[0]);
             }
             else if (controller.npcInteraction.genericOptionSelected == 1)
             {
                 controller.combat.cursorSelect.Play();
-                badGuyChosen = controller.combat.allBadGuys[1];
+                badGuyChosen = Instantiate(controller.combat.allBadGuys[1]);
             }
             else if (controller.npcInteraction.genericOptionSelected == 2)
             {
                 controller.combat.cursorSelect.Play();
-                badGuyChosen = controller.combat.allBadGuys[2];
+                badGuyChosen = Instantiate(controller.combat.allBadGuys[2]);
             }
             else if (controller.npcInteraction.genericOptionSelected == 3)
             {
                 controller.combat.cursorSelect.Play();
-                badGuyChosen = controller.combat.allBadGuys[3];
+                badGuyChosen = Instantiate(controller.combat.allBadGuys[3]);
             }
             else { controller.interactableItems.cursorCancel.Play(); }
 

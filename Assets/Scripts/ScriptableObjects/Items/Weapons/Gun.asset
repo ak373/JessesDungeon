@@ -23,8 +23,8 @@ MonoBehaviour:
   useMessage2: intimidated!
   useEffect: {fileID: 11400000, guid: 297e54ac3c3046146ad29262c7e52fd5, type: 2}
   type: Ranged
-  damage: 30
-  damageDie: 1
+  damage: 25
+  damageDie: 10
   critMultiplier: 1.5
   toHitMod: -5
   twoHanded: 0

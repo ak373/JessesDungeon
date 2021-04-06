@@ -21,7 +21,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 521}
+  m_MinSize: {x: 875, y: 542}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
 --- !u!114 &2
@@ -46,7 +46,7 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 1037
-  m_MinSize: {x: 875, y: 521}
+  m_MinSize: {x: 875, y: 542}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &3
 MonoBehaviour:
@@ -113,10 +113,10 @@ MonoBehaviour:
     y: 30
     width: 1920
     height: 987
-  m_MinSize: {x: 709, y: 471}
-  m_MaxSize: {x: 18004, y: 14021}
+  m_MinSize: {x: 708, y: 492}
+  m_MaxSize: {x: 18003, y: 14042}
   vertical: 0
-  controlID: 10234
+  controlID: 288
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -138,10 +138,10 @@ MonoBehaviour:
     y: 0
     width: 1221
     height: 987
-  m_MinSize: {x: 201, y: 342}
-  m_MaxSize: {x: 4001, y: 8042}
+  m_MinSize: {x: 201, y: 321}
+  m_MaxSize: {x: 4001, y: 8021}
   vertical: 1
-  controlID: 10235
+  controlID: 293
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -219,10 +219,10 @@ MonoBehaviour:
     y: 0
     width: 323
     height: 987
-  m_MinSize: {x: 232, y: 471}
-  m_MaxSize: {x: 10002, y: 14021}
+  m_MinSize: {x: 232, y: 492}
+  m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
-  controlID: 10280
+  controlID: 227
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -242,8 +242,8 @@ MonoBehaviour:
     y: 0
     width: 323
     height: 496
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 19}
   m_Panes:
   - {fileID: 19}
@@ -294,8 +294,8 @@ MonoBehaviour:
     y: 0
     width: 376
     height: 987
-  m_MinSize: {x: 276, y: 71}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 275, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
@@ -867,9 +867,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: e8600000
-      m_LastClickedID: 24808
-      m_ExpandedIDs: 70fbffff3e6c0000
+      m_SelectedIDs: 92830000
+      m_LastClickedID: 0
+      m_ExpandedIDs: 70fbffff4a6c0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -931,7 +931,8 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SkipHidden: 0
     m_SearchArea: 1
-    m_Folders: []
+    m_Folders:
+    - Assets/Scripts/ScriptableObjects/Ego & BadGuys/A Big Burly Brute
   m_ViewMode: 0
   m_StartGridSize: 64
   m_LastFolders: []
@@ -943,7 +944,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 56350000
     m_LastClickedID: 13654
-    m_ExpandedIDs: ffffffff00000000d2830000dc850000de850000e0850000e2850000e4850000e6850000e8850000ea850000ec850000ee850000f0850000f2850000f4850000f6850000f8850000fa850000fc850000fe85000000860000028600000486000006860000
+    m_ExpandedIDs: ffffffff00000000ea830000f4850000f6850000f8850000fa850000fc850000fe85000000860000028600000486000006860000088600000a8600000c8600000e86000010860000128600001486000016860000188600001a8600001c8600001e860000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -968,10 +969,10 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_AssetTreeState:
-    scrollPos: {x: 0, y: 60}
+    scrollPos: {x: 0, y: 120}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: ffffffff00000000d2830000dc850000de850000e0850000e2850000e4850000e6850000e8850000ea850000ec850000ee850000f0850000f2850000f4850000f6850000f8850000fa850000fc850000fe85000000860000028600000486000006860000
+    m_ExpandedIDs: ffffffff00000000ea830000f4850000f6850000f8850000fa850000fc850000fe85000000860000028600000486000006860000088600000a8600000c8600000e86000010860000128600001486000016860000188600001a8600001c8600001e860000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1064,7 +1065,7 @@ MonoBehaviour:
     m_PrefName: Preview_InspectorPreview
   m_PreviewWindow: {fileID: 0}
   m_LastInspectedObjectInstanceID: -1
-  m_LastVerticalScrollValue: 100
+  m_LastVerticalScrollValue: 0
 --- !u!114 &22
 MonoBehaviour:
   m_ObjectHideFlags: 52
