@@ -14,8 +14,8 @@ public class Saerch : InputAction
             {
                 if (separatedInputWords[1] == "tray" && controller.interactableItems.traySearch && controller.roomNavigation.currentRoom.roomName == "I7")
                 {
-                    controller.interactableItems.traySearch = false;
-                    controller.InitiateScriptedResponse(controller.TestVerbDictionaryWithNoun(searchDictionary, separatedInputWords[0], separatedInputWords[1]), "tray");
+                    //controller.interactableItems.traySearch = false;
+                    //controller.InitiateScriptedResponse(controller.TestVerbDictionaryWithNoun(searchDictionary, separatedInputWords[0], separatedInputWords[1]), "tray");
                 }
                 else { controller.InitiateInputActionResponse(controller.TestVerbDictionaryWithNoun(searchDictionary, separatedInputWords[0], separatedInputWords[1])); }
             }

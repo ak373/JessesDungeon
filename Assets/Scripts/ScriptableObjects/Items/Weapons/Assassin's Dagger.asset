@@ -24,7 +24,7 @@ MonoBehaviour:
   useMessage2: poisoned!
   useEffect: {fileID: 11400000, guid: 53c5e410115261e4696a3bbb4eaa4da0, type: 2}
   type: Piercing
-  damage: 3
+  damage: 7
   damageDie: 4
   critMultiplier: 3
   toHitMod: 5

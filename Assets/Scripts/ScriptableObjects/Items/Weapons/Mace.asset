@@ -22,8 +22,8 @@ MonoBehaviour:
   useMessage2: blinded!
   useEffect: {fileID: 11400000, guid: ce7b1b86da9d22646909af3d8dcd5c08, type: 2}
   type: Blunt
-  damage: 10
-  damageDie: 6
+  damage: 15
+  damageDie: 15
   critMultiplier: 5
   toHitMod: 0
   twoHanded: 0

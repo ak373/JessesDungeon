@@ -44,10 +44,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 83ba485a4428841459d841835e0e1b9f, type: 2}
   crystalLootMin: 0
   crystalLootMax: 10
-  battleCry: From the far corner of the room emerges a creeper in the dark. He begins
-    closing in with his weapon pointed at you.
-  multiBattleCry: From the far corners of the room emerge creepers in the dark. They
-    begins closing in with their weapons pointed at you.
+  battleCry: From the far corner of the room emerges The Creeper in the Dark. He
+    begins closing in with his weapon pointed at you.
+  multiBattleCry: From the far corners of the room emerge The Creepers in the Dark.
+    They begins closing in with their weapons pointed at you.
   combatSlot: {fileID: 0}
   combatBorder: {fileID: 0}
   specialAbility: Hide in Shadows

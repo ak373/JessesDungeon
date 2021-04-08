@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Max HP
   m_EditorClassIdentifier: 
   title: maxHP
-  value: 40
+  value: 30
   effectValue: 0

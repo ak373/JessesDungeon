@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Init Mod
   m_EditorClassIdentifier: 
   title: initMod
-  value: 0
+  value: 2
+  effectValue: 0

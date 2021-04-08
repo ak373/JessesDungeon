@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Current HP
   m_EditorClassIdentifier: 
   title: currentHP
-  value: 40
+  value: 30
   effectValue: 0

@@ -34,13 +34,14 @@ public class TextInput : MonoBehaviour
         controller.SnatchInput(userInput);
         additionalNarrations.SnatchInput(userInput);
         controller.debugClass.SnatchInput(userInput);
+        controller.demoScript.SnatchInput(userInput);
         //controller.npcTalk.SnatchInput(userInput);
         //controller.achievements.SnatchInput(userInput);
 
         char[] delimiterCharacters = { ' ' };
         string[] separatedInputWords = userInput.Split(delimiterCharacters);
         //if (userInput.StartsWith("test ")) { controller.ego.conversation = System.Convert.ToInt32(userInput.Substring(5)); }
-        if (!controller.debugClass.empireBusiness && controller.currentActiveInput != "yesno" && !textIsGood)
+        if (!controller.debugClass.empireBusiness/* && controller.currentActiveInput != "yesno"*/ && !textIsGood)
         {
             for (int i = 0; i < controller.inputActions.Length; i++)
             {

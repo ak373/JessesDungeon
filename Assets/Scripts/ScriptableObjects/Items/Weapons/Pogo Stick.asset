@@ -23,8 +23,8 @@ MonoBehaviour:
   useMessage2: 
   useEffect: {fileID: 0}
   type: Polearm
-  damage: 7
-  damageDie: 6
+  damage: 10
+  damageDie: 10
   critMultiplier: 2
   toHitMod: 0
   twoHanded: 1

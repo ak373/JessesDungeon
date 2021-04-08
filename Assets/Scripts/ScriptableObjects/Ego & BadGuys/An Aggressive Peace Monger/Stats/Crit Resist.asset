@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Crit Resist
   m_EditorClassIdentifier: 
   title: critResist
-  value: 1
+  value: 0.9
+  effectValue: 0

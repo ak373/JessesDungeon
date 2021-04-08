@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Target HP
   m_EditorClassIdentifier: 
   title: targetHP
-  value: 40
+  value: 30
   effectValue: 0

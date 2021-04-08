@@ -22,8 +22,8 @@ MonoBehaviour:
   useMessage2: Then they stop.
   useEffect: {fileID: 0}
   type: Blunt
-  damage: 15
-  damageDie: 8
+  damage: 20
+  damageDie: 12
   critMultiplier: 2
   toHitMod: 0
   twoHanded: 1

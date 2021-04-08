@@ -16,6 +16,22 @@ public class DemoScript : MonoBehaviour
     {
         controller = GetComponent<GameController>();
     }
+    public void SnatchInput(string fromTextInput)
+    {
+        if (fromTextInput == "go north" || fromTextInput == "go south")
+        {
+            bool raseiredRoom = false;
+            for (int i = 0; i < controller.roomNavigation.currentRoom.exits.Length; i++)
+            {
+                if (("go " + controller.roomNavigation.currentRoom.exits[i].keyString) == fromTextInput) { raseiredRoom = true; }
+            }
+            if (raseiredRoom)
+            {
+                controller.textInput.textIsGood = true;
+                StartCoroutine(controller.Narrator("Not a chance. Room unavailable in Spawned Jesse's Dungeon."));
+            }            
+        }
+    }
     IEnumerator DemoListener()
     {
         demoListener = false;
@@ -46,7 +62,8 @@ public class DemoScript : MonoBehaviour
         demoDialogue.Add($"Heeey! You found me!");
         demoDialogue.Add($"Well more like I found you. This is a short demo so I had to come to these few areas to which you can actually go.");
         demoDialogue.Add($"So here's how the rest of this is going to play out.");
-        demoDialogue.Add($"I will provide you with supplies and you're going to fight a bunch of things. After each battle you'll pick some bonus equipment, then be shipped off to the next fight.");
+        demoDialogue.Add($"I will provide you with supplies and you're going to fight a bunch of things.");
+        demoDialogue.Add($"After each battle you'll pick some equipment, then be shipped off to the next fight.");
         demoDialogue.Add($"And it's gonna end like the blackhole in Star Fox. If you don't know what that means, well... you will.");
         demoDialogue.Add($"Whatever you got on will be fine for this first one.");
         yield return new WaitForSeconds(.25f);
@@ -62,7 +79,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
 
         //  battle 2 --
         //controller.npcInteraction.ActivateDialogueBox();
@@ -112,7 +129,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
 
         //  battle 3 --
         //controller.npcInteraction.ActivateDialogueBox();
@@ -120,7 +137,7 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
-        demoDialogue.Add($"A bit more to deal with that time, right? Let's up it a little bit more. You might want to look into some protective items.");
+        demoDialogue.Add($"A bit more to deal with that time, right? Let's up it a little bit more. You might want to look into some protective equipment.");
         demoDialogue.Add($"Take any one you want.");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
@@ -200,7 +217,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
 
         //  battle 4 --
         //controller.npcInteraction.ActivateDialogueBox();
@@ -286,7 +303,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
 
         //  battle 5 --
         //controller.npcInteraction.ActivateDialogueBox();
@@ -374,7 +391,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
 
         //  battle 6 --
         //controller.npcInteraction.ActivateDialogueBox();
@@ -382,7 +399,7 @@ public class DemoScript : MonoBehaviour
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         demoDialogue.Clear();
-        demoDialogue.Add($"All right -- I've got things to do. I'm going to put in an automated system here... while I set it up, HERE!");
+        demoDialogue.Add($"All right -- I've got things to do. I'm just going to put in an automated system to finish for me... while I set it up, HERE!");
         demoDialogue.Add($"Take any one you want.");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
@@ -462,7 +479,7 @@ public class DemoScript : MonoBehaviour
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
         demoProceed = false;
-        controller.combat.fightOverWhiteScreen.SetActive(false);
+        //controller.combat.fightOverWhiteScreen.SetActive(false);
         controller.npcInteraction.WriteNPCName("Botte");
         StartCoroutine(AutomatedSystem());
 
@@ -622,7 +639,7 @@ public class DemoScript : MonoBehaviour
             demoProceed = false;
             yield return new WaitUntil(DemoProceed);
             demoProceed = false;
-            controller.combat.fightOverWhiteScreen.SetActive(false);
+            //controller.combat.fightOverWhiteScreen.SetActive(false);
             StartCoroutine(AutomatedSystem());
         }
     }

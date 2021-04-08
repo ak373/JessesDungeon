@@ -137,7 +137,7 @@ public class GameController : MonoBehaviour
         ego.allStats[4].value = 1;
         ego.allStats[5].value = 0;
         ego.allStats[6].value = 4;
-        ego.allStats[7].value = 0;
+        ego.allStats[7].value = 1;
         ego.allStats[8].value = 1.5f;
         ego.allStats[9].value = 0;
         ego.allStats[10].value = 0;
@@ -285,23 +285,23 @@ public class GameController : MonoBehaviour
         }
         StartCoroutine(DisplayMultiLineResponse());
     }
-    public void InitiateScriptedResponse(string[] responseLines, string scriptName)
-    {
-        inputBox.SetActive(false);
-        sentences.Clear();
-        pauses.Clear();
-        foreach (string sentence in responseLines) { sentences.Enqueue(sentence); }
+    //public void InitiateScriptedResponse(string[] responseLines, string scriptName)
+    //{
+    //    inputBox.SetActive(false);
+    //    sentences.Clear();
+    //    pauses.Clear();
+    //    foreach (string sentence in responseLines) { sentences.Enqueue(sentence); }
 
-        if (scriptName == "tray")
-        {
-            pauses.Enqueue(1);
-            pauses.Enqueue(0);
-            pauses.Enqueue(2);
-            pauses.Enqueue(0);
-            pauses.Enqueue(3);
-        }
-        StartCoroutine(ScriptedResponseDinnerTray());
-    }
+    //    if (scriptName == "tray")
+    //    {
+    //        pauses.Enqueue(1);
+    //        pauses.Enqueue(0);
+    //        pauses.Enqueue(2);
+    //        pauses.Enqueue(0);
+    //        pauses.Enqueue(3);
+    //    }
+    //    StartCoroutine(ScriptedResponseDinnerTray());
+    //}
     IEnumerator DisplayMultiLineResponse()
     {
         bool stupidEnterGlitch = true;
@@ -375,138 +375,6 @@ public class GameController : MonoBehaviour
             else { yield return new WaitForSeconds(pause); }
         }
     }
-    IEnumerator ScriptedResponseDinnerTray()
-    {
-        bool choseNo = false;
-        while (sentences.Count >= 0)
-        {
-            if (sentences.Count == 0)
-            {
-                DisplayRoomText();
-                inputBox.SetActive(true);
-                textInput.inputField.ActivateInputField();
-                textInput.inputField.text = null;
-                if (!choseNo) { StartCoroutine(achievements.DisplayDeedPopUp(achievements.allDeeds[0])); }
-                break;
-            }
-            int pause = pauses.Dequeue();
-            string sentence = sentences.Dequeue();
-            //use pause number to differentiate which code block to execute            
-            if (pause == 0) //regular line
-            {
-                AddToMainWindowWithLine(sentence + "\n\n\nPress ENTER to continue.");
-                while (stupidEnterGlitch)
-                {
-                    yield return new WaitForSeconds(.25f);
-                    break;
-                }
-                yield return new WaitUntil(EnterPressed);
-            }
-            else if (pause == 1) //popup box
-            {
-                AddToMainWindowWithLine(sentence);
-                while (true)
-                {
-                    yield return new WaitForSeconds(4f);
-                    AddToMainWindow("\n\nWait.");
-                    break;
-                }
-                while (true)
-                {
-                    yield return new WaitForSeconds(1.5f);
-                    userInput = null;
-                    inputBox.SetActive(true);
-                    textInput.inputField.ActivateInputField();
-                    textInput.inputField.text = null;
-                    OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "[Yes]", "", "[No]", "");
-                    break;
-                }
-                while (true)
-                {
-                    currentActiveInput = "yesno";
-                    userInput = null;
-                    yield return new WaitUntil(InputGiven);
-                    inputBox.SetActive(false);
-                    if (userInput == "yes" || userInput == "no")
-                    {
-                        currentActiveInput = "main";
-                        ClosePopUpWindow();
-                        if (userInput == "yes")
-                        {
-                            userInput = "";
-                            AddToMainWindowWithLine("Oooookay");
-                            while (true)
-                            {
-                                yield return new WaitForSeconds(.75f);
-                                break;
-                            }
-                            int counter = 0;
-                            while (counter < 3)
-                            {
-                                AddToMainWindow(".");
-                                counter++;
-                                yield return new WaitForSeconds(.5f);
-                            }
-                        }
-                        else
-                        {
-                            choseNo = true;
-                            userInput = "";
-                            registerObjects.allObjects[0].searched = false;
-                            AddToMainWindowWithLine("Well good. That's very sensible of you.\n\n\nPress ENTER to continue.");
-                            while (stupidEnterGlitch)
-                            {
-                                yield return new WaitForSeconds(.25f);
-                                break;
-                            }
-                            yield return new WaitUntil(EnterPressed);
-                            sentences.Clear();
-                            pauses.Clear();
-                            break;
-                        }
-                        break;
-                    }
-                    else
-                    {
-                        AddToMainWindowWithLine("Yes no maybe so?");
-                        inputBox.SetActive(true);
-                        textInput.inputField.ActivateInputField();
-                        textInput.inputField.text = null;
-                    }
-                }                
-            }
-            else if (pause == 2)//equip spoon
-            {
-                GetEquipped(registerObjects.allWeapons[0]);
-                AddToMainWindowWithLine(sentence + "\n\n\nPress ENTER to continue.");
-                while (stupidEnterGlitch)
-                {
-                    yield return new WaitForSeconds(.25f);
-                    break;
-                }
-                yield return new WaitUntil(EnterPressed);
-            }
-            else if (pause == 3)//equip bowl
-            {                
-                GetStrapped(registerObjects.allShields[0]);
-                AddToMainWindowWithLine(sentence + "\n\n\nPress ENTER to continue.");
-                while (stupidEnterGlitch)
-                {
-                    yield return new WaitForSeconds(.25f);
-                    break;
-                }
-                yield return new WaitUntil(EnterPressed);
-            }
-            else { yield return new WaitForSeconds(pause); }
-        }
-    }
-
-    //public void LockInputForEnter()
-    //{
-    //    escToContinue = false;
-    //    enterToContinue = true;
-    //    inputBox.SetActive(false);
-    //}
     public void OverwriteMainWindow(string toDisplay)
     {
         displayText.text = toDisplay;

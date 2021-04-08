@@ -15,7 +15,6 @@ public class AdditionalNarrations : MonoBehaviour
     [HideInInspector] public bool listenToUnlocked;
     //[HideInInspector] public string activateStep;
     bool newConverse;
-    
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +31,14 @@ public class AdditionalNarrations : MonoBehaviour
     public void SnatchInput(string fromTextInput)
     {
         userInput = fromTextInput;
+        //dinner tray
+        if (fromTextInput == "search tray")
+        {
+            controller.textInput.textIsGood = true;
+            StartCoroutine(DinnerTray());
+        }
+
+
         //listen to town voices
         if (!townVoicesSearched && controller.roomNavigation.currentRoom.roomName == "G7" && userInput == "search voices")
         {
@@ -57,6 +64,72 @@ public class AdditionalNarrations : MonoBehaviour
     public void SnatchRoom(Room fromRoomNavigation)
     {
         
+    }
+    public IEnumerator DinnerTray()
+    {
+        controller.inputBox.SetActive(false);
+        if (!controller.registerObjects.allObjects[0].searched)
+        {
+            controller.AddToMainWindowWithLine("Well, let's see here... there's the bowl. And the spoon which - presumably - was used to eat with.\n\n\nPress ENTER to continue.");
+            yield return new WaitForSeconds(.25f);
+            yield return new WaitUntil(controller.EnterPressed);
+            controller.AddToMainWindowWithLine("Wait.");
+            yield return new WaitForSeconds(2f);
+            
+            bool yesSelected = false;
+            while (true)
+            {
+                if (yesSelected) { controller.OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "<b>[Yu-huh!]</b>", "", "<color=white>Me? Naw...</color>", ""); }
+                else { controller.OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "<color=white>Yu-huh!</color>", "", "<color=white>Me?</color> <b>[Naw]</b><color=white>...</color>", ""); }
+                yield return new WaitUntil(controller.LeftRightEnterPressed);
+                if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    controller.interactableItems.cursorMove.Play();
+                    yesSelected = !yesSelected;
+                }
+                else if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    controller.ClosePopUpWindow();
+                    break;
+                }
+            }
+            if (yesSelected)
+            {
+                controller.registerObjects.allObjects[0].searched = true;
+                controller.interactableItems.cursorSelect.Play();
+                controller.AddToMainWindowWithLine("Oooookay");
+                yield return new WaitForSeconds(.75f);
+                int counter = 0;
+                while (counter < 3)
+                {
+                    controller.AddToMainWindow(".");
+                    counter++;
+                    yield return new WaitForSeconds(.5f);
+                }
+                controller.AddToMainWindowWithLine("You pick up the spoon, and brandish it high into the air. You swing it around several times, running battle drills with yourself. \"Voosh! voooosh!\" You begin to hear the sounds of your glorious blade whizzing through the air; though you soon realize that you were just getting a little too into it and began making sound effects.\n\n\nPress ENTER to continue.");
+                yield return new WaitForSeconds(.25f);
+                yield return new WaitUntil(controller.EnterPressed);
+                controller.GetEquipped(Instantiate(controller.registerObjects.allWeapons[0]));
+                controller.AddToMainWindowWithLine("You equip the Rusty Wooden Spoon.\n\n\nPress ENTER to continue.");
+                yield return new WaitForSeconds(.25f);
+                yield return new WaitUntil(controller.EnterPressed);
+                controller.AddToMainWindowWithLine("You pick up the bowl, and juggle it around in your hand a few times. Fitting your fingers up against the inside walls, you push outward until friction causes the bowl to remain on the end of your hand. Extending your arm furiously, you repel many floating particles of dust which were certainly a choking hazard.\n\n\nPress ENTER to continue.");
+                yield return new WaitForSeconds(.25f);
+                yield return new WaitUntil(controller.EnterPressed);
+                controller.GetStrapped(Instantiate(controller.registerObjects.allShields[0]));
+                StartCoroutine(controller.Narrator("You equip the Soup Bowl."));
+                yield return new WaitForSeconds(.25f);
+                yield return new WaitUntil(controller.EnterPressed);
+                StartCoroutine(controller.achievements.DisplayDeedPopUp(controller.achievements.allDeeds[0]));
+            }
+            else
+            {
+                controller.interactableItems.cursorCancel.Play();
+                controller.registerObjects.allObjects[0].searched = false;
+                StartCoroutine(controller.Narrator("Well good. That's very sensible of you."));                
+            }
+        }
+        else { StartCoroutine(controller.Narrator("You've already taken anything of value (which is already questionable) from the tray.")); }
     }
     public IEnumerator InitiateFirstTownVisit()
     {

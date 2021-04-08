@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: Damage Reduction
   m_EditorClassIdentifier: 
   title: damageReduction
-  value: 0
+  value: 1
+  effectValue: 0

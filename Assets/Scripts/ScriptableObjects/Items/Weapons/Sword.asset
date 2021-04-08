@@ -24,8 +24,8 @@ MonoBehaviour:
   useMessage2: filled with bravery!
   useEffect: {fileID: 11400000, guid: bbcf152decae34748b5aa07b5e2ac5d7, type: 2}
   type: Slashing
-  damage: 13
-  damageDie: 6
+  damage: 20
+  damageDie: 10
   critMultiplier: 3
   toHitMod: 0
   twoHanded: 0

@@ -632,6 +632,7 @@ public class NPCInteraction : MonoBehaviour
             npcSpeechComplete = false;
             List<string> buyChosen = new List<string>();
             buyChosen.Add($"Just let me know if you see something you like!");
+            controller.interactableItems.cursorSelect.Play();
             StartCoroutine(NPCSpeech(buyChosen));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
@@ -646,6 +647,7 @@ public class NPCInteraction : MonoBehaviour
             npcSpeechComplete = false;
             List<string> sellChosen = new List<string>();
             sellChosen.Add($"Whatcha got for me, {guy}?");
+            controller.interactableItems.cursorSelect.Play();
             StartCoroutine(NPCSpeech(sellChosen));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
@@ -659,6 +661,7 @@ public class NPCInteraction : MonoBehaviour
         {
             npcSpeechComplete = false;
             List<string> optionReturn = new List<string>();
+            controller.interactableItems.cursorCancel.Play();
             optionReturn.Add($"All right, {dude}, can I do anything else for ya?");
             StartCoroutine(NPCSpeech(optionReturn));
             yield return new WaitUntil(NPCSpeechComplete);
