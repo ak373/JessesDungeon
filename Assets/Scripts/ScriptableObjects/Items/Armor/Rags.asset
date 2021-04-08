@@ -16,7 +16,7 @@ MonoBehaviour:
   nome: rags
   price: 5
   description: What's a dungeon crawler without rags?
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: The dungeon room is now clean.
   useMessage2: 

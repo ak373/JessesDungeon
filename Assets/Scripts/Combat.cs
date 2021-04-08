@@ -3399,6 +3399,7 @@ public class Combat : MonoBehaviour
     {
         battleLog.SetActive(true);
         //two parter with midpause
+        battleText.maxVisibleCharacters = 0;
         if (text2 != null)
         {
             battleText.text = text1;

@@ -16,7 +16,7 @@ MonoBehaviour:
   nome: cardboard cutout
   price: 3
   description: Well it looks like a shield...
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: It falls apart!
   useMessage2: You tape it back together.

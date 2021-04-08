@@ -17,6 +17,7 @@ public class NPCInteraction : MonoBehaviour
 
     public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
+    public TMP_Text egoWeaponText, egoArmorText, egoShieldText;
 
     public NPC[] allNPCs;
     public AudioSource purchase, error, rest;
@@ -279,7 +280,6 @@ public class NPCInteraction : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
                 optionBoxGreyFilter.SetActive(true);
-                controller.interactableItems.cursorCancel.Play();
                 option1.text = plainOption1;
                 option2.text = plainOption2;
                 option3.text = plainOption3;
@@ -625,6 +625,8 @@ public class NPCInteraction : MonoBehaviour
         genericOptionComplete = false;
         StartCoroutine(GenericOptionSelection("Buy", "Sell", null, "Nevermind"));
         yield return new WaitUntil(GenericOptionComplete);
+        if (genericOptionSelected == 0 || genericOptionSelected == 1) { controller.interactableItems.cursorSelect.Play(); }
+        else { controller.interactableItems.cursorCancel.Play(); }
         genericOptionComplete = false;
         yield return new WaitForSeconds(.25f);
         if (genericOptionSelected == 0)
@@ -632,7 +634,6 @@ public class NPCInteraction : MonoBehaviour
             npcSpeechComplete = false;
             List<string> buyChosen = new List<string>();
             buyChosen.Add($"Just let me know if you see something you like!");
-            controller.interactableItems.cursorSelect.Play();
             StartCoroutine(NPCSpeech(buyChosen));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
@@ -647,7 +648,6 @@ public class NPCInteraction : MonoBehaviour
             npcSpeechComplete = false;
             List<string> sellChosen = new List<string>();
             sellChosen.Add($"Whatcha got for me, {guy}?");
-            controller.interactableItems.cursorSelect.Play();
             StartCoroutine(NPCSpeech(sellChosen));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
@@ -660,8 +660,7 @@ public class NPCInteraction : MonoBehaviour
         else if (genericOptionSelected == 3 || genericOptionSelected == -1)
         {
             npcSpeechComplete = false;
-            List<string> optionReturn = new List<string>();
-            controller.interactableItems.cursorCancel.Play();
+            List<string> optionReturn = new List<string>();            
             optionReturn.Add($"All right, {dude}, can I do anything else for ya?");
             StartCoroutine(NPCSpeech(optionReturn));
             yield return new WaitUntil(NPCSpeechComplete);
@@ -716,11 +715,11 @@ public class NPCInteraction : MonoBehaviour
 
                 string newText = "";
 
-                for (int i = 0; i < itemIndex; i++) { newText += currentListText[i]; }
+                for (int i = 0; i < itemIndex - 7; i++) { newText += currentListText[i]; }
 
                 newText += "<color=yellow>";
 
-                for (int i = itemIndex; i < itemIndex + itemLength; i++) { newText += currentListText[i]; }
+                for (int i = itemIndex - 7; i < itemIndex + itemLength; i++) { newText += currentListText[i]; }
 
                 newText += "</color>";
 
@@ -1028,7 +1027,7 @@ public class NPCInteraction : MonoBehaviour
             else if (itemList[i].price < 100) { price = $"{itemList[i].price}  "; }
             else if (itemList[i].price < 1000) { price = $"{itemList[i].price} "; }
             else if (itemList[i].price < 10000) { price = $"{itemList[i].price}"; }
-            writtenList += $"{price} - {itemList[i].nome}\n";
+            writtenList += $"{price} : {myTI.ToTitleCase(itemList[i].nome)}\n";
         }
         return writtenList;
     }
@@ -1248,12 +1247,17 @@ public class NPCInteraction : MonoBehaviour
     IEnumerator DisplayInventory()
     {
         string toPassIn;
+        string plainEgoWeapon = egoWeaponText.text;
+        string plainEgoArmor = egoArmorText.text;
+        string plainEgoShield = egoShieldText.text;
         List<Item> alreadyListed = new List<Item>();
         selectedItem = null;
 
         controller.interactableItems.invDisplay.SetActive(true);
         controller.interactableItems.invDisplayBorder.SetActive(true);
         DisplayPotionBelt();
+        DisplayEquippedItems();
+        controller.interactableItems.InvStats(null);
         alreadyListed.Clear();
         toPassIn = "";
         if (controller.interactableItems.inventory.Count == 0) { toPassIn += "Your inventory is empty! How sad.\n"; }
@@ -1276,15 +1280,6 @@ public class NPCInteraction : MonoBehaviour
             }
         }
         controller.interactableItems.invText.text = toPassIn;
-        void DisplayPotionBelt()
-        {
-            controller.interactableItems.potion0Text.text = "";
-            controller.interactableItems.potion1Text.text = "";
-            controller.interactableItems.potion2Text.text = "";
-            if (ego.potionBelt.Count > 0) { controller.interactableItems.potion0Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[0].nome); }
-            if (ego.potionBelt.Count > 1) { controller.interactableItems.potion1Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[1].nome); }
-            if (ego.potionBelt.Count > 2) { controller.interactableItems.potion2Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[2].nome); }
-        }
 
 
         if (controller.interactableItems.inventory.Count > 0 || ego.equippedWeapon != null || ego.equippedArmor != null || ego.equippedShield != null || ego.potionBelt.Count > 0)
@@ -1294,12 +1289,15 @@ public class NPCInteraction : MonoBehaviour
             if (controller.interactableItems.inventory.Count <= 0) { skipToEquipment = true; }
             if (ego.equippedWeapon == null && ego.equippedArmor == null && ego.equippedShield == null && ego.potionBelt.Count == 0) { blockEquipment = true; }
             string normalInvText = controller.interactableItems.invText.text;
-            selectedItem = alreadyListed[0];
+            if (controller.interactableItems.inventory.Count > 0) { selectedItem = alreadyListed[0]; }
+            else { selectedItem = null; }
             int selectedElement = 0;
             int memoryElement = 0;
             bool doubleBreak = false;
             while (true)
             {
+                DisplayPotionBelt();
+                DisplayEquippedItems();
                 if (!skipToEquipment)
                 {
                     controller.interactableItems.invText.text = normalInvText;
@@ -1476,6 +1474,29 @@ public class NPCInteraction : MonoBehaviour
             controller.interactableItems.invDisplayBorder.SetActive(false);
         }
         inventoryClosed = true;
+
+
+        void DisplayPotionBelt()
+        {
+            controller.interactableItems.potion0Text.text = "";
+            controller.interactableItems.potion1Text.text = "";
+            controller.interactableItems.potion2Text.text = "";
+            if (ego.potionBelt.Count > 0) { controller.interactableItems.potion0Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[0].nome); }
+            if (ego.potionBelt.Count > 1) { controller.interactableItems.potion1Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[1].nome); }
+            if (ego.potionBelt.Count > 2) { controller.interactableItems.potion2Text.text = controller.interactableItems.myTI.ToTitleCase(ego.potionBelt[2].nome); }
+        }
+        void DisplayEquippedItems()
+        {
+            if (ego.equippedWeapon != null) { egoWeaponText.text = myTI.ToTitleCase(ego.equippedWeapon.nome); }
+            else { weaponText.text = "None"; }
+            if (ego.equippedArmor != null) { egoArmorText.text = myTI.ToTitleCase(ego.equippedArmor.nome); }
+            else { armorText.text = "None"; }
+            if (ego.equippedShield != null) { egoShieldText.text = myTI.ToTitleCase(ego.equippedShield.nome); }
+            else { shieldText.text = "None"; }
+            plainEgoWeapon = egoWeaponText.text;
+            plainEgoArmor = egoArmorText.text;
+            plainEgoShield = egoShieldText.text;
+        }
     }
     IEnumerator ActivateAskAbout(List<DialogueOption> replyList, NPC speaker, bool internalTree = false)
     {
@@ -1620,13 +1641,12 @@ public class NPCInteraction : MonoBehaviour
         foreach (string sentence in responseList) { sentences.Enqueue(sentence); }
         while (sentences.Count > 0)
         {
-            npcTextBackground.transform.SetSiblingIndex(npcTextBackground.transform.GetSiblingIndex() + 1);
+            NPCText.maxVisibleCharacters = 0;
             string reply = sentences.Dequeue();
             NPCText.text = reply;
             yield return new WaitForSeconds(.01f);
             messageComplete = false;
             StartCoroutine(TeletypeMessage(0));
-            npcTextBackground.transform.SetSiblingIndex(npcTextBackground.transform.GetSiblingIndex() - 1);
             yield return new WaitUntil(MessageComplete);
             messageComplete = false;
             yield return new WaitForSeconds(endPause);
