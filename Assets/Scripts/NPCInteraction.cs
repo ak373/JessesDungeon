@@ -16,11 +16,11 @@ public class NPCInteraction : MonoBehaviour
     GameObject[] replyBackRay = { null, null, null, null, null, null, null, null, null, null, null };
     GameObject[] replyHighRay = { null, null, null, null, null, null, null, null, null, null, null };
 
-    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
+    public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, weaponDescriptionBox, weaponDescriptionBoxBorder, armorDescriptionBox, armorDescriptionBoxBorder, shieldDescriptionBox, shieldDescriptionBoxBorder, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
     public Image weaponTitleBackground, armorTitleBackground, shieldTitleBackground;
     Color titleUnselected = new Color(0.2941177f, 0f, 0f, 0.2941177f);
     Color titleSelected = new Color(0.4901961f, 0f, 0f, 0.4901961f);
-    public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, weaponPrice, armorText, armorPrice, shieldText, shieldPrice, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
+    public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponDescription, armorDescription, shieldDescription, weaponText, weaponPrice, armorText, armorPrice, shieldText, shieldPrice, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
     public TMP_Text egoWeaponText, egoArmorText, egoShieldText, currentCrystalsText;
 
     public NPC[] allNPCs;
@@ -37,6 +37,7 @@ public class NPCInteraction : MonoBehaviour
     IEnumerator askAbout;
     Queue<string> sentences = new Queue<string>();
     Item selectedItem;
+
     //second quest pronouns
     [HideInInspector] public string bro = "bro";
     [HideInInspector] public string man = "man";
@@ -85,7 +86,7 @@ public class NPCInteraction : MonoBehaviour
         replyHighRay[8] = reply8Highlight;
         replyHighRay[9] = reply9Highlight;
         replyHighRay[10] = reply10Highlight;
-
+        
         ResetHasBeenSaid();
         //badger dialogue
         allNPCs[0].openingGreeting.Clear();
@@ -647,7 +648,7 @@ public class NPCInteraction : MonoBehaviour
             StartCoroutine(NPCSpeech(buyChosen));
             yield return new WaitUntil(NPCSpeechComplete);
             npcSpeechComplete = false;
-            yield return new WaitForSeconds(.5f);
+            yield return new WaitForSeconds(.25f);
             buyComplete = false;
             StartCoroutine(Buy());
             yield return new WaitUntil(BuyComplete);
@@ -681,7 +682,15 @@ public class NPCInteraction : MonoBehaviour
 
         IEnumerator Buy()
         {
+            IEnumerator weaponTeletype = TeletypeDescription(weaponDescription);
+            IEnumerator armorTeletype = TeletypeDescription(armorDescription);
+            IEnumerator shieldTeletype = TeletypeDescription(shieldDescription);
+
             TurnOffOptionBackLights();
+            option1.text = "";
+            option2.text = "";
+            option3.text = "";
+            option4.text = "";
             weaponHighlight.SetActive(false);
             armorHighlight.SetActive(false);
             shieldHighlight.SetActive(false);
@@ -703,6 +712,21 @@ public class NPCInteraction : MonoBehaviour
                 weaponTitleBackground.color = titleUnselected;
                 armorTitleBackground.color = titleUnselected;
                 shieldTitleBackground.color = titleUnselected;
+                StopCoroutine(weaponTeletype);
+                StopCoroutine(armorTeletype);
+                StopCoroutine(shieldTeletype);
+                weaponDescriptionBox.SetActive(false);
+                armorDescriptionBox.SetActive(false);
+                shieldDescriptionBox.SetActive(false);
+                weaponDescriptionBoxBorder.SetActive(false);
+                armorDescriptionBoxBorder.SetActive(false);
+                shieldDescriptionBoxBorder.SetActive(false);
+                weaponDescription.text = "";
+                weaponDescription.maxVisibleCharacters = 0;
+                armorDescription.text = "";
+                armorDescription.maxVisibleCharacters = 0;
+                shieldDescription.text = "";
+                shieldDescription.maxVisibleCharacters = 0;
                 int itemLength = 0;
                 int itemIndex = 0;
                 int priceLength = 0;
@@ -715,6 +739,7 @@ public class NPCInteraction : MonoBehaviour
                     if (selectedElement > weaponList.Count - 1) { selectedElement = 0; }
                     itemLength = weaponList[selectedElement].nome.Length;
                     priceLength = weaponList[selectedElement].price.ToString().Length;
+                    //no item can complete encompass the name of another item in the same list
                     itemIndex = weaponText.text.IndexOf(myTI.ToTitleCase(weaponList[selectedElement].nome));
                     //done like this means no two items in the same list can have the same price
                     priceIndex = weaponPrice.text.IndexOf(weaponList[selectedElement].price.ToString());
@@ -727,6 +752,7 @@ public class NPCInteraction : MonoBehaviour
                     if (selectedElement > armorList.Count - 1) { selectedElement = 0; }
                     itemLength = armorList[selectedElement].nome.Length;
                     priceLength = armorList[selectedElement].price.ToString().Length;
+                    //no item can complete encompass the name of another item in the same list
                     itemIndex = armorText.text.IndexOf(myTI.ToTitleCase(armorList[selectedElement].nome));
                     //done like this means no two items in the same list can have the same price
                     priceIndex = armorPrice.text.IndexOf(armorList[selectedElement].price.ToString());
@@ -739,6 +765,7 @@ public class NPCInteraction : MonoBehaviour
                     if (selectedElement > shieldList.Count - 1) { selectedElement = 0; }
                     itemLength = shieldList[selectedElement].nome.Length;
                     priceLength = shieldList[selectedElement].price.ToString().Length;
+                    //no item can complete encompass the name of another item in the same list
                     itemIndex = shieldText.text.IndexOf(myTI.ToTitleCase(shieldList[selectedElement].nome));
                     //done like this means no two items in the same list can have the same price
                     priceIndex = shieldPrice.text.IndexOf(shieldList[selectedElement].price.ToString());
@@ -775,6 +802,11 @@ public class NPCInteraction : MonoBehaviour
                     weaponText.text = newText;
                     weaponPrice.text = newPrice;
                     weaponTitleBackground.color = titleSelected;
+                    weaponDescriptionBox.SetActive(true);
+                    weaponDescriptionBoxBorder.SetActive(true);
+                    weaponDescription.text = weaponList[selectedElement].description;
+                    weaponTeletype = TeletypeDescription(weaponDescription);
+                    StartCoroutine(weaponTeletype);
                     ShopStats(weaponList[selectedElement]);
                 }
                 else if (armorHighlight.activeInHierarchy)
@@ -782,6 +814,11 @@ public class NPCInteraction : MonoBehaviour
                     armorText.text = newText;
                     armorPrice.text = newPrice;
                     armorTitleBackground.color = titleSelected;
+                    armorDescriptionBox.SetActive(true);
+                    armorDescriptionBoxBorder.SetActive(true);
+                    armorDescription.text = armorList[selectedElement].description;
+                    armorTeletype = TeletypeDescription(armorDescription);
+                    StartCoroutine(armorTeletype);
                     ShopStats(armorList[selectedElement]);
                 }
                 else if (shieldHighlight.activeInHierarchy)
@@ -789,6 +826,11 @@ public class NPCInteraction : MonoBehaviour
                     shieldText.text = newText;
                     shieldPrice.text = newPrice;
                     shieldTitleBackground.color = titleSelected;
+                    shieldDescriptionBox.SetActive(true);
+                    shieldDescriptionBoxBorder.SetActive(true);
+                    shieldDescription.text = shieldList[selectedElement].description;
+                    shieldTeletype = TeletypeDescription(shieldDescription);
+                    StartCoroutine(shieldTeletype);
                     ShopStats(shieldList[selectedElement]);
                 }
 
@@ -859,6 +901,7 @@ public class NPCInteraction : MonoBehaviour
                     shop.SetActive(false);
                     shopBackground.SetActive(false);
                     npcSpeechComplete = false;
+                    yield return new WaitForSeconds(.25f);
                     List<string> buyExit = new List<string>();
                     buyExit.Add($"All right, {dude}, can I do anything else for ya?");
                     StartCoroutine(NPCSpeech(buyExit));
@@ -925,11 +968,36 @@ public class NPCInteraction : MonoBehaviour
                                 option2.color = Color.yellow;
                                 option2Highlight.SetActive(true);
                             }
-                            yield return new WaitUntil(controller.UpDownEnterPressed);
+                            yield return new WaitUntil(controller.UpDownEnterEscPressed);
                             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
                             {
                                 controller.interactableItems.cursorMove.Play();
                                 yesSelected = !yesSelected;
+                            }
+                            else if (Input.GetKeyDown(KeyCode.Escape))
+                            {
+                                currentCrystalsText.text = $"";
+                                optionBoxGreyFilter.SetActive(true);
+                                controller.interactableItems.cursorCancel.Play();
+                                yield return new WaitForSeconds(.25f);
+                                List<string> buyCancel = new List<string>();
+                                buyCancel.Add("Aw, man!");
+                                buyCancel.Add("Anything else catch your eye?");
+                                npcSpeechComplete = false;
+                                StartCoroutine(NPCSpeech(buyCancel));
+                                yield return new WaitUntil(NPCSpeechComplete);
+                                npcSpeechComplete = false;
+                                yield return new WaitForSeconds(.5f);
+                                option1.color = Color.white;
+                                option2.color = Color.white;
+                                shop.SetActive(true);
+                                shopBackground.SetActive(true);
+                                option1.text = "Ask about";
+                                option2.text = "Give item";
+                                option3.text = "Shop";
+                                option4.text = "Enough already";
+                                StartCoroutine(Buy());
+                                break;
                             }
                             else if (Input.GetKeyDown(KeyCode.Return))
                             {
@@ -1012,7 +1080,6 @@ public class NPCInteraction : MonoBehaviour
             NPCText.text = "";
             yield return new WaitUntil(InventoryClosed);
             inventoryClosed = false;
-            Debug.Log(selectedItem);
             if (selectedItem != null)
             {
                 npcSpeechComplete = false;
@@ -1094,6 +1161,21 @@ public class NPCInteraction : MonoBehaviour
                 npcSpeechComplete = false;
                 StartCoroutine(OptionSelect(pete));
             }
+        }
+    }
+    IEnumerator TeletypeDescription(TMP_Text textBox, float characterPause = 0.02f)
+    {
+        int totalVisibleCharacters = textBox.textInfo.characterCount;
+        int counter = 0;
+        while (true)
+        {
+            int visibleCount = counter % (totalVisibleCharacters + 1);
+            textBox.maxVisibleCharacters = visibleCount;
+
+            if (visibleCount >= totalVisibleCharacters) { break; }
+            counter += 1;
+
+            yield return new WaitForSeconds(characterPause);
         }
     }
     string WriteShoppingList(List<Item> itemList)
@@ -1528,6 +1610,7 @@ public class NPCInteraction : MonoBehaviour
                         {
                             controller.interactableItems.cursorMove.Play();
                             equipmentElement--;
+                            if (equipmentElement == -1) { equipmentElement = 5; }
                             if (ego.potionBelt.Count <= 2 && equipmentElement == 5) { equipmentElement = 2; }
                             if (ego.potionBelt.Count <= 1 && equipmentElement == 4) { equipmentElement = 2; }
                             if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 2; }
@@ -1539,12 +1622,13 @@ public class NPCInteraction : MonoBehaviour
                         {
                             controller.interactableItems.cursorMove.Play();
                             equipmentElement++;
-                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 0; }
-                            if (ego.potionBelt.Count == 1 && equipmentElement == 4) { equipmentElement = 0; }
-                            if (ego.potionBelt.Count == 2 && equipmentElement == 5) { equipmentElement = 0; }
+                            if (equipmentElement == 6) { equipmentElement = 0; }
                             if (ego.equippedWeapon == null && equipmentElement == 0) { equipmentElement++; }
                             if (ego.equippedArmor == null && equipmentElement == 1) { equipmentElement++; }
                             if (ego.equippedShield == null && equipmentElement == 2) { equipmentElement++; }
+                            if (ego.potionBelt.Count == 0 && equipmentElement == 3) { equipmentElement = 0; }
+                            if (ego.potionBelt.Count == 1 && equipmentElement == 4) { equipmentElement = 0; }
+                            if (ego.potionBelt.Count == 2 && equipmentElement == 5) { equipmentElement = 0; }
                         }
                         else if (Input.GetKeyDown(KeyCode.LeftArrow))
                         {
@@ -1565,14 +1649,14 @@ public class NPCInteraction : MonoBehaviour
                         {
                             selectedItem = null;
                             controller.interactableItems.cursorCancel.Play();
+                            controller.interactableItems.invDisplay.SetActive(false);
+                            controller.interactableItems.invDisplayBorder.SetActive(false);
                             controller.interactableItems.potion0Text.text = plainPotion0;
                             controller.interactableItems.potion1Text.text = plainPotion1;
                             controller.interactableItems.potion2Text.text = plainPotion2;
                             controller.interactableItems.weaponText.text = plainWeapon;
                             controller.interactableItems.armorText.text = plainArmor;
                             controller.interactableItems.shieldText.text = plainShield;
-                            controller.interactableItems.invDisplay.SetActive(false);
-                            controller.interactableItems.invDisplayBorder.SetActive(false);
                             doubleBreak = true;
                             break;
                         }
@@ -1581,10 +1665,17 @@ public class NPCInteraction : MonoBehaviour
                             controller.interactableItems.cursorSelect.Play();
                             controller.interactableItems.invDisplay.SetActive(false);
                             controller.interactableItems.invDisplayBorder.SetActive(false);
+                            controller.interactableItems.potion0Text.text = plainPotion0;
+                            controller.interactableItems.potion1Text.text = plainPotion1;
+                            controller.interactableItems.potion2Text.text = plainPotion2;
+                            controller.interactableItems.weaponText.text = plainWeapon;
+                            controller.interactableItems.armorText.text = plainArmor;
+                            controller.interactableItems.shieldText.text = plainShield;
                             if (equipmentElement == 0) { selectedItem = ego.equippedWeapon; }
                             else if (equipmentElement == 1) { selectedItem = ego.equippedArmor; }
                             else if (equipmentElement == 2) { selectedItem = ego.equippedShield; }
                             else { selectedItem = ego.potionBelt[equipmentElement]; }
+                            doubleBreak = true;
                             break;
                         }
                         if (doubleBreak)
@@ -1640,11 +1731,11 @@ public class NPCInteraction : MonoBehaviour
         void DisplayEquippedItems()
         {
             if (ego.equippedWeapon != null) { egoWeaponText.text = myTI.ToTitleCase(ego.equippedWeapon.nome); }
-            else { weaponText.text = "None"; }
+            else { egoWeaponText.text = "None"; }
             if (ego.equippedArmor != null) { egoArmorText.text = myTI.ToTitleCase(ego.equippedArmor.nome); }
-            else { armorText.text = "None"; }
+            else { egoArmorText.text = "None"; }
             if (ego.equippedShield != null) { egoShieldText.text = myTI.ToTitleCase(ego.equippedShield.nome); }
-            else { shieldText.text = "None"; }
+            else { egoShieldText.text = "None"; }
             plainEgoWeapon = egoWeaponText.text;
             plainEgoArmor = egoArmorText.text;
             plainEgoShield = egoShieldText.text;
@@ -1817,7 +1908,7 @@ public class NPCInteraction : MonoBehaviour
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
             NPCText.maxVisibleCharacters = visibleCount;
-            if (Input.GetKey(KeyCode.Return))
+            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Escape))
             {
                 NPCText.maxVisibleCharacters = totalVisibleCharacters;
                 visibleCount = totalVisibleCharacters;

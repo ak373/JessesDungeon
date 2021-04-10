@@ -3458,7 +3458,7 @@ public class Combat : MonoBehaviour
         {
             int visibleCount = counter % (totalVisibleCharacters + 1);
             battleText.maxVisibleCharacters = visibleCount;
-            if (Input.GetKey(KeyCode.Return))
+            if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.Escape))
             {
                 battleText.maxVisibleCharacters = totalVisibleCharacters;
                 visibleCount = totalVisibleCharacters;

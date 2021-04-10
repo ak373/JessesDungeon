@@ -471,7 +471,7 @@ ScriptsOnlyBuild:
     className: Mask
   - hash:
       serializedVersion: 2
-      Hash: 360f05a2a209079277456299cd7ba0ef
+      Hash: 3bf7d60d554eeedf9d9d7120bd3670ce
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: NPCInteraction
@@ -1156,4 +1156,5 @@ ScriptsOnlyBuild:
   platform: 5
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/Users/Andrew/Desktop/Unity Projects/JDMW/JDMW.exe
+  playerPath: C:/Users/Andrew/Desktop/Unity Projects/JDMW/Build2/Jesse's Dungeon
+    Demo.exe
