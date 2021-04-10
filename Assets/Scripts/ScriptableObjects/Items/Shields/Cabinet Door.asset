@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noun: door
   nome: cabinet door
-  price: 15
+  price: 40
   description: A big piece of wood with a handle. Why didn't you think of this sooner?
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: Your belongings feel safe.
   useMessage2: 

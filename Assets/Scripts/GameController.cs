@@ -137,7 +137,7 @@ public class GameController : MonoBehaviour
         ego.allStats[4].value = 1;
         ego.allStats[5].value = 0;
         ego.allStats[6].value = 4;
-        ego.allStats[7].value = 1;
+        ego.allStats[7].value = 0;
         ego.allStats[8].value = 1.5f;
         ego.allStats[9].value = 0;
         ego.allStats[10].value = 0;

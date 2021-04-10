@@ -16,7 +16,7 @@ MonoBehaviour:
   nome: club
   price: 500
   description: Known to be used by frequent party-goers.
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: Everybody starts disco dancing!
   useMessage2: Then they stop.

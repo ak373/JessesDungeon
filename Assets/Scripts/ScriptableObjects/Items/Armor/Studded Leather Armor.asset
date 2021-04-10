@@ -16,7 +16,7 @@ MonoBehaviour:
   nome: studded leather armor
   price: 120
   description: 'Stiff and studded: that''s how she likes it.'
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: What a stud!
   useMessage2: Or dud.

@@ -17,7 +17,7 @@ MonoBehaviour:
   price: 10
   description: Force divided by surface area equals... I don't know this is too much
     pressure!
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: It retains its pointy nature!
   useMessage2: 

@@ -16,7 +16,7 @@ MonoBehaviour:
   nome: jagged metal pole
   price: 300
   description: It's not your job to keep 'em off the pole; you ain't their papa.
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: It falls over!
   useMessage2: 

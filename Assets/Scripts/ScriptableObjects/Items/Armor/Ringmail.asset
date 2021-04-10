@@ -17,7 +17,7 @@ MonoBehaviour:
   price: 400
   description: Composed of mismatched rings and metal shards, this is surely a "practicality
     over fashion" choice.
-  unlocked: 0
+  unlocked: 1
   beneficial: 0
   useMessage: And you put it away at sonic speed!
   useMessage2: Gotta go fast!

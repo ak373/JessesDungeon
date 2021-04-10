@@ -15,9 +15,9 @@ MonoBehaviour:
   noun: hunting
   nome: hunting knife
   price: 50
-  description: Now THAT'S a knife. Built for combat, the knife will have an easier
-    time finding your enemy's body (+2 bonus).
-  unlocked: 0
+  description: Now THAT'S a knife. Built for combat, the hunting knife will have
+    an easier time finding your enemy's body (+2 bonus).
+  unlocked: 1
   beneficial: 0
   useMessage: All people trying to rob you run away.
   useMessage2: 

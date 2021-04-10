@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Globalization;
 using TMPro;
 
@@ -16,8 +17,11 @@ public class NPCInteraction : MonoBehaviour
     GameObject[] replyHighRay = { null, null, null, null, null, null, null, null, null, null, null };
 
     public GameObject shop, shopBackground, weaponBackground, armorBackground, shieldBackground, weaponHighlight, armorHighlight, shieldHighlight, currentTwoHanded, newTwoHanded, wholeScreenFadeBlack;
-    public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, armorText, shieldText, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
-    public TMP_Text egoWeaponText, egoArmorText, egoShieldText;
+    public Image weaponTitleBackground, armorTitleBackground, shieldTitleBackground;
+    Color titleUnselected = new Color(0.2941177f, 0f, 0f, 0.2941177f);
+    Color titleSelected = new Color(0.4901961f, 0f, 0f, 0.4901961f);
+    public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponText, weaponPrice, armorText, armorPrice, shieldText, shieldPrice, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
+    public TMP_Text egoWeaponText, egoArmorText, egoShieldText, currentCrystalsText;
 
     public NPC[] allNPCs;
     public AudioSource purchase, error, rest;
@@ -606,11 +610,17 @@ public class NPCInteraction : MonoBehaviour
             if (controller.registerObjects.allShields[i].unlocked) { shieldList.Add(controller.registerObjects.allShields[i]); }
         }
         weaponText.text = WriteShoppingList(weaponList);
+        weaponPrice.text = WritePriceList(weaponList);
         armorText.text = WriteShoppingList(armorList);
+        armorPrice.text = WritePriceList(armorList);
         shieldText.text = WriteShoppingList(shieldList);
+        shieldPrice.text = WritePriceList(shieldList);
         string normalWeaponText = weaponText.text;
         string normalArmorText = armorText.text;
         string normalShieldText = shieldText.text;
+        string normalWeaponPrice = weaponPrice.text;
+        string normalArmorPrice = armorPrice.text;
+        string normalShieldPrice = shieldPrice.text;
         int selectedElement = 0;
         int weaponMemory = -1;
         int armorMemory = -1;
@@ -671,9 +681,11 @@ public class NPCInteraction : MonoBehaviour
 
         IEnumerator Buy()
         {
+            TurnOffOptionBackLights();
             weaponHighlight.SetActive(false);
             armorHighlight.SetActive(false);
             shieldHighlight.SetActive(false);
+            NPCText.text = "";
             shop.SetActive(true);
             shopBackground.SetActive(true);
             if (columnMemory == 1) { weaponHighlight.SetActive(true); }
@@ -685,59 +697,98 @@ public class NPCInteraction : MonoBehaviour
                 weaponText.text = normalWeaponText;
                 armorText.text = normalArmorText;
                 shieldText.text = normalShieldText;
+                weaponPrice.text = normalWeaponPrice;
+                armorPrice.text = normalArmorPrice;
+                shieldPrice.text = normalShieldPrice;
+                weaponTitleBackground.color = titleUnselected;
+                armorTitleBackground.color = titleUnselected;
+                shieldTitleBackground.color = titleUnselected;
                 int itemLength = 0;
                 int itemIndex = 0;
+                int priceLength = 0;
+                int priceIndex = 0;
                 string currentListText = "";
+                string currentListPrice = "";
                 if (weaponHighlight.activeInHierarchy)
                 {
                     if (selectedElement < 0) { selectedElement = weaponList.Count - 1; }
                     if (selectedElement > weaponList.Count - 1) { selectedElement = 0; }
                     itemLength = weaponList[selectedElement].nome.Length;
+                    priceLength = weaponList[selectedElement].price.ToString().Length;
                     itemIndex = weaponText.text.IndexOf(myTI.ToTitleCase(weaponList[selectedElement].nome));
+                    //done like this means no two items in the same list can have the same price
+                    priceIndex = weaponPrice.text.IndexOf(weaponList[selectedElement].price.ToString());
                     currentListText = weaponText.text;
+                    currentListPrice = weaponPrice.text;
                 }
                 else if (armorHighlight.activeInHierarchy)
                 {
                     if (selectedElement < 0) { selectedElement = armorList.Count - 1; }
                     if (selectedElement > armorList.Count - 1) { selectedElement = 0; }
                     itemLength = armorList[selectedElement].nome.Length;
+                    priceLength = armorList[selectedElement].price.ToString().Length;
                     itemIndex = armorText.text.IndexOf(myTI.ToTitleCase(armorList[selectedElement].nome));
+                    //done like this means no two items in the same list can have the same price
+                    priceIndex = armorPrice.text.IndexOf(armorList[selectedElement].price.ToString());
                     currentListText = armorText.text;
+                    currentListPrice = armorPrice.text;
                 }
                 else if (shieldHighlight.activeInHierarchy)
                 {
                     if (selectedElement < 0) { selectedElement = shieldList.Count - 1; }
                     if (selectedElement > shieldList.Count - 1) { selectedElement = 0; }
                     itemLength = shieldList[selectedElement].nome.Length;
+                    priceLength = shieldList[selectedElement].price.ToString().Length;
                     itemIndex = shieldText.text.IndexOf(myTI.ToTitleCase(shieldList[selectedElement].nome));
+                    //done like this means no two items in the same list can have the same price
+                    priceIndex = shieldPrice.text.IndexOf(shieldList[selectedElement].price.ToString());
                     currentListText = shieldText.text;
+                    currentListPrice = shieldPrice.text;
                 }
 
                 string newText = "";
 
-                for (int i = 0; i < itemIndex - 7; i++) { newText += currentListText[i]; }
+                for (int i = 0; i < itemIndex; i++) { newText += currentListText[i]; }
 
                 newText += "<color=yellow>";
 
-                for (int i = itemIndex - 7; i < itemIndex + itemLength; i++) { newText += currentListText[i]; }
+                for (int i = itemIndex; i < itemIndex + itemLength; i++) { newText += currentListText[i]; }
 
                 newText += "</color>";
 
                 for (int i = itemIndex + itemLength; i < currentListText.Length; i++) { newText += currentListText[i]; }
 
+                string newPrice = "";
+
+                for (int i = 0; i < priceIndex; i++) { newPrice += currentListPrice[i]; }
+
+                newPrice += "<color=yellow>";
+
+                for (int i = priceIndex; i < priceIndex + priceLength; i++) { newPrice += currentListPrice[i]; }
+
+                newPrice += "</color>";
+
+                for (int i = priceIndex + priceLength; i < currentListPrice.Length; i++) { newPrice += currentListPrice[i]; }
+
                 if (weaponHighlight.activeInHierarchy)
                 {
                     weaponText.text = newText;
+                    weaponPrice.text = newPrice;
+                    weaponTitleBackground.color = titleSelected;
                     ShopStats(weaponList[selectedElement]);
                 }
                 else if (armorHighlight.activeInHierarchy)
                 {
                     armorText.text = newText;
+                    armorPrice.text = newPrice;
+                    armorTitleBackground.color = titleSelected;
                     ShopStats(armorList[selectedElement]);
                 }
                 else if (shieldHighlight.activeInHierarchy)
                 {
                     shieldText.text = newText;
+                    shieldPrice.text = newPrice;
+                    shieldTitleBackground.color = titleSelected;
                     ShopStats(shieldList[selectedElement]);
                 }
 
@@ -844,27 +895,35 @@ public class NPCInteraction : MonoBehaviour
                         option4.text = "";
                         shop.SetActive(false);
                         shopBackground.SetActive(false);
+                        yield return new WaitForSeconds(.25f);
                         List<string> buyCheck = new List<string>();
-                        buyCheck.Add($"The {myTI.ToTitleCase(selectedItem.nome)}? No taksies-backsies!");
+                        buyCheck.Add($"The {myTI.ToTitleCase(selectedItem.nome)} for {selectedItem.price} crystals? No taksies-backsies!");
                         npcSpeechComplete = false;
                         StartCoroutine(NPCSpeech(buyCheck));
+                        currentCrystalsText.text = $"Crystals: {ego.blueCrystals}";
                         yield return new WaitUntil(NPCSpeechComplete);
                         npcSpeechComplete = false;
                         optionBoxGreyFilter.SetActive(false);
                         option1.text = "Yep!";
                         option2.text = "Hmm. Perhaps not.";
-                        bool yesSelected = false;
+                        option1Background.SetActive(true);
+                        option2Background.SetActive(true);
+                        bool yesSelected = true;
                         while (true)
                         {
+                            option1Highlight.SetActive(false);
+                            option2Highlight.SetActive(false);
                             if (yesSelected)
                             {
                                 option1.color = Color.yellow;
+                                option1Highlight.SetActive(true);
                                 option2.color = Color.white;
                             }
                             else
                             {
                                 option1.color = Color.white;
                                 option2.color = Color.yellow;
+                                option2Highlight.SetActive(true);
                             }
                             yield return new WaitUntil(controller.UpDownEnterPressed);
                             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow))
@@ -874,13 +933,15 @@ public class NPCInteraction : MonoBehaviour
                             }
                             else if (Input.GetKeyDown(KeyCode.Return))
                             {
-                                controller.interactableItems.cursorSelect.Play();
+                                currentCrystalsText.text = $"";
                                 optionBoxGreyFilter.SetActive(true);
                                 if (yesSelected)
                                 {
+                                    controller.interactableItems.cursorSelect.Play();
                                     purchase.Play();
                                     ego.blueCrystals -= selectedItem.price;
                                     controller.interactableItems.inventory.Add(selectedItem);
+                                    yield return new WaitForSeconds(.25f);
                                     List<string> buyConfirm = new List<string>();
                                     buyConfirm.Add("Right on!");
                                     buyConfirm.Add("Anything else catch your eye?");
@@ -890,6 +951,7 @@ public class NPCInteraction : MonoBehaviour
                                 else if (!yesSelected)
                                 {
                                     controller.interactableItems.cursorCancel.Play();
+                                    yield return new WaitForSeconds(.25f);
                                     List<string> buyCancel = new List<string>();
                                     buyCancel.Add("Aw, man!");
                                     buyCancel.Add("Anything else catch your eye?");
@@ -899,6 +961,8 @@ public class NPCInteraction : MonoBehaviour
                                 yield return new WaitUntil(NPCSpeechComplete);
                                 npcSpeechComplete = false;
                                 yield return new WaitForSeconds(.5f);
+                                option1.color = Color.white;
+                                option2.color = Color.white;
                                 shop.SetActive(true);
                                 shopBackground.SetActive(true);
                                 option1.text = "Ask about";
@@ -920,6 +984,7 @@ public class NPCInteraction : MonoBehaviour
                         option4.text = "";
                         shop.SetActive(false);
                         shopBackground.SetActive(false);
+                        yield return new WaitForSeconds(.25f);
                         List<string> buyError = new List<string>();
                         buyError.Add($"Shoot I don't think you have enough cash! Maybe next time, all right, {bro}?");
                         buyError.Add("Anything else catch your eye?");
@@ -944,28 +1009,36 @@ public class NPCInteraction : MonoBehaviour
         {
             inventoryClosed = false;
             StartCoroutine(DisplayInventory());
+            NPCText.text = "";
             yield return new WaitUntil(InventoryClosed);
             inventoryClosed = false;
+            Debug.Log(selectedItem);
             if (selectedItem != null)
             {
                 npcSpeechComplete = false;
+                yield return new WaitForSeconds(.25f);
                 List<string> sellCheck = new List<string>();
-                sellCheck.Add($"The {selectedItem.nome}? Is {Mathf.RoundToInt(selectedItem.price / saleDivider)} crystals cool?");
+                sellCheck.Add($"The {myTI.ToTitleCase(selectedItem.nome)}? Is {Mathf.RoundToInt(selectedItem.price / saleDivider)} crystals cool?");
                 StartCoroutine(NPCSpeech(sellCheck));
+                currentCrystalsText.text = $"Crystals: {ego.blueCrystals}";
                 yield return new WaitUntil(NPCSpeechComplete);
                 npcSpeechComplete = false;
                 genericOptionComplete = false;
                 StartCoroutine(GenericOptionSelection("Let's do it!", "I don't think so.", null, null));
                 yield return new WaitUntil(GenericOptionComplete);
                 genericOptionComplete = false;
+                currentCrystalsText.text = $"";
                 if (genericOptionSelected == 0)
                 {
+                    controller.interactableItems.cursorSelect.Play();
+                    purchase.Play();
                     ego.blueCrystals += Mathf.RoundToInt(selectedItem.price / saleDivider);
                     if (ego.equippedWeapon != null) { if (selectedItem == ego.equippedWeapon) { controller.GetUnEquipped(); } }
                     if (ego.equippedArmor != null) { if (selectedItem == ego.equippedArmor) { controller.GetUnDressed(); } }
                     if (ego.equippedShield != null) { if (selectedItem == ego.equippedShield) { controller.GetUnStrapped(); } }
                     controller.interactableItems.inventory.Remove(selectedItem);
                     npcSpeechComplete = false;
+                    yield return new WaitForSeconds(.25f);
                     List<string> sellConfirm = new List<string>();
                     sellConfirm.Add($"Hey {man} good doing business with you.");
                     sellConfirm.Add($"Got anything else for me?");
@@ -975,7 +1048,9 @@ public class NPCInteraction : MonoBehaviour
                 }
                 else if (genericOptionSelected == 1 || genericOptionSelected == -1)
                 {
+                    controller.interactableItems.cursorCancel.Play();
                     npcSpeechComplete = false;
+                    yield return new WaitForSeconds(.25f);
                     List<string> sellCancel = new List<string>();
                     sellCancel.Add($"Aw, all right. Maybe next time.");
                     sellCancel.Add($"Got anything else for me?");
@@ -988,7 +1063,8 @@ public class NPCInteraction : MonoBehaviour
                 yield return new WaitUntil(GenericOptionComplete);
                 genericOptionComplete = false;
                 if (genericOptionSelected == 0)
-                {                    
+                {
+                    controller.interactableItems.cursorSelect.Play();
                     sellComplete = false;
                     StartCoroutine(Sell());
                     yield return new WaitUntil(SellComplete);
@@ -996,7 +1072,9 @@ public class NPCInteraction : MonoBehaviour
                 }
                 else if (genericOptionSelected == 1 || genericOptionSelected == -1)
                 {
+                    controller.interactableItems.cursorCancel.Play();
                     npcSpeechComplete = false;
+                    yield return new WaitForSeconds(.25f);
                     List<string> sellExit = new List<string>();
                     sellExit.Add($"Cool, {man} - anything else?");
                     StartCoroutine(NPCSpeech(sellExit));
@@ -1008,6 +1086,7 @@ public class NPCInteraction : MonoBehaviour
             else
             {
                 npcSpeechComplete = false;
+                yield return new WaitForSeconds(.25f);
                 List<string> nullItem = new List<string>();
                 nullItem.Add($"Cool, {man} - anything else?");
                 StartCoroutine(NPCSpeech(nullItem));
@@ -1020,16 +1099,20 @@ public class NPCInteraction : MonoBehaviour
     string WriteShoppingList(List<Item> itemList)
     {
         string writtenList = "";
-        string price = "";
         for (int i = 0; i < itemList.Count; i++)
         {
-            if (itemList[i].price < 10) { price = $"{itemList[i].price}   "; }
-            else if (itemList[i].price < 100) { price = $"{itemList[i].price}  "; }
-            else if (itemList[i].price < 1000) { price = $"{itemList[i].price} "; }
-            else if (itemList[i].price < 10000) { price = $"{itemList[i].price}"; }
-            writtenList += $"{price} : {myTI.ToTitleCase(itemList[i].nome)}\n";
+            writtenList += $"{myTI.ToTitleCase(itemList[i].nome)}\n";
         }
         return writtenList;
+    }
+    string WritePriceList(List<Item> itemList)
+    {
+        string priceList = "";
+        for (int i = 0; i < itemList.Count; i++)
+        {
+            priceList += $"{itemList[i].price}\n";
+        }
+        return priceList;
     }
     public void ShopStats(Item itemSelected)
     {
@@ -1040,11 +1123,11 @@ public class NPCInteraction : MonoBehaviour
         string sign = "+";
 
         //update new item and equipped stat display
-        newItemTitle.text = itemSelected.nome;
+        newItemTitle.text = myTI.ToTitleCase(itemSelected.nome);
         if (itemSelected is Weapon)
         {
             Weapon weaponSelected = (Weapon)itemSelected;
-            if (ego.equippedWeapon != null) { equippedItemTitle.text = ego.equippedWeapon.nome; }
+            if (ego.equippedWeapon != null) { equippedItemTitle.text = myTI.ToTitleCase(ego.equippedWeapon.nome); }
             else { equippedItemTitle.text = "Unarmed"; }
             equippedStat1Title.text = "Damage:";
             equippedStat2Title.text = "Critical:";
@@ -1067,17 +1150,48 @@ public class NPCInteraction : MonoBehaviour
                 equippedStat2.text = "x1.5";
                 equippedStat3.text = "+0";
             }
-            newStat1.text = $"1d{weaponSelected.damageDie} +{weaponSelected.damage}";
-            newStat2.text = $"x{weaponSelected.critMultiplier}";
+            //compare current to new item stats, highlight increase/decrease
+            string color = "green";
+            string colorTwo = "green";
+            if (ego.equippedWeapon != null)
+            {
+                if (weaponSelected.damageDie < ego.equippedWeapon.damageDie) { color = "red"; }
+                else if (weaponSelected.damageDie > ego.equippedWeapon.damageDie) { color = "green"; }
+                else { color = "white"; }
+                if (weaponSelected.damage < ego.equippedWeapon.damage) { colorTwo = "red"; }
+                else if (weaponSelected.damage > ego.equippedWeapon.damage) { colorTwo = "green"; }
+                else { colorTwo = "white"; }
+            }
+            else if (weaponSelected.damage == 0) { colorTwo = "white"; }
+            newStat1.text = $"<color={color}>1d{weaponSelected.damageDie}</color> <color={colorTwo}>+{weaponSelected.damage}</color>";
+
+            color = "green";
+            if (ego.equippedWeapon != null)
+            {
+                if (weaponSelected.critMultiplier < ego.equippedWeapon.critMultiplier) { color = "red"; }
+                else if (weaponSelected.critMultiplier > ego.equippedWeapon.critMultiplier) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (weaponSelected.critMultiplier == 1.5) { color = "white"; }
+            newStat2.text = $"<color={color}>x{weaponSelected.critMultiplier}</color>";
+
+            color = "green";
             if (weaponSelected.toHitMod < 0) { sign = "-"; }
-            newStat3.text = $"{sign}{weaponSelected.toHitMod}";
+            if (ego.equippedWeapon != null)
+            {
+                if (weaponSelected.toHitMod < ego.equippedWeapon.toHitMod) { color = "red"; }
+                else if (weaponSelected.toHitMod > ego.equippedWeapon.toHitMod) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (weaponSelected.toHitMod == 0) { color = "white"; }
+            newStat3.text = $"<color={color}>{sign}{weaponSelected.toHitMod}</color>";
             newType.text = weaponSelected.type;
             if (weaponSelected.twoHanded) { newTwoHanded.SetActive(true); }
         }
         else if (itemSelected is Armor)
         {
             Armor armorSelected = (Armor)itemSelected;
-            if (ego.equippedArmor != null) { equippedItemTitle.text = ego.equippedArmor.nome; }
+            if (ego.equippedArmor != null) { equippedItemTitle.text = myTI.ToTitleCase(ego.equippedArmor.nome); }
             else { equippedItemTitle.text = "None"; }
             equippedStat1Title.text = "Dmg Reduction:";
             equippedStat2Title.text = "Crit Resist:";
@@ -1098,15 +1212,34 @@ public class NPCInteraction : MonoBehaviour
                 equippedStat2.text = "x1.00";
                 equippedStat3.text = "";
             }
+            //compare current to new item stats, highlight increase/decrease
+            string color = "green";
+            if (ego.equippedArmor != null)
+            {
+                if (armorSelected.damageReduction < ego.equippedArmor.damageReduction) { color = "red"; }
+                else if (armorSelected.damageReduction > ego.equippedArmor.damageReduction) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (armorSelected.damageReduction == 0) { color = "white"; }
             if (armorSelected.damageReduction >= 0) { sign = "-"; }
-            newStat1.text = $"{sign}{armorSelected.damageReduction}";
-            newStat2.text = $"x{armorSelected.critResist}";
+            newStat1.text = $"<color={color}>{sign}{armorSelected.damageReduction}</color>";
+
+            color = "green";
+            if (ego.equippedArmor != null)
+            {
+                if (armorSelected.critResist > ego.equippedArmor.critResist) { color = "red"; }
+                else if (armorSelected.critResist < ego.equippedArmor.critResist) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (armorSelected.critResist == 1) { color = "white"; }
+            newStat2.text = $"<color={color}>x{armorSelected.critResist}</color>";
+
             newStat3.text = $"";
         }
         else if (itemSelected is Shield)
         {
             Shield shieldSelected = (Shield)itemSelected;
-            if (ego.equippedArmor != null) { equippedItemTitle.text = ego.equippedArmor.nome; }
+            if (ego.equippedShield != null) { equippedItemTitle.text = myTI.ToTitleCase(ego.equippedShield.nome); }
             else { equippedItemTitle.text = "None"; }
             equippedStat1Title.text = "Armor Class:";
             equippedStat2Title.text = "Crit Resist:";
@@ -1116,18 +1249,37 @@ public class NPCInteraction : MonoBehaviour
             newStat3Title.text = "";
             if (ego.equippedShield != null)
             {
-                equippedStat1.text = $"0";
-                equippedStat2.text = $"x1.00";
+                equippedStat1.text = $"x{ego.equippedShield.armorClass}";
+                equippedStat2.text = $"x{ego.equippedShield.critResist}";
                 equippedStat3.text = $"";
             }
             else
             {
-                equippedStat1.text = "-";
-                equippedStat2.text = "-";
+                equippedStat1.text = "0";
+                equippedStat2.text = "x1.00";
                 equippedStat3.text = "";
             }
-            newStat1.text = $"{shieldSelected.armorClass}";
-            newStat2.text = $"x{shieldSelected.critResist}";
+            //compare current to new item stats, highlight increase/decrease
+            string color = "green";
+            if (ego.equippedShield != null)
+            {
+                if (shieldSelected.armorClass < ego.equippedShield.armorClass) { color = "red"; }
+                else if (shieldSelected.armorClass > ego.equippedShield.armorClass) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (shieldSelected.armorClass == 0) { color = "white"; }
+            newStat1.text = $"<color={color}>{shieldSelected.armorClass}</color>";
+
+            color = "green";
+            if (ego.equippedShield != null)
+            {
+                if (shieldSelected.critResist > ego.equippedShield.critResist) { color = "red"; }
+                else if (shieldSelected.critResist < ego.equippedShield.critResist) { color = "green"; }
+                else { color = "white"; }
+            }
+            else if (shieldSelected.critResist == 1) { color = "white"; }
+            newStat2.text = $"<color={color}>x{shieldSelected.critResist}</color>";
+
             newStat3.text = $"";
         }
 
@@ -1286,7 +1438,6 @@ public class NPCInteraction : MonoBehaviour
         {
             bool skipToEquipment = false;
             bool blockEquipment = false;
-            if (controller.interactableItems.inventory.Count <= 0) { skipToEquipment = true; }
             if (ego.equippedWeapon == null && ego.equippedArmor == null && ego.equippedShield == null && ego.potionBelt.Count == 0) { blockEquipment = true; }
             string normalInvText = controller.interactableItems.invText.text;
             if (controller.interactableItems.inventory.Count > 0) { selectedItem = alreadyListed[0]; }
@@ -1298,6 +1449,7 @@ public class NPCInteraction : MonoBehaviour
             {
                 DisplayPotionBelt();
                 DisplayEquippedItems();
+                if (controller.interactableItems.inventory.Count <= 0) { skipToEquipment = true; }
                 if (!skipToEquipment)
                 {
                     controller.interactableItems.invText.text = normalInvText;

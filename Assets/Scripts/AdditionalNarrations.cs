@@ -79,7 +79,7 @@ public class AdditionalNarrations : MonoBehaviour
             bool yesSelected = false;
             while (true)
             {
-                if (yesSelected) { controller.OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "<b>[Yu-huh!]</b>", "", "<color=white>Me? Naw...</color>", ""); }
+                if (yesSelected) { controller.OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "<b>[Yu-huh]</b><color=white>!</color>", "", "<color=white>Me? Naw...</color>", ""); }
                 else { controller.OpenPopUpWindow("", "", "You don't want to, like, try and use these... do you?", "", "<color=white>Yu-huh!</color>", "", "<color=white>Me?</color> <b>[Naw]</b><color=white>...</color>", ""); }
                 yield return new WaitUntil(controller.LeftRightEnterPressed);
                 if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
