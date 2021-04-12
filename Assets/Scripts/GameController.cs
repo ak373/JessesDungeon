@@ -183,6 +183,33 @@ public class GameController : MonoBehaviour
     {
         DisplayRoomText();
     }
+    public IEnumerator QuitGame()
+    {
+        inputBox.SetActive(false);
+        bool yesSelected = false;
+        while (true)
+        {
+            if (yesSelected) { OpenPopUpWindow("Quit?", "", "That's an inventive way to escape the dungeon...", "", "<b>[Yes]</b><color=white>! See ya!</color>", "", "<color=white>No shortcuts for me.</color>", ""); }
+            else { OpenPopUpWindow("", "", "That's an inventive way to escape the dungeon...", "", "<color=white>Yes! See ya!</color>", "", "<b>[No]</b> <color=white>shortcuts for me.</color>", ""); }
+            yield return new WaitUntil(LeftRightEnterPressed);
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                interactableItems.cursorMove.Play();
+                yesSelected = !yesSelected;
+            }
+            else if (Input.GetKeyDown(KeyCode.Return))
+            {
+                ClosePopUpWindow();
+                break;
+            }
+        }
+        if (yesSelected) { Application.Quit(); }
+        else
+        {
+            interactableItems.cursorCancel.Play();
+            UnlockUserInput();
+        }
+    }
 
     public void DisplayRoomText()
     {

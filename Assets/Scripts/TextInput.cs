@@ -37,6 +37,11 @@ public class TextInput : MonoBehaviour
         controller.demoScript.SnatchInput(userInput);
         //controller.npcTalk.SnatchInput(userInput);
         //controller.achievements.SnatchInput(userInput);
+        if (userInput == "quit")
+        {
+            textIsGood = true;
+            StartCoroutine(controller.QuitGame());
+        }
 
         char[] delimiterCharacters = { ' ' };
         string[] separatedInputWords = userInput.Split(delimiterCharacters);

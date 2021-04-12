@@ -2002,25 +2002,29 @@ public class Combat : MonoBehaviour
                     //ego.displayAction = "Flee";
 
                     //testing status, inventory, and badguy deaths
-                    AddEffect(ego, 1, Instantiate(allEffects[0]));
-                    AddEffect(ego, 1, Instantiate(allEffects[2]));
-                    AddEffect(ego, 1, Instantiate(allEffects[4]));
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allWeapons[10]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allArmor[2]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allShields[3]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allPotions[4]);
-                    controller.interactableItems.inventory.Add(controller.registerObjects.allUndroppables[0]);
-                    ego.potionBelt.Add(controller.registerObjects.allPotions[3]);
-                    ego.potionBelt.Add(controller.registerObjects.allPotions[4]);
-                    ego.potionBelt.Add(controller.registerObjects.allPotions[2]);
-                    for (int i = 0; i < activeBadGuys.Length; i++)
-                    {
-                        if (activeBadGuys[i] != null)
-                        {
-                            activeBadGuys[i].allStats[1].value = 1;
-                            ActivateHPRoll(activeBadGuys[i]);
-                        }
-                    }
+                    //AddEffect(ego, 1, Instantiate(allEffects[0]));
+                    //AddEffect(ego, 1, Instantiate(allEffects[2]));
+                    //AddEffect(ego, 1, Instantiate(allEffects[4]));
+                    //controller.interactableItems.inventory.Add(controller.registerObjects.allWeapons[10]);
+                    //controller.interactableItems.inventory.Add(controller.registerObjects.allArmor[2]);
+                    //controller.interactableItems.inventory.Add(controller.registerObjects.allShields[3]);
+                    //controller.interactableItems.inventory.Add(controller.registerObjects.allPotions[4]);
+                    //controller.interactableItems.inventory.Add(controller.registerObjects.allUndroppables[0]);
+                    //ego.potionBelt.Add(controller.registerObjects.allPotions[3]);
+                    //ego.potionBelt.Add(controller.registerObjects.allPotions[4]);
+                    //ego.potionBelt.Add(controller.registerObjects.allPotions[2]);
+                    //for (int i = 0; i < activeBadGuys.Length; i++)
+                    //{
+                    //    if (activeBadGuys[i] != null)
+                    //    {
+                    //        activeBadGuys[i].allStats[1].value = 1;
+                    //        ActivateHPRoll(activeBadGuys[i]);
+                    //    }
+                    //}
+
+                    controller.OpenPopUpWindow("", "", "There is no escape!");
+                    yield return new WaitForSeconds(1.5f);
+                    controller.ClosePopUpWindow();
                     currentArrowPosition = 0;
                     egoDoneArrow.SetActive(false);
                     arrow.SetActive(true);
