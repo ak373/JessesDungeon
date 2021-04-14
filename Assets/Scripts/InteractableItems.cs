@@ -132,6 +132,7 @@ public class InteractableItems : MonoBehaviour
             int memoryElement = 0;
             bool itemUsed = false;
             bool dropUsed = false;
+            bool useUsed = false;
             bool doubleBreak = false;
             while (true)
             {
@@ -298,7 +299,6 @@ public class InteractableItems : MonoBehaviour
                             int option = 0;
                             if (selectedItem is Potion) { invActions[1].color = darkGrey; }
                             else { invActions[1].text = "Unequip"; }
-                            bool useUsed = false;
                             while (equipmentElement != 6)
                             {
                                 invOptions.SetActive(true);
@@ -382,6 +382,7 @@ public class InteractableItems : MonoBehaviour
                                     //Use
                                     if (option == 2)
                                     {
+                                        useUsed = true;
                                         invActions[1].text = "Equip";
                                         invDisplay.SetActive(false);
                                         invDisplayBorder.SetActive(false);
@@ -425,18 +426,18 @@ public class InteractableItems : MonoBehaviour
                                         }
                                     }
                                 }
-                                //boolean gatekeepers
-                                if (useUsed)
-                                {
-                                    useUsed = false;
-                                    itemUsed = true;
-                                    break;
-                                }
-                                if (dropUsed)
-                                {
-                                    itemUsed = true;
-                                    break;
-                                }
+                            }
+                            //boolean gatekeepers
+                            if (useUsed)
+                            {
+                                useUsed = false;
+                                itemUsed = true;
+                                break;
+                            }
+                            if (dropUsed)
+                            {
+                                itemUsed = true;
+                                break;
                             }
                         }
                         if (doubleBreak)
@@ -467,7 +468,6 @@ public class InteractableItems : MonoBehaviour
                     {
                         invActions[1].color = darkGrey;
                     }
-                    bool useUsed = false;
                     while (true)
                     {
                         invOptions.SetActive(true);
@@ -570,6 +570,7 @@ public class InteractableItems : MonoBehaviour
                             //Use
                             else if (option == 2)
                             {
+                                useUsed = true;
                                 invDisplay.SetActive(false);
                                 invDisplayBorder.SetActive(false);
                                 StartCoroutine(Use(selectedItem));
@@ -619,27 +620,31 @@ public class InteractableItems : MonoBehaviour
                                 }
                             }
                         }
-                        //boolean gatekeepers
-                        if (useUsed)
-                        {
-                            useUsed = false;
-                            itemUsed = true;
-                            break;
-                        }
-                        if (dropUsed)
-                        {
-                            itemUsed = true;
-                            break;
-                        }
+                    }
+                    //boolean gatekeepers
+                    if (useUsed)
+                    {
+                        Debug.Log("gate1");
+                        useUsed = false;
+                        itemUsed = true;
+                        break;
+                    }
+                    if (dropUsed)
+                    {
+                        Debug.Log("gate2");
+                        itemUsed = true;
+                        break;
                     }
                 }
                 if (doubleBreak)
                 {
+                    Debug.Log("gate3");
                     doubleBreak = false;
                     break;
                 }
                 if (itemUsed)
                 {
+                    Debug.Log("gate4");
                     itemUsed = false;
                     if (dropUsed)
                     {
@@ -750,8 +755,8 @@ public class InteractableItems : MonoBehaviour
             string verb = "use";
             if (itemUsed is Potion && itemUsed.beneficial) { verb = "drink"; }
 
-            controller.AddToMainWindowWithLine($"You {verb} the {myTI.ToTitleCase(itemUsed.nome)}, and should look up the effects.");
-            yield return new WaitUntil(controller.EnterPressed);
+            StartCoroutine(controller.Narrator($"You {verb} the {myTI.ToTitleCase(itemUsed.nome)}, and should look up the effects, because using items isn't in the game yet."));
+            yield return null;
         }
     }
     public void InvStats(Item itemSelected)

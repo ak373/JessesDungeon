@@ -511,170 +511,85 @@ public class Combat : MonoBehaviour
                             {
                                 if (activeBadGuys[j] != null && !deadThisRound.Contains(activeBadGuys[j])) { randomTarget.Add(activeBadGuys[j]); }
                             }
-                            ego.chosenTarget = randomTarget[Random.Range(0, randomTarget.Count)];
+                            if (randomTarget.Count > 0) { ego.chosenTarget = randomTarget[Random.Range(0, randomTarget.Count)]; }
+                            else { battleIsWon = true; }
                         }
-                        egoTurn.Play();
-                        StartCoroutine(SelectFlicker(borderEgo));
-                        //Execute Attack
-                        if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
-                        //Execute Defend
-                        else if (ego.chosenAction == "Defend")
+                        if (!battleIsWon)
                         {
-                            Effect guarded = Instantiate(allEffects[4]);
-                            AddEffect(ego, i, guarded);
-                            battleLog.SetActive(true);
-                            battleText.text = "You take a defensive stance.";
-                            yield return new WaitForSeconds(.01f);
-                            messageComplete = false;
-                            StartCoroutine(BattleMessage(0));
-                            yield return new WaitUntil(MessageComplete);
-                            yield return new WaitForSeconds(1.25f);
-                            battleLogGreyScreen.SetActive(true);
-                            yield return new WaitForSeconds(.5f);
-                            battleLog.SetActive(false);
-                            yield return new WaitForSeconds(.5f);
-                            battleLogGreyScreen.SetActive(false);
-                            actionComplete = true;
-                        }
-                        //Execute Maneuver
-                        else if (ego.chosenAction == "Maneuver")
-                        {
-                            //check how much space there is to maneuver (0, 1, or 2 slots up top)
-                            int availableSlots = 3;
-                            for (int j = 0; j < activeBadGuys.Length; j++)
+                            egoTurn.Play();
+                            StartCoroutine(SelectFlicker(borderEgo));
+                            //Execute Attack
+                            if (ego.chosenAction == "Attack") { StartCoroutine(ExecuteEgoAttack((BadGuy)ego.chosenTarget)); }
+                            //Execute Defend
+                            else if (ego.chosenAction == "Defend")
                             {
-                                if (activeBadGuys[j] != null) { availableSlots--; }
+                                Effect guarded = Instantiate(allEffects[4]);
+                                AddEffect(ego, i, guarded);
+                                battleLog.SetActive(true);
+                                battleText.text = "You take a defensive stance.";
+                                yield return new WaitForSeconds(.01f);
+                                messageComplete = false;
+                                StartCoroutine(BattleMessage(0));
+                                yield return new WaitUntil(MessageComplete);
+                                yield return new WaitForSeconds(1.25f);
+                                battleLogGreyScreen.SetActive(true);
+                                yield return new WaitForSeconds(.5f);
+                                battleLog.SetActive(false);
+                                yield return new WaitForSeconds(.5f);
+                                battleLogGreyScreen.SetActive(false);
+                                actionComplete = true;
                             }
-                            if (slotFlank1.activeInHierarchy) { availableSlots++; }
-                            if (slotFlank2.activeInHierarchy) { availableSlots++; }
-
-                            //check how many flanks there are
-                            int totalFlanks = 0;
-                            if (slotFlank1.activeInHierarchy) { totalFlanks++; }
-                            if (slotFlank2.activeInHierarchy) { totalFlanks++; }
-
-                            //consequences
-                            string text1 = "You attempt to maneuver,";
-                            string text2 = "";
-                            AudioSource sound = blockEffect;
-
-                            battleLog.SetActive(true);
-                            battleText.text = text1;
-                            yield return new WaitForSeconds(.01f);
-                            messageComplete = false;
-                            StartCoroutine(BattleMessage(0));
-                            yield return new WaitUntil(MessageComplete);
-                            yield return new WaitForSeconds(.5f);
-                            //outcome based on availableSlots
-                            if (availableSlots == 0) { text2 = "but there's just too many of them!"; }
-                            else if (availableSlots == 1)
+                            //Execute Maneuver
+                            else if (ego.chosenAction == "Maneuver")
                             {
-                                RemoveFlank();
-                                sound = goodEffect;
-                                if (totalFlanks == 1) { text2 = "and deftly step out of your compromised position."; }
-                                else { text2 = "and manage to slip one of them."; }
-                            }
-                            else
-                            {
-                                RemoveFlank();
-                                sound = goodEffect;
-                                text2 = "and deftly step out of your compromised position.";
-                                if (totalFlanks == 2) { RemoveFlank(); }
-                            }
-                            //second half of text
-                            sound.Play();
-                            battleText.text += " " + text2;
-                            yield return new WaitForSeconds(.01f);
-                            messageComplete = false;
-                            StartCoroutine(BattleMessage(endingCharacter));
-                            yield return new WaitUntil(MessageComplete);
-                            yield return new WaitForSeconds(1.25f);
-                            battleLogGreyScreen.SetActive(true);
-                            yield return new WaitForSeconds(.5f);
-                            battleLog.SetActive(false);
-                            yield return new WaitForSeconds(.5f);
-                            battleLogGreyScreen.SetActive(false);
-                            actionComplete = true;
-                        }
-                        //Execute Equip
-                        else if (ego.chosenAction == "Equip")
-                        {
-                            if (ego.chosenItem is Weapon)
-                            {
-                                controller.GetEquipped((Weapon)ego.chosenItem);
-                                if (unstrap)
+                                //check how much space there is to maneuver (0, 1, or 2 slots up top)
+                                int availableSlots = 3;
+                                for (int j = 0; j < activeBadGuys.Length; j++)
                                 {
-                                    unstrap = false;
-                                    controller.GetUnStrapped();
+                                    if (activeBadGuys[j] != null) { availableSlots--; }
                                 }
+                                if (slotFlank1.activeInHierarchy) { availableSlots++; }
+                                if (slotFlank2.activeInHierarchy) { availableSlots++; }
+
+                                //check how many flanks there are
+                                int totalFlanks = 0;
+                                if (slotFlank1.activeInHierarchy) { totalFlanks++; }
+                                if (slotFlank2.activeInHierarchy) { totalFlanks++; }
+
+                                //consequences
+                                string text1 = "You attempt to maneuver,";
+                                string text2 = "";
+                                AudioSource sound = blockEffect;
+
                                 battleLog.SetActive(true);
-                                battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                                battleText.text = text1;
                                 yield return new WaitForSeconds(.01f);
                                 messageComplete = false;
                                 StartCoroutine(BattleMessage(0));
                                 yield return new WaitUntil(MessageComplete);
-                                yield return new WaitForSeconds(1.25f);
-                                battleLogGreyScreen.SetActive(true);
                                 yield return new WaitForSeconds(.5f);
-                                battleLog.SetActive(false);
-                                yield return new WaitForSeconds(.5f);
-                                battleLogGreyScreen.SetActive(false);
-                            }
-                            else if (ego.chosenItem is Armor)
-                            {
-                                controller.GetDressed((Armor)ego.chosenItem);
-                                battleLog.SetActive(true);
-                                battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
-                                yield return new WaitForSeconds(.01f);
-                                messageComplete = false;
-                                StartCoroutine(BattleMessage(0));
-                                yield return new WaitUntil(MessageComplete);
-                                yield return new WaitForSeconds(1.25f);
-                                battleLogGreyScreen.SetActive(true);
-                                yield return new WaitForSeconds(.5f);
-                                battleLog.SetActive(false);
-                                yield return new WaitForSeconds(.5f);
-                                battleLogGreyScreen.SetActive(false);
-                            }
-                            else if (ego.chosenItem is Shield)
-                            {
-                                controller.GetStrapped((Shield)ego.chosenItem);
-                                battleLog.SetActive(true);
-                                battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
-                                yield return new WaitForSeconds(.01f);
-                                messageComplete = false;
-                                StartCoroutine(BattleMessage(0));
-                                yield return new WaitUntil(MessageComplete);
-                                yield return new WaitForSeconds(1.25f);
-                                battleLogGreyScreen.SetActive(true);
-                                yield return new WaitForSeconds(.5f);
-                                battleLog.SetActive(false);
-                                yield return new WaitForSeconds(.5f);
-                                battleLogGreyScreen.SetActive(false);
-                            }
-                            //equip shield with weapon (or fail to equip non shield)
-                            if (ego.chosenItem2 != null)
-                            {
-                                yield return new WaitForSeconds(.25f);
-                                battleLog.SetActive(true);
-                                if (ego.chosenItem2 is Shield)
+                                //outcome based on availableSlots
+                                if (availableSlots == 0) { text2 = "but there's just too many of them!"; }
+                                else if (availableSlots == 1)
                                 {
-                                    controller.GetStrapped((Shield)ego.chosenItem2);
-                                    battleText.text = $"You also equip the {myTI.ToTitleCase(ego.chosenItem2.nome)}.";
+                                    RemoveFlank();
+                                    sound = goodEffect;
+                                    if (totalFlanks == 1) { text2 = "and deftly step out of your compromised position."; }
+                                    else { text2 = "and manage to slip one of them."; }
                                 }
                                 else
                                 {
-                                    if (ego.chosenItem2 is Weapon) { battleText.text = "...and nice try."; }
-                                    else if (ego.chosenItem2 is Potion)
-                                    {
-                                        controller.interactableItems.inventory.Remove(ego.chosenItem2);
-                                        battleText.text = $"The {myTI.ToTitleCase(ego.chosenItem2.nome)} drops and breaks after you place it on your forearm!";
-                                    }
-                                    else { battleText.text = $"Getting the {myTI.ToTitleCase(ego.chosenItem2.nome)} onto your arm is awkward so you put it away."; }
+                                    RemoveFlank();
+                                    sound = goodEffect;
+                                    text2 = "and deftly step out of your compromised position.";
+                                    if (totalFlanks == 2) { RemoveFlank(); }
                                 }
+                                //second half of text
+                                sound.Play();
+                                battleText.text += " " + text2;
                                 yield return new WaitForSeconds(.01f);
                                 messageComplete = false;
-                                StartCoroutine(BattleMessage(0));
+                                StartCoroutine(BattleMessage(endingCharacter));
                                 yield return new WaitUntil(MessageComplete);
                                 yield return new WaitForSeconds(1.25f);
                                 battleLogGreyScreen.SetActive(true);
@@ -682,40 +597,25 @@ public class Combat : MonoBehaviour
                                 battleLog.SetActive(false);
                                 yield return new WaitForSeconds(.5f);
                                 battleLogGreyScreen.SetActive(false);
-                                ego.chosenItem2 = null;
+                                actionComplete = true;
                             }
-                            actionComplete = true;
-                        }
-                        //Execute Use
-                        else if (ego.chosenAction == "Use")
-                        {
-                            if (ego.chosenItem is Weapon || ego.chosenItem is Armor || ego.chosenItem is Shield)
+                            //Execute Equip
+                            else if (ego.chosenAction == "Equip")
                             {
-                                if (ego.chosenItem.useEffect != null)
+                                if (ego.chosenItem is Weapon)
                                 {
-                                    battleLog.SetActive(true);
-                                    battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
-                                    yield return new WaitForSeconds(.01f);
-                                    messageComplete = false;
-                                    StartCoroutine(BattleMessage(0));
-                                    yield return new WaitUntil(MessageComplete);
-                                    yield return new WaitForSeconds(.5f);
-                                    battleText.text = ego.chosenItem.useMessage;
-                                    yield return new WaitForSeconds(.01f);
-                                    messageComplete = false;
-                                    StartCoroutine(BattleMessage(0));
-                                    yield return new WaitUntil(MessageComplete);
-                                    if (ego.chosenItem.useMessage2 != null)
+                                    controller.GetEquipped((Weapon)ego.chosenItem);
+                                    if (unstrap)
                                     {
-                                        yield return new WaitForSeconds(.5f);
-                                        if (ego.chosenTarget == ego) { battleText.text += $"You are {ego.chosenItem.useMessage2}"; }
-                                        else { battleText.text += $"{ego.chosenTarget} is {ego.chosenItem.useMessage2}"; }
-                                        yield return new WaitForSeconds(.01f);
-                                        messageComplete = false;
-                                        StartCoroutine(BattleMessage(endingCharacter));
-                                        yield return new WaitUntil(MessageComplete);
+                                        unstrap = false;
+                                        controller.GetUnStrapped();
                                     }
-                                    ego.chosenTarget.activeEffects.Add(ego.chosenItem.useEffect);
+                                    battleLog.SetActive(true);
+                                    battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(0));
+                                    yield return new WaitUntil(MessageComplete);
                                     yield return new WaitForSeconds(1.25f);
                                     battleLogGreyScreen.SetActive(true);
                                     yield return new WaitForSeconds(.5f);
@@ -723,29 +623,15 @@ public class Combat : MonoBehaviour
                                     yield return new WaitForSeconds(.5f);
                                     battleLogGreyScreen.SetActive(false);
                                 }
-                                else
+                                else if (ego.chosenItem is Armor)
                                 {
+                                    controller.GetDressed((Armor)ego.chosenItem);
                                     battleLog.SetActive(true);
-                                    battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                    battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
                                     yield return new WaitForSeconds(.01f);
                                     messageComplete = false;
                                     StartCoroutine(BattleMessage(0));
                                     yield return new WaitUntil(MessageComplete);
-                                    yield return new WaitForSeconds(.5f);
-                                    battleText.text = ego.chosenItem.useMessage;
-                                    yield return new WaitForSeconds(.01f);
-                                    messageComplete = false;
-                                    StartCoroutine(BattleMessage(0));
-                                    yield return new WaitUntil(MessageComplete);
-                                    if (ego.chosenItem.useMessage2 != null)
-                                    {
-                                        yield return new WaitForSeconds(.5f);
-                                        battleText.text += ego.chosenItem.useMessage2;
-                                        yield return new WaitForSeconds(.01f);
-                                        messageComplete = false;
-                                        StartCoroutine(BattleMessage(endingCharacter));
-                                        yield return new WaitUntil(MessageComplete);
-                                    }
                                     yield return new WaitForSeconds(1.25f);
                                     battleLogGreyScreen.SetActive(true);
                                     yield return new WaitForSeconds(.5f);
@@ -753,36 +639,154 @@ public class Combat : MonoBehaviour
                                     yield return new WaitForSeconds(.5f);
                                     battleLogGreyScreen.SetActive(false);
                                 }
+                                else if (ego.chosenItem is Shield)
+                                {
+                                    controller.GetStrapped((Shield)ego.chosenItem);
+                                    battleLog.SetActive(true);
+                                    battleText.text = $"You equip the {myTI.ToTitleCase(ego.chosenItem.nome)}.";
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(0));
+                                    yield return new WaitUntil(MessageComplete);
+                                    yield return new WaitForSeconds(1.25f);
+                                    battleLogGreyScreen.SetActive(true);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLog.SetActive(false);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLogGreyScreen.SetActive(false);
+                                }
+                                //equip shield with weapon (or fail to equip non shield)
+                                if (ego.chosenItem2 != null)
+                                {
+                                    yield return new WaitForSeconds(.25f);
+                                    battleLog.SetActive(true);
+                                    if (ego.chosenItem2 is Shield)
+                                    {
+                                        controller.GetStrapped((Shield)ego.chosenItem2);
+                                        battleText.text = $"You also equip the {myTI.ToTitleCase(ego.chosenItem2.nome)}.";
+                                    }
+                                    else
+                                    {
+                                        if (ego.chosenItem2 is Weapon) { battleText.text = "...and nice try."; }
+                                        else if (ego.chosenItem2 is Potion)
+                                        {
+                                            controller.interactableItems.inventory.Remove(ego.chosenItem2);
+                                            battleText.text = $"The {myTI.ToTitleCase(ego.chosenItem2.nome)} drops and breaks after you place it on your forearm!";
+                                        }
+                                        else { battleText.text = $"Getting the {myTI.ToTitleCase(ego.chosenItem2.nome)} onto your arm is awkward so you put it away."; }
+                                    }
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(0));
+                                    yield return new WaitUntil(MessageComplete);
+                                    yield return new WaitForSeconds(1.25f);
+                                    battleLogGreyScreen.SetActive(true);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLog.SetActive(false);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLogGreyScreen.SetActive(false);
+                                    ego.chosenItem2 = null;
+                                }
+                                actionComplete = true;
                             }
-                            else if (ego.chosenItem is Undroppable)
+                            //Execute Use
+                            else if (ego.chosenAction == "Use")
                             {
-                                battleLog.SetActive(true);
-                                battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
-                                yield return new WaitForSeconds(.01f);
-                                messageComplete = false;
-                                StartCoroutine(BattleMessage(0));
-                                yield return new WaitUntil(MessageComplete);
-                                battleText.text = "By safely putting it away.";
-                                yield return new WaitForSeconds(.01f);
-                                messageComplete = false;
-                                StartCoroutine(BattleMessage(0));
-                                yield return new WaitUntil(MessageComplete);
-                                yield return new WaitForSeconds(1.25f);
-                                battleLogGreyScreen.SetActive(true);
-                                yield return new WaitForSeconds(.5f);
-                                battleLog.SetActive(false);
-                                yield return new WaitForSeconds(.5f);
-                                battleLogGreyScreen.SetActive(false);
+                                if (ego.chosenItem is Weapon || ego.chosenItem is Armor || ego.chosenItem is Shield)
+                                {
+                                    if (ego.chosenItem.useEffect != null)
+                                    {
+                                        battleLog.SetActive(true);
+                                        battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                        yield return new WaitForSeconds(.01f);
+                                        messageComplete = false;
+                                        StartCoroutine(BattleMessage(0));
+                                        yield return new WaitUntil(MessageComplete);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleText.text = ego.chosenItem.useMessage;
+                                        yield return new WaitForSeconds(.01f);
+                                        messageComplete = false;
+                                        StartCoroutine(BattleMessage(0));
+                                        yield return new WaitUntil(MessageComplete);
+                                        if (ego.chosenItem.useMessage2 != null)
+                                        {
+                                            yield return new WaitForSeconds(.5f);
+                                            if (ego.chosenTarget == ego) { battleText.text += $"You are {ego.chosenItem.useMessage2}"; }
+                                            else { battleText.text += $"{ego.chosenTarget} is {ego.chosenItem.useMessage2}"; }
+                                            yield return new WaitForSeconds(.01f);
+                                            messageComplete = false;
+                                            StartCoroutine(BattleMessage(endingCharacter));
+                                            yield return new WaitUntil(MessageComplete);
+                                        }
+                                        ego.chosenTarget.activeEffects.Add(ego.chosenItem.useEffect);
+                                        yield return new WaitForSeconds(1.25f);
+                                        battleLogGreyScreen.SetActive(true);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleLog.SetActive(false);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleLogGreyScreen.SetActive(false);
+                                    }
+                                    else
+                                    {
+                                        battleLog.SetActive(true);
+                                        battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                        yield return new WaitForSeconds(.01f);
+                                        messageComplete = false;
+                                        StartCoroutine(BattleMessage(0));
+                                        yield return new WaitUntil(MessageComplete);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleText.text = ego.chosenItem.useMessage;
+                                        yield return new WaitForSeconds(.01f);
+                                        messageComplete = false;
+                                        StartCoroutine(BattleMessage(0));
+                                        yield return new WaitUntil(MessageComplete);
+                                        if (ego.chosenItem.useMessage2 != null)
+                                        {
+                                            yield return new WaitForSeconds(.5f);
+                                            battleText.text += ego.chosenItem.useMessage2;
+                                            yield return new WaitForSeconds(.01f);
+                                            messageComplete = false;
+                                            StartCoroutine(BattleMessage(endingCharacter));
+                                            yield return new WaitUntil(MessageComplete);
+                                        }
+                                        yield return new WaitForSeconds(1.25f);
+                                        battleLogGreyScreen.SetActive(true);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleLog.SetActive(false);
+                                        yield return new WaitForSeconds(.5f);
+                                        battleLogGreyScreen.SetActive(false);
+                                    }
+                                }
+                                else if (ego.chosenItem is Undroppable)
+                                {
+                                    battleLog.SetActive(true);
+                                    battleText.text = $"You use the {myTI.ToTitleCase(ego.chosenItem.nome)}!";
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(0));
+                                    yield return new WaitUntil(MessageComplete);
+                                    battleText.text = "By safely putting it away.";
+                                    yield return new WaitForSeconds(.01f);
+                                    messageComplete = false;
+                                    StartCoroutine(BattleMessage(0));
+                                    yield return new WaitUntil(MessageComplete);
+                                    yield return new WaitForSeconds(1.25f);
+                                    battleLogGreyScreen.SetActive(true);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLog.SetActive(false);
+                                    yield return new WaitForSeconds(.5f);
+                                    battleLogGreyScreen.SetActive(false);
+                                }
+                                else if (ego.chosenItem is Potion)
+                                {
+                                    potionComplete = false;
+                                    StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget));
+                                    yield return new WaitUntil(PotionComplete);
+                                    potionComplete = false;
+                                }
+                                actionComplete = true;
                             }
-                            else if (ego.chosenItem is Potion)
-                            {
-                                potionComplete = false;
-                                StartCoroutine(UsePotion(ego, (Potion)ego.chosenItem, ego.chosenTarget));
-                                yield return new WaitUntil(PotionComplete);
-                                potionComplete = false;
-                            }
-                            actionComplete = true;
-                        }
+                        }                        
                     }
                     else //if (turnOrder[i] != jesse)
                     {
@@ -1837,12 +1841,13 @@ public class Combat : MonoBehaviour
         egoDoneArrow.SetActive(false);
         egoCombatOptions[2].color = Color.white;
         arrow.SetActive(true);
-        while (true)
+        while (!battleIsWon)
         {
             if (currentArrowPosition < 0) { currentArrowPosition = 5; }
             if (currentArrowPosition > 5) { currentArrowPosition = 0; }
             arrow.transform.position = egoArrowPositions[currentArrowPosition].transform.position;
             yield return new WaitUntil(controller.UpDownEnterPressed);
+            if (battleIsWon) { break; }
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 cursorMove.Play();
@@ -3837,8 +3842,13 @@ public class Combat : MonoBehaviour
         battleLogGreyScreen.SetActive(false);
         yield return new WaitForSeconds(.5f);
         loseBattle.Stop();
-        //fightOverWhiteScreen.SetActive(false);
+        combatScreen.SetActive(false);
+        fadeFromWhite1.SetActive(true);
+        fightOverWhiteScreen.SetActive(false);
         //return to game
+        yield return new WaitForSeconds(1f);
+        fadeFromWhite1.SetActive(false);
+        controller.demoScript.DemoDeath();
         StopAllCoroutines();
     }
     IEnumerator ClearTheDead(BadGuy deadGuy)

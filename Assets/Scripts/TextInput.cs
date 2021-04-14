@@ -27,6 +27,7 @@ public class TextInput : MonoBehaviour
     public void AcceptStringInput(string userInput)
     {
         keyPressDelay = Time.time;
+        controller.introScreen.SnatchInput(userInput);
         userInput = userInput.Trim();
         controller.AddToActionLog(userInput);
         controller.lastActionHero = 1;
@@ -86,6 +87,6 @@ public class TextInput : MonoBehaviour
         textIsGood = false;
         inputField.ActivateInputField();
         inputField.text = null;
-        controller.ForceTextWindowDown();
+        StartCoroutine(controller.ForceTextWindowDown());
     }
 }

@@ -120,7 +120,7 @@ public class GameController : MonoBehaviour
         combat = GetComponent<Combat>();
         teleType = GetComponent<TeleType>();
         introScreen = GetComponent<IntroScreen>();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0.5f;
+        GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0.5f;
         //enterToContinue = false;
         //escToContinue = false;
         //toResumeEscToContinue = false;
@@ -190,7 +190,7 @@ public class GameController : MonoBehaviour
         while (true)
         {
             if (yesSelected) { OpenPopUpWindow("Quit?", "", "That's an inventive way to escape the dungeon...", "", "<b>[Yes]</b><color=white>! See ya!</color>", "", "<color=white>No shortcuts for me.</color>", ""); }
-            else { OpenPopUpWindow("", "", "That's an inventive way to escape the dungeon...", "", "<color=white>Yes! See ya!</color>", "", "<b>[No]</b> <color=white>shortcuts for me.</color>", ""); }
+            else { OpenPopUpWindow("Quit?", "", "That's an inventive way to escape the dungeon...", "", "<color=white>Yes! See ya!</color>", "", "<b>[No]</b> <color=white>shortcuts for me.</color>", ""); }
             yield return new WaitUntil(LeftRightEnterPressed);
             if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
             {
@@ -233,7 +233,7 @@ public class GameController : MonoBehaviour
                     break;
             }
             displayText.text = roomText;
-            ForceTextWindowUp();
+            StartCoroutine(ForceTextWindowUp());
         }        
     }
 
@@ -244,24 +244,30 @@ public class GameController : MonoBehaviour
         //actionLogText.text = string.Join("\n\n\n", actionLog.ToArray());
         actionLogTextTMP.text = string.Join("\n", actionLog.ToArray());
     }
-    public void ForceTextWindowUp()
+    public IEnumerator ForceTextWindowUp()
     {
+        yield return new WaitForSeconds(.01f);
         Canvas.ForceUpdateCanvases();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
+        GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
+        scrollBar.value = 1;
         Canvas.ForceUpdateCanvases();
+        //Canvas.ForceUpdateCanvases();
     }
-    public void ForceTextWindowDown()
+    public IEnumerator ForceTextWindowDown()
     {
+        yield return new WaitForSeconds(.01f);
         Canvas.ForceUpdateCanvases();
-        GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
+        GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
+        scrollBar.value = 0;
         Canvas.ForceUpdateCanvases();
+        //Canvas.ForceUpdateCanvases();
     }
     public void InitiateNarrator(string response) { StartCoroutine(Narrator(response)); }
     public IEnumerator Narrator(string response)
     {
         inputBox.SetActive(false);
         displayText.text += "\n\n\n-------------------------------------\n\n" + response + "\n\n\nPress ENTER to continue.";
-        ForceTextWindowDown();
+        StartCoroutine(ForceTextWindowDown());
         yield return new WaitForSeconds(.25f);
         yield return new WaitUntil(EnterPressed);
         UnlockUserInput();
@@ -406,17 +412,17 @@ public class GameController : MonoBehaviour
     public void OverwriteMainWindow(string toDisplay)
     {
         displayText.text = toDisplay;
-        ForceTextWindowUp();
+        StartCoroutine(ForceTextWindowUp());
     }
     public void AddToMainWindow(string toDisplay)
     {
         displayText.text += toDisplay;
-        ForceTextWindowDown();
+        StartCoroutine(ForceTextWindowDown());
     }
     public void AddToMainWindowWithLine(string toDisplay)
     {
         displayText.text += "\n\n\n-------------------------------------\n\n" + toDisplay;
-        ForceTextWindowDown();
+        StartCoroutine(ForceTextWindowDown());
     }
     public void WriteItemToPopUpWindow(Item item)
     {
@@ -472,30 +478,7 @@ public class GameController : MonoBehaviour
         popUpEsc.text = "";
     }
 
-    //public void InspectItem(string itemName)
-    //{
-    //    Item itemToInspect = null;
-    //    for (int i = 0; i < interactableItems.inventory.Count; i++)
-    //    {
-    //        if (itemName == interactableItems.inventory[i].nome)
-    //        {
-    //            itemToInspect = interactableItems.inventory[i];
-    //            break;
-    //        }
-    //    }
-    //    if (itemToInspect == null && ego.equippedWeapon != null && ego.equippedWeapon.nome == itemName) { itemToInspect = ego.equippedWeapon; }
-    //    if (itemToInspect == null && ego.equippedArmor != null && ego.equippedArmor.nome == itemName) { itemToInspect = ego.equippedArmor; }
-    //    if (itemToInspect == null && ego.equippedShield != null && ego.equippedShield.nome == itemName) { itemToInspect = ego.equippedShield; }
-    //    if (itemToInspect == null) { DisplayNarratorResponse("On closer inspection, you see it's not there."); }
-    //    else
-    //    {
-    //        WriteItemToPopUpWindow(itemToInspect);
-    //        toResumeEscToContinue = true;
-    //        exitPopUp = true;
-    //        inputBox.SetActive(false);
-    //        popUpBox.SetActive(true);
-    //    }
-    //}
+    
     public void GetEquipped(Weapon newWeapon)
     {
         if (ego.equippedWeapon != null) { interactableItems.inventory.Add(ego.equippedWeapon); }
@@ -574,43 +557,7 @@ public class GameController : MonoBehaviour
         }
         return null;
     }
-    //public void InitiateDropItem(Item itemToDrop) { StartCoroutine(DropItem(itemToDrop)); }
-    //IEnumerator DropItem(Item itemToDrop)
-    //{
-    //    currentActiveInput = "yesno";
-    //    OpenPopUpWindow("Drop " + itemToDrop.nome + "?", "", "This action cannot be undone.", "", "[Yes]. I'm not afraid.", "", "[No]! Take me back!", "");
-    //    while (true)
-    //    {
-    //        userInput = null;
-    //        while (stupidEnterGlitch)
-    //        {
-    //            yield return new WaitForSeconds(.25f);
-    //            break;
-    //        }
-    //        yield return new WaitUntil(InputGiven);
-    //        if (userInput == "yes" || userInput == "no")
-    //        {
-    //            currentActiveInput = "inventory";
-    //            popUpText.text = null;
-    //            popUpBox.SetActive(false);
-    //            if (userInput == "yes")
-    //            {               
-    //                if (!interactableItems.inventory.Contains(itemToDrop))
-    //                {
-    //                    if (ego.equippedArmor == itemToDrop) { ego.equippedArmor = null; }
-    //                    else if (ego.equippedWeapon == itemToDrop) { ego.equippedWeapon = null; }
-    //                    else if (ego.equippedShield == itemToDrop) { ego.equippedShield = null; }
-    //                }
-    //                else { interactableItems.inventory.Remove(itemToDrop); }
-    //                DisplayNarratorResponse("You drop the " + itemToDrop.nome + ".");
-    //            }
-    //            else if (userInput == "no") { DisplayNarratorResponse("Discretion is the better part of valor. Packrat."); }
-    //            userInput = "";
-    //            break;
-    //        }
-    //        else { AddToMainWindow("\n\nWe don't need a filibuster."); }
-    //    }
-    //}
+   
 
     void PrepareInteractablesInRoom(Room currentRoom)
     {
@@ -798,6 +745,7 @@ public class GameController : MonoBehaviour
                 if (dialogue.townRepeat) { AddToMainWindowWithLine("The remainder of this conversation takes a dark turn.\n\n\nPress ENTER to continue."); }
                 else { OverwriteMainWindow("The remainder of this conversation takes a dark turn.\n\n\n\n\n\n\nPress ENTER to continue."); }
                 yield return new WaitUntil(EnterPressed);
+                UnlockUserInput();
                 break;
             }
             int pause = pauses.Dequeue();
@@ -921,61 +869,10 @@ public class GameController : MonoBehaviour
         else if (ego.allStats[0].value > (.75 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { currentHP.color = Color.white; }
         if (ego.allStats[0].value > (.1 * (ego.allStats[2].value + ego.allStats[2].effectValue))) { fireTheColor = false; }
 
-        //if (enterToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
-        //{
-        //    if (Input.GetKeyDown(KeyCode.Return))
-        //    {
-        //        enterToContinue = false;
-        //        inputBox.SetActive(true);
-        //        textInput.inputField.ActivateInputField();
-        //        textInput.inputField.text = null;
-
-        //        if (currentActiveInput == "main") { DisplayRoomText(); }
-        //        //else if (currentActiveInput == "inventory")
-        //        //{
-        //        //    escToContinue = true;
-        //        //    interactableItems.DisplayInventory();
-        //        //}
-        //    }
-        //}
-        //else if (!enterToContinue && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
+        //focus input box on enter
         if (!inputField.isFocused && inputBox.activeInHierarchy && Input.GetKeyDown(KeyCode.Return)) { EventSystem.current.SetSelectedGameObject(inputBox); }
-        //if (escToContinue && (Time.time - textInput.keyPressDelay >= 0.25))
-        //{
-        //    if (Input.GetKeyDown(KeyCode.Escape))
-        //    {
-        //        map.mapWindow.SetActive(false);
-        //        interactableItems.inventoryStats.SetActive(false);
-        //        inputBox.SetActive(true);
-        //        DisplayRoomText();
-        //        currentActiveInput = "main";
-        //        escToContinue = false;
-        //        textInput.inputField.ActivateInputField();
-        //        textInput.inputField.text = null;
-        //    }
-        //}
-        //if (exitPopUp && (Time.time - textInput.keyPressDelay >= 0.25))
-        //{
-        //    if (Input.GetKeyDown(KeyCode.Escape))
-        //    {
-        //        popUpText.text = null;
-        //        popUpBox.SetActive(false);
-        //        if (toResumeEscToContinue)
-        //        {
-        //            escToContinue = true;
-        //            toResumeEscToContinue = false;
-        //        }
-        //        exitPopUp = false;
-        //        inputBox.SetActive(true);
-        //        textInput.inputField.ActivateInputField();
-        //        textInput.inputField.text = null;
-        //    }
-        //}
-        //if (enterToContinueDialogue && (Time.time - timeDelay >= .25) && Input.GetKeyDown(KeyCode.Return))
-        //{
-        //    enterToContinueDialogue = false;
-        //    EnterToContinueDialogue();
-        //}
+        
+        //cycle past commands
         if (Input.GetKeyDown(KeyCode.Tab) && actionLog.Count > 0)
         {
             lastAction = actionLog[actionLog.Count - lastActionHero];
@@ -1006,12 +903,12 @@ public class GameController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            scrollRectValue = GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
+            scrollRectValue = GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
             if (scrollRectValue <= 0.9)
             {
                 scrollUpArrow.Select();
                 Canvas.ForceUpdateCanvases();
-                GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition += 0.1f;
+                GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition += 0.1f;
                 Canvas.ForceUpdateCanvases();
                 scrollNonArrow.Select();
             }
@@ -1019,19 +916,19 @@ public class GameController : MonoBehaviour
             {
                 scrollUpArrow.Select();
                 Canvas.ForceUpdateCanvases();
-                GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
+                GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
                 Canvas.ForceUpdateCanvases();
                 scrollNonArrow.Select();
             }
         }
         if (Input.GetKey(KeyCode.DownArrow))
         {
-            scrollRectValue = GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
+            scrollRectValue = GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition;
             if (scrollRectValue >= 0.1)
             {
                 scrollDownArrow.Select();
                 Canvas.ForceUpdateCanvases();
-                GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition -= 0.1f;
+                GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition -= 0.1f;
                 Canvas.ForceUpdateCanvases();
                 scrollNonArrow.Select();
             }
@@ -1039,25 +936,13 @@ public class GameController : MonoBehaviour
             {
                 scrollDownArrow.Select();
                 Canvas.ForceUpdateCanvases();
-                GameObject.Find("ScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
+                GameObject.Find("MainScrollRect").GetComponent<ScrollRect>().verticalNormalizedPosition = 0f;
                 Canvas.ForceUpdateCanvases();
                 scrollNonArrow.Select();
             }
         }
-        //if (dropIt)
-        //{
-        //    popUpText.text = null;
-        //    popUpBox.SetActive(false);
-        //    dropIt = false;
-        //    DropItem(droppingItem);
-        //}
-        //if (dropItNot)
-        //{
-        //    popUpText.text = null;
-        //    popUpBox.SetActive(false);
-        //    dropItNot = false;
-        //    DisplayNarratorResponse("Discretion is the better part of valor.\n\nPackrat.");
-        //}
+        
+        //sadly obsolete bubble lead
         if (ego.equippedWeapon == registerObjects.allWeapons[1] || interactableItems.inventory.Contains(registerObjects.allWeapons[1])) { hasBubbleLead = true; }
         else { hasBubbleLead = false; }
     }

@@ -268,19 +268,19 @@ public class NPCInteraction : MonoBehaviour
             {
                 controller.interactableItems.cursorMove.Play();
                 selectedElement--;
-                if (option4.text == null && selectedElement == 3) { selectedElement = 2; }
-                if (option3.text == null && selectedElement == 2) { selectedElement = 1; }
-                if (option2.text == null && selectedElement == 1) { selectedElement = 0; }
-                if (option1.text == null && selectedElement == 0) { selectedElement = 3; }
+                if (opt4 == null && selectedElement == 3) { selectedElement = 2; }
+                if (opt3 == null && selectedElement == 2) { selectedElement = 1; }
+                if (opt2 == null && selectedElement == 1) { selectedElement = 0; }
+                if (opt1 == null && selectedElement == 0) { selectedElement = 3; }
             }
             else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 controller.interactableItems.cursorMove.Play();
                 selectedElement++;
-                if (option1.text == null && selectedElement == 0) { selectedElement = 1; }
-                if (option2.text == null && selectedElement == 1) { selectedElement = 2; }
-                if (option3.text == null && selectedElement == 2) { selectedElement = 3; }
-                if (option4.text == null && selectedElement == 3) { selectedElement = 0; }
+                if (opt1 == null && selectedElement == 0) { selectedElement = 1; }
+                if (opt2 == null && selectedElement == 1) { selectedElement = 2; }
+                if (opt3 == null && selectedElement == 2) { selectedElement = 3; }
+                if (opt4 == null && selectedElement == 3) { selectedElement = 0; }
             }
             else if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -1769,8 +1769,15 @@ public class NPCInteraction : MonoBehaviour
                 selectedElement = askAboutMemoryElement;
                 askAboutMemoryElement = -1;
             }
-            if (selectedElement < 0) { selectedElement = replyList.Count - 1; }
-            if (selectedElement > replyList.Count - 1) { selectedElement = 0; }
+            int availableReplies = 0;
+            for (int i = 0; i < replyList.Count; i++)
+            {
+                if (replyList[i].availableToSay) { availableReplies++; }
+            }
+
+
+            if (selectedElement < 0) { selectedElement = availableReplies - 1; }
+            if (selectedElement > availableReplies - 1) { selectedElement = 0; }
 
             reply0.text = plainReply0;
             reply1.text = plainReply1;

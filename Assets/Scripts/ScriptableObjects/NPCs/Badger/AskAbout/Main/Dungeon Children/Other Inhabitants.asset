@@ -20,10 +20,10 @@ MonoBehaviour:
     others began to fan out as time went on and - well - as tensions rose.
   - Let's see... there's Saul and his brother, Chuck. They took off a while back
     and I don't see much of them anymore. I hope they're all right.
-  - Then there's Lydia, Mike, and the whole of Gus' crew. It didn't take long for
+  - Then there's Lydia, Mike, and the whole of Gus's crew. It didn't take long for
     them to split off and establish themselves elsewhere.
   - Oh, and the Salamancas. They actually were never a part of the community here...
-    Probably saw Gus' people and had other ideas immediately.
+    Probably saw Gus's people and had other plans immediately.
   - And that strange chick just out to the north joined us somewhat recently. She
     trades with us often, but doesn't say a whole lot in the way of small talk. We
     don't know much about her - and it's obvious she means it to be that way.
@@ -52,4 +52,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba8946429c880294984a9fd89a40edcd, type: 2}
   - {fileID: 11400000, guid: a298d31300e042946996d549cc0d6605, type: 2}
   availableToSay: 1
-  hasBeenSaid: 1
+  hasBeenSaid: 0

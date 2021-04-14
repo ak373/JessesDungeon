@@ -15,7 +15,7 @@ MonoBehaviour:
   reply: Salamancas
   response:
   - The Salamanca family all showed up at once, and took off immediately. I don't
-    know where they went. but they're definitely still around.
+    know where they went, but they're definitely still around.
   additionalReplies: []
   parentReplies:
   - {fileID: 11400000, guid: 05baa4d3a77c3214fb0bed62b2136bc5, type: 2}

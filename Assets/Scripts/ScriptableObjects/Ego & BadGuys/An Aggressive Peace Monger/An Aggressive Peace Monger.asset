@@ -48,7 +48,7 @@ MonoBehaviour:
     They forcefully encourage you to fall into line!
   combatSlot: {fileID: 0}
   combatBorder: {fileID: 0}
-  specialAbility: Chastize
+  specialAbility: Chastise
   normalAIRay:
   - {fileID: 11400000, guid: 69cc4b8a8fe924343ad3731f93b8f1bf, type: 2}
   - {fileID: 11400000, guid: 13503d8649ca5914f803e0e4b4be0067, type: 2}

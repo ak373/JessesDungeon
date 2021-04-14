@@ -16,6 +16,7 @@ public class IntroScreen : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        introScreen.SetActive(true);
         controller = GetComponent<GameController>();
         StartCoroutine(IntroScript());
         firstQuestGreeting.maxVisibleCharacters = 0;

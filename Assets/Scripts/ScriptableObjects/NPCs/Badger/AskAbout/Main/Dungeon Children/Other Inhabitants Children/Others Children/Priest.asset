@@ -16,7 +16,7 @@ MonoBehaviour:
   response:
   - Priest... cult leader... one of the two. I don't know what he's got going on
     up there, but he had invited us to join them in some room up to the far north.
-  - I gave him a hard maybe.
+  - I gave him a hard "maybe."
   additionalReplies: []
   parentReplies:
   - {fileID: 11400000, guid: 696eb33dd3d3bf343b6363d07c24ee57, type: 2}
