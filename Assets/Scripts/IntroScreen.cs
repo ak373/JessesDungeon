@@ -73,6 +73,8 @@ public class IntroScreen : MonoBehaviour
         wholeScreenFadeToBlackTwo.SetActive(false);
         controller.registerRooms.mainTheme.Play();
         wholeScreenFadeFromBlackOne.SetActive(true);
+        controller.actionLog.RemoveAt(0);
+        controller.actionLogTextTMP.text = "";
         controller.UnlockUserInput();
         yield return new WaitForSeconds(1f);
         wholeScreenFadeFromBlackOne.SetActive(false);

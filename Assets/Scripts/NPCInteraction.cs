@@ -21,7 +21,7 @@ public class NPCInteraction : MonoBehaviour
     Color titleUnselected = new Color(0.2941177f, 0f, 0f, 0.2941177f);
     Color titleSelected = new Color(0.4901961f, 0f, 0f, 0.4901961f);
     public TMP_Text weaponTitle, armorTitle, shieldTitle, weaponDescription, armorDescription, shieldDescription, weaponText, weaponPrice, armorText, armorPrice, shieldText, shieldPrice, adjustedDamage, adjustedCritical, adjustedToHit, adjustedArmorClass, adjustedCritResist, adjustedDamageReduction, equippedStat1Title, equippedStat2Title, equippedStat3Title, equippedStat1, equippedStat2, equippedStat3, equippedItemTitle, newItemTitle, newStat1Title, newStat2Title, newStat3Title, newStat1, newStat2, newStat3, currentType, newType;
-    public TMP_Text egoWeaponText, egoArmorText, egoShieldText, currentCrystalsText;
+    public TMP_Text egoWeaponText, egoArmorText, egoShieldText, currentCrystalsText, shopCrystalsText;
 
     public NPC[] allNPCs;
     public AudioSource purchase, error, rest;
@@ -268,10 +268,10 @@ public class NPCInteraction : MonoBehaviour
             {
                 controller.interactableItems.cursorMove.Play();
                 selectedElement--;
-                if (opt4 == null && selectedElement == 3) { selectedElement = 2; }
+                if (opt4 == null && selectedElement == -1) { selectedElement = 2; }
                 if (opt3 == null && selectedElement == 2) { selectedElement = 1; }
                 if (opt2 == null && selectedElement == 1) { selectedElement = 0; }
-                if (opt1 == null && selectedElement == 0) { selectedElement = 3; }
+                if (opt1 == null && selectedElement == 0) { selectedElement = -1; }
             }
             else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -709,6 +709,7 @@ public class NPCInteraction : MonoBehaviour
                 weaponPrice.text = normalWeaponPrice;
                 armorPrice.text = normalArmorPrice;
                 shieldPrice.text = normalShieldPrice;
+                shopCrystalsText.text = $"Crystals: {ego.blueCrystals}";
                 weaponTitleBackground.color = titleUnselected;
                 armorTitleBackground.color = titleUnselected;
                 shieldTitleBackground.color = titleUnselected;
@@ -1012,9 +1013,63 @@ public class NPCInteraction : MonoBehaviour
                                     yield return new WaitForSeconds(.25f);
                                     List<string> buyConfirm = new List<string>();
                                     buyConfirm.Add("Right on!");
-                                    buyConfirm.Add("Anything else catch your eye?");
+                                    buyConfirm.Add("Equip it now?");
+                                    //equip it now possibilities with 2hers
+                                    bool unStrap = false;
+                                    bool unEquip = false;
+                                    if (selectedItem is Weapon)
+                                    {
+                                        Weapon selectedWeapon = (Weapon)selectedItem;
+                                        if (selectedWeapon.twoHanded && ego.equippedShield != null)
+                                        {
+                                            unStrap = true;
+                                            buyConfirm[1] = $"Equip it now? You'll need to take off your {myTI.ToTitleCase(ego.equippedShield.nome)}.";
+                                        }
+                                    }
+                                    else if (selectedItem is Shield)
+                                    {
+                                        Shield selectedShield = (Shield)selectedItem;
+                                        if (ego.equippedWeapon != null)
+                                        {
+                                            if (ego.equippedWeapon.twoHanded)
+                                            {
+                                                unEquip = true;
+                                                buyConfirm[1] = $"Equip it now? You'll have to stow your {myTI.ToTitleCase(ego.equippedWeapon.nome)}.";
+                                            }
+                                        }
+                                    }
+                                    
                                     npcSpeechComplete = false;
                                     StartCoroutine(NPCSpeech(buyConfirm));
+                                    yield return new WaitUntil(NPCSpeechComplete);
+                                    npcSpeechComplete = false;
+                                    genericOptionComplete = false;
+                                    option1.color = Color.white;
+                                    option2.color = Color.white;
+                                    StartCoroutine(GenericOptionSelection("Of course!", "Nah - I'll hang onto it.", null, null));
+                                    yield return new WaitUntil(GenericOptionComplete);
+                                    genericOptionComplete = false;
+                                    if (genericOptionSelected == 0)
+                                    {
+                                        controller.interactableItems.cursorSelect.Play();
+                                        purchase.Play();
+                                    }
+                                    else { controller.interactableItems.cursorCancel.Play(); }
+                                    List<string> contBuy = new List<string>();
+                                    yield return new WaitForSeconds(.25f);
+                                    if (genericOptionSelected == 0)
+                                    {
+                                        contBuy.Add($"Ah, it suits you!");
+                                        if (unStrap) { controller.GetUnStrapped(); }
+                                        if (unEquip) { controller.GetUnEquipped(); }
+                                        if (selectedItem is Weapon) { controller.GetEquipped((Weapon)selectedItem); }
+                                        else if (selectedItem is Armor) { controller.GetDressed((Armor)selectedItem); }
+                                        else if (selectedItem is Shield) { controller.GetStrapped((Shield)selectedItem); }
+                                    }
+                                    else if (genericOptionSelected == 1 || genericOptionSelected == -1) { contBuy.Add($"I'll just put it in the bag for you."); }
+                                    contBuy.Add("Anything else catch your eye?");
+                                    npcSpeechComplete = false;
+                                    StartCoroutine(NPCSpeech(contBuy));
                                 }
                                 else if (!yesSelected)
                                 {
@@ -1746,6 +1801,9 @@ public class NPCInteraction : MonoBehaviour
         WriteDialogueReplies(replyList);
         int selectedElement = 0;
         int lastElement = 0;
+
+        if (!internalTree) { escToReturnReply.text = "Enough Already"; }
+        else { escToReturnReply.text = "Something Else"; }
         string plainReply0 = reply0.text;
         string plainReply1 = reply1.text;
         string plainReply2 = reply2.text;
@@ -1757,6 +1815,7 @@ public class NPCInteraction : MonoBehaviour
         string plainReply8 = reply8.text;
         string plainReply9 = reply9.text;
         string plainReply10 = reply10.text;
+        string plainEscToReturn = escToReturnReply.text;
 
         replyBoxFade.SetActive(true);
         replyBox.SetActive(true);
@@ -1770,14 +1829,16 @@ public class NPCInteraction : MonoBehaviour
                 askAboutMemoryElement = -1;
             }
             int availableReplies = 0;
+            int escToReturnIndex = 0;
             for (int i = 0; i < replyList.Count; i++)
             {
                 if (replyList[i].availableToSay) { availableReplies++; }
             }
+            escToReturnIndex = availableReplies;
 
-
-            if (selectedElement < 0) { selectedElement = availableReplies - 1; }
-            if (selectedElement > availableReplies - 1) { selectedElement = 0; }
+            // -1 for proper index, +1 for escToReturn
+            if (selectedElement < 0) { selectedElement = availableReplies; }
+            if (selectedElement > availableReplies) { selectedElement = 0; }
 
             reply0.text = plainReply0;
             reply1.text = plainReply1;
@@ -1790,6 +1851,7 @@ public class NPCInteraction : MonoBehaviour
             reply8.text = plainReply8;
             reply9.text = plainReply9;
             reply10.text = plainReply10;
+            escToReturnReply.text = plainEscToReturn;
             if (lastElement == selectedElement) { yield return new WaitForSeconds(.05f); }
             lastElement = selectedElement;
 
@@ -1800,26 +1862,18 @@ public class NPCInteraction : MonoBehaviour
                 else { replyRay[i].color = Color.white; }
             }
             //highlight selection
-            for (int i = 0; i < replyRay.Length; i++)
+            if (selectedElement == escToReturnIndex) { escToReturnReply.text = $"<color=yellow>{escToReturnReply.text}</color>"; }
+            else
             {
-                if (selectedElement == i)
+                for (int i = 0; i < replyList.Count; i++)
                 {
-                    replyRay[i].text = $"<color=yellow>{replyRay[i].text}</color>";
-                    replyHighRay[i].SetActive(true);
+                    if (selectedElement == i)
+                    {
+                        replyRay[i].text = $"<color=yellow>{replyRay[i].text}</color>";
+                        replyHighRay[i].SetActive(true);
+                    }
                 }
             }
-
-            //if (selectedElement == 0) { reply0.text = $"<color=yellow>{reply0.text}</color>"; }
-            //else if (selectedElement == 1) { reply1.text = $"<color=yellow>{reply1.text}</color>"; }
-            //else if (selectedElement == 2) { reply2.text = $"<color=yellow>{reply2.text}</color>"; }
-            //else if (selectedElement == 3) { reply3.text = $"<color=yellow>{reply3.text}</color>"; }
-            //else if (selectedElement == 4) { reply4.text = $"<color=yellow>{reply4.text}</color>"; }
-            //else if (selectedElement == 5) { reply5.text = $"<color=yellow>{reply5.text}</color>"; }
-            //else if (selectedElement == 6) { reply6.text = $"<color=yellow>{reply6.text}</color>"; }
-            //else if (selectedElement == 7) { reply7.text = $"<color=yellow>{reply7.text}</color>"; }
-            //else if (selectedElement == 8) { reply8.text = $"<color=yellow>{reply8.text}</color>"; }
-            //else if (selectedElement == 9) { reply9.text = $"<color=yellow>{reply9.text}</color>"; }
-            //else if (selectedElement == 10) { reply10.text = $"<color=yellow>{reply10.text}</color>"; }
 
             yield return new WaitUntil(controller.UpDownEnterEscPressed);
             for (int i = 0; i < replyHighRay.Length; i++) { replyHighRay[i].SetActive(false); }
@@ -1848,39 +1902,79 @@ public class NPCInteraction : MonoBehaviour
                 reply8.text = plainReply8;
                 reply9.text = plainReply9;
                 reply10.text = plainReply10;
-                if (replyList[selectedElement].parentReplies.Count == 0)
+                escToReturnReply.text = plainEscToReturn;
+                if (replyList[0].parentReplies.Count == 0)
                 {
                     replyBoxFade.SetActive(false);
                     replyBox.SetActive(false);
                     replyBoxBackground.SetActive(false);
                     StartCoroutine(OptionSelect(speaker));
                 }
-                else { StartCoroutine(ActivateAskAbout(replyList[selectedElement].parentReplies, speaker, true)); }
+                else
+                {
+                    bool treeInsert = true;
+                    if (replyList[0].parentReplies[0].parentReplies.Count == 0) { treeInsert = false; }
+                    StartCoroutine(ActivateAskAbout(replyList[0].parentReplies, speaker, treeInsert));
+                }
                 break;
             }
             else if (Input.GetKeyDown(KeyCode.Return))
             {
-                askAboutMemoryElement = selectedElement;
-                replyList[selectedElement].hasBeenSaid = true;
-                controller.interactableItems.cursorSelect.Play();
-                replyBoxFade.SetActive(false);
-                replyBox.SetActive(false);
-                replyBoxBackground.SetActive(false);
-                yield return new WaitForSeconds(.25f);
-                npcSpeechComplete = false;
-                StartCoroutine(NPCSpeech(replyList[selectedElement].response));
-                yield return new WaitUntil(NPCSpeechComplete);
-                npcSpeechComplete = false;
-                NPCText.text = "";
-                if (replyList[selectedElement].additionalReplies.Count == 0)
+                if (selectedElement == escToReturnIndex)
                 {
-                    StartCoroutine(ActivateAskAbout(replyList, speaker, true));
+                    controller.interactableItems.cursorCancel.Play();
+                    reply0.text = plainReply0;
+                    reply1.text = plainReply1;
+                    reply2.text = plainReply2;
+                    reply3.text = plainReply3;
+                    reply4.text = plainReply4;
+                    reply5.text = plainReply5;
+                    reply6.text = plainReply6;
+                    reply7.text = plainReply7;
+                    reply8.text = plainReply8;
+                    reply9.text = plainReply9;
+                    reply10.text = plainReply10;
+                    escToReturnReply.text = plainEscToReturn;
+                    if (replyList[0].parentReplies.Count == 0)
+                    {
+                        replyBoxFade.SetActive(false);
+                        replyBox.SetActive(false);
+                        replyBoxBackground.SetActive(false);
+                        StartCoroutine(OptionSelect(speaker));
+                    }
+                    else
+                    {
+                        bool treeInsert = true;
+                        if (replyList[0].parentReplies[0].parentReplies.Count == 0) { treeInsert = false; }
+                        StartCoroutine(ActivateAskAbout(replyList[0].parentReplies, speaker, treeInsert));
+                    }
                 }
                 else
                 {
-                    askAboutMemoryElement = -1;
-                    StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies, speaker, true));
-                }
+                    askAboutMemoryElement = selectedElement;
+                    replyList[selectedElement].hasBeenSaid = true;
+                    controller.interactableItems.cursorSelect.Play();
+                    replyBoxFade.SetActive(false);
+                    replyBox.SetActive(false);
+                    replyBoxBackground.SetActive(false);
+                    yield return new WaitForSeconds(.25f);
+                    npcSpeechComplete = false;
+                    StartCoroutine(NPCSpeech(replyList[selectedElement].response));
+                    yield return new WaitUntil(NPCSpeechComplete);
+                    npcSpeechComplete = false;
+                    NPCText.text = "";
+                    if (replyList[selectedElement].additionalReplies.Count == 0)
+                    {
+                        bool treeInsert = true;
+                        if (replyList[selectedElement].parentReplies.Count == 0) { treeInsert = false; }
+                        StartCoroutine(ActivateAskAbout(replyList, speaker, treeInsert));
+                    }
+                    else
+                    {
+                        askAboutMemoryElement = -1;
+                        StartCoroutine(ActivateAskAbout(replyList[selectedElement].additionalReplies, speaker, true));
+                    }
+                }                
                 break;
             }
         }

@@ -37,6 +37,8 @@ public class AdditionalNarrations : MonoBehaviour
             controller.textInput.textIsGood = true;
             StartCoroutine(DinnerTray());
         }
+        //dust tracks in G7 gives money
+        if (fromTextInput == "search tracks" && controller.roomNavigation.currentRoom.roomName == "G7" && !controller.registerObjects.allObjects[2].searched) { controller.ego.blueCrystals += 8; }
 
 
         //listen to town voices

@@ -14,29 +14,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noun: tracks
   searchGeneratedItem: {fileID: 0}
-  searched: 0
+  searched: 1
   interactions:
   - inputAction: {fileID: 11400000, guid: 331687644d1c33349829b34111b312f3, type: 2}
     textResponse:
     - While going in and out of all four paths, there are far more foot falls leading
       westward than any other direction.
+    textPause: []
     textResponseAlternate:
     - While going in and out of all four paths, there are far more foot falls leading
       westward than any other direction.
-    textPause: []
     textPauseAlternate: []
+    secondQuestTextResponse: []
+    secondQuestTextPause: []
+    secondQuestTextResponseAlternate: []
+    secondQuestTextPauseAlternate: []
   - inputAction: {fileID: 11400000, guid: 11e107587f6dee644b513eaac9446da4, type: 2}
     textResponse:
-    - You get down on all fours, and press your cheek against the floor to get the
-      best view of the tracks that you can from the side. Crawling along the floor
-      and swapping floor-cheeks as necessary, you determine that the tracks are certainly
-      tracks made in dust.
-    - ...That's how Aragorn does it isn't it?
+    - Scrumming your fingers through a rather tall mound of dirt and dust, you uncover
+      a pile of blue crystals beneath. You pocket them.
+    textPause: []
     textResponseAlternate:
     - You get down on all fours, and press your cheek against the floor to get the
       best view of the tracks that you can from the side. Crawling along the floor
       and swapping floor-cheeks as necessary, you determine that the tracks are certainly
       tracks made in dust.
     - ...That's how Aragorn does it isn't it?
-    textPause: []
     textPauseAlternate: []
+    secondQuestTextResponse: []
+    secondQuestTextPause: []
+    secondQuestTextResponseAlternate: []
+    secondQuestTextPauseAlternate: []

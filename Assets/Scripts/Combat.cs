@@ -38,7 +38,7 @@ public class Combat : MonoBehaviour
     public List<TMP_Text> invActions = new List<TMP_Text>();
     public AudioSource cursorMove, cursorSelect, cursorCancel, egoTurn;
     public AudioSource badGuyCursorMove, badGuyCursorSelect, badGuyTurn, badGuyDie;
-    public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, gunHit, gunCrit, miss, strangeOccurence, derpSound, joinedTheBattle;
+    public AudioSource winBattle, winCoda, loseBattle, hit, criticalHit, gunHit, gunCrit, flurrySound, miss, strangeOccurence, derpSound, joinedTheBattle;
     public AudioSource goodEffect, badEffect, goodInstant, badInstant, blockEffect, battleStartDrum;
     public AudioSource sicklyMusic, creeperMusic, mongerMusic, strategistMusic, bruteMusic;
     public Effect[] allEffects;
@@ -512,7 +512,11 @@ public class Combat : MonoBehaviour
                                 if (activeBadGuys[j] != null && !deadThisRound.Contains(activeBadGuys[j])) { randomTarget.Add(activeBadGuys[j]); }
                             }
                             if (randomTarget.Count > 0) { ego.chosenTarget = randomTarget[Random.Range(0, randomTarget.Count)]; }
-                            else { battleIsWon = true; }
+                            else
+                            {
+                                battleIsWon = true;
+                                actionComplete = true;
+                            }
                         }
                         if (!battleIsWon)
                         {
@@ -711,8 +715,8 @@ public class Combat : MonoBehaviour
                                         if (ego.chosenItem.useMessage2 != null)
                                         {
                                             yield return new WaitForSeconds(.5f);
-                                            if (ego.chosenTarget == ego) { battleText.text += $"You are {ego.chosenItem.useMessage2}"; }
-                                            else { battleText.text += $"{ego.chosenTarget} is {ego.chosenItem.useMessage2}"; }
+                                            if (ego.chosenTarget == ego) { battleText.text += $" You are {ego.chosenItem.useMessage2}"; }
+                                            else { battleText.text += $" {ego.chosenTarget} is {ego.chosenItem.useMessage2}"; }
                                             yield return new WaitForSeconds(.01f);
                                             messageComplete = false;
                                             StartCoroutine(BattleMessage(endingCharacter));
@@ -1784,9 +1788,17 @@ public class Combat : MonoBehaviour
         else if (ego.equippedWeapon.type == "Ranged") { verb = "shoot"; }
 
         bool gunHeld = false;
-        if (ego.equippedWeapon != null) { if (ego.equippedWeapon.nome == "gun") { gunHeld = true; } }
+        bool flurry = false;
+        bool poison = false;
+        if (ego.equippedWeapon != null)
+        {
+            if (ego.equippedWeapon.nome == "gun") { gunHeld = true; }
+            else if (ego.equippedWeapon.nome == "pogo stick") { flurry = true; }
+            else if (ego.equippedWeapon.nome == "assassin's dagger") { poison = true; }
+        }
 
         battleText.text = $"You {verb} at {badGuy.nome},";
+        battleText.maxVisibleCharacters = 0;
         yield return new WaitForSeconds(.01f);
         messageComplete = false;
         StartCoroutine(BattleMessage(0));
@@ -1798,7 +1810,11 @@ public class Combat : MonoBehaviour
             if (gunHeld) { gunHit.Play(); }
             else { hit.Play(); }
             battleText.text += $" and hit for {rolledDamage} damage!";
-            
+            if (poison)
+            {
+                poison = false;
+                AddEffect(badGuy, ego.currentTurnOrder, allEffects[7]);
+            }
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
             ActivateHPRoll(badGuy);
         }
@@ -1807,17 +1823,24 @@ public class Combat : MonoBehaviour
             if (gunHeld) { gunCrit.Play(); }
             else { criticalHit.Play(); }
             battleText.text += $" and critically hit for {rolledDamage} damage!";
+            if (poison)
+            {
+                poison = false;
+                AddEffect(badGuy, ego.currentTurnOrder, allEffects[7]);
+            }
 
             badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
             ActivateHPRoll(badGuy);
         }
         else if (attackRoll == (badGuyArmorClass - 1))
         {
+            flurry = false;
             miss.Play();
             battleText.text += " and just miss!";
         }
         else
         {
+            flurry = false;
             miss.Play();
             battleText.text += " but miss!";
         }
@@ -1826,6 +1849,45 @@ public class Combat : MonoBehaviour
         StartCoroutine(BattleMessage(endingCharacter));
         yield return new WaitUntil(MessageComplete);
         yield return new WaitForSeconds(.75f);
+        // pogo stick flurry
+        while (flurry)
+        {
+            attackRoll -= 5;
+            battleText.text = $"You execute a FLURRY of attacks on {badGuy.nome},";
+            battleText.maxVisibleCharacters = 0;
+            yield return new WaitForSeconds(.01f);
+            flurrySound.Play();
+            messageComplete = false;
+            StartCoroutine(BattleMessage(0));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(.5f);
+            if (attackRoll >= badGuyArmorClass)
+            {
+                if (gunHeld) { gunHit.Play(); }
+                else { hit.Play(); }
+                battleText.text += $" and hit for {rolledDamage} damage!";
+
+                badGuy.allStats[1].value = badGuy.allStats[1].value - rolledDamage;
+                ActivateHPRoll(badGuy);
+            }
+            else if (attackRoll == (badGuyArmorClass - 1))
+            {
+                flurry = false;
+                miss.Play();
+                battleText.text += " and just miss!";
+            }
+            else
+            {
+                flurry = false;
+                miss.Play();
+                battleText.text += " but miss!";
+            }
+            yield return new WaitForSeconds(.01f);
+            messageComplete = false;
+            StartCoroutine(BattleMessage(endingCharacter));
+            yield return new WaitUntil(MessageComplete);
+            yield return new WaitForSeconds(1.25f);
+        }
         battleLogGreyScreen.SetActive(true);
         yield return new WaitForSeconds(.5f);
         battleLog.SetActive(false);
@@ -3553,6 +3615,9 @@ public class Combat : MonoBehaviour
                     turnOrder[i] = null;
                 }
             }
+            //turn off arrow in case (holes exist where it gets left on for odd enemy death timing)
+            arrow.SetActive(false);
+            //commence end
             fightOverFade.SetActive(true);
             battleLog.SetActive(true);
             battleText.text = $"\nYou won!";

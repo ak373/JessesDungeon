@@ -99,7 +99,7 @@ public class GameController : MonoBehaviour
 
     Queue<int> pauses;
     Queue<string> sentences;
-    List<string> actionLog = new List<string>();
+    public List<string> actionLog = new List<string>();
     
 
     // Start is called before the first frame update

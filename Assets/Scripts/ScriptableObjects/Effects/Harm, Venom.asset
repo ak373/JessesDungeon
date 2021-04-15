@@ -21,6 +21,7 @@ MonoBehaviour:
   potency2: 0
   color: {r: 1, g: 0, b: 0, a: 1}
   duration: 2
+  priorityEffect: {fileID: 0}
   beneficial: 0
   compounding: 1
   compoundMessage: feel the stinging of the venom and take 15 damage!

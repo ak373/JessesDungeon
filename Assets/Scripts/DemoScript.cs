@@ -49,19 +49,25 @@ public class DemoScript : MonoBehaviour
     }
     IEnumerator RebeginAtStart()
     {
-        controller.GetStripped();
+        controller.ego.allStats[0].value = 100;
+        controller.ego.allStats[1].value = 100;
+        controller.ego.equippedWeapon = null;
+        controller.ego.equippedArmor = null;
+        controller.ego.equippedShield = null;
+        controller.ego.blueCrystals = 0;
         controller.interactableItems.inventory.Clear();
-        controller.ego.equippedWeapon = Instantiate(controller.registerObjects.allWeapons[5]);
         controller.npcInteraction.NPCText.text = "";
         StartCoroutine(controller.roomNavigation.FadeAudioIn(interimTheme, .25f));
         List<string> demoDialogue = new List<string>();
-        demoDialogue.Add($"Well, ah. That didn't work out too well for you, did it? He took all your stuff and ran off, too. Kind of the law of the land down here.");
+        demoDialogue.Add($"Well, ah. That didn't work out too well for you, did it?");
+        demoDialogue.Add($"He took all your stuff and ran off, too. Kind of the law of the land down here.");
         demoDialogue.Add($"Take this blade and we'll start over. Almost like restarting a script -- know what I mean?");
         yield return new WaitForSeconds(.5f);
         controller.npcInteraction.npcSpeechComplete = false;
         StartCoroutine(controller.npcInteraction.NPCSpeech(demoDialogue));
         yield return new WaitUntil(controller.npcInteraction.NPCSpeechComplete);
         controller.npcInteraction.npcSpeechComplete = false;
+        controller.ego.equippedWeapon = Instantiate(controller.registerObjects.allWeapons[5]);
         StartCoroutine(Demo());
     }
     IEnumerator Demo()
@@ -606,22 +612,22 @@ public class DemoScript : MonoBehaviour
         if (controller.npcInteraction.genericOptionSelected == 0)
         {
             controller.combat.cursorSelect.Play();
-            badGuyChosen = Instantiate(controller.combat.allBadGuys[0]);
+            badGuyChosen = Instantiate(controller.combat.allBadGuys[1]);
         }
         else if (controller.npcInteraction.genericOptionSelected == 1)
         {
             controller.combat.cursorSelect.Play();
-            badGuyChosen = Instantiate(controller.combat.allBadGuys[1]);
+            badGuyChosen = Instantiate(controller.combat.allBadGuys[2]);
         }
         else if (controller.npcInteraction.genericOptionSelected == 2)
         {
             controller.combat.cursorSelect.Play();
-            badGuyChosen = Instantiate(controller.combat.allBadGuys[2]);
+            badGuyChosen = Instantiate(controller.combat.allBadGuys[3]);
         }
         else if (controller.npcInteraction.genericOptionSelected == 3)
         {
             controller.combat.cursorSelect.Play();
-            badGuyChosen = Instantiate(controller.combat.allBadGuys[3]);
+            badGuyChosen = Instantiate(controller.combat.allBadGuys[4]);
         }
         else { controller.interactableItems.cursorCancel.Play(); }
 
@@ -666,6 +672,8 @@ public class DemoScript : MonoBehaviour
         StartCoroutine(controller.combat.BeginBattle(badGuyChosen, numberChosen));
         demoProceed = false;
         yield return new WaitUntil(DemoProceed);
+        controller.npcInteraction.NPCText.text = "";
+        controller.npcInteraction.ClearOptions();
         demoProceed = false;
         //controller.combat.fightOverWhiteScreen.SetActive(false);
         StartCoroutine(AutomatedSystem());
